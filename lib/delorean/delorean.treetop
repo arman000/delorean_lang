@@ -1,6 +1,8 @@
 grammar Delorean
   rule formula
-    t:type space i:identifier space? '=' space? e:expression <TypedFormula>
+    t:type '?' space i:identifier space? '=' space? d:literal <ParameterDefault>
+    /
+    t:type '?' space i:identifier <Parameter>
     /
     i:identifier space? '=' space? e:expression <Formula>
     /
@@ -32,9 +34,13 @@ grammar Delorean
   end
 
   rule value
-    number / string / boolean / fn / model_fn / getattr
+    literal / fn / model_fn / getattr
     /
     '(' space? e:expression space? ')' <Expr>
+  end
+
+  rule literal
+    number / string / boolean
   end
 
   rule fn
@@ -63,8 +69,6 @@ grammar Delorean
     [A-Z] [a-zA-Z0-9]*
   end
 
-  # FIXME: disallow ruby keywords as identifiers
-
   rule getattr
     i:identifier '.' ga:getattr <GetAttr>
     /
@@ -76,23 +80,63 @@ grammar Delorean
   end
 
   rule decimal
-    [0-9]* '.' [0-9]+ <Decimal>
+    '-'? [0-9]* '.' [0-9]+ <Decimal>
   end
 
   rule integer
-    [0-9]+ <Integer>
+    '-'? [0-9]+ <Integer>
   end
 
   rule identifier
-    [a-zA-Z] [a-zA-Z0-9_]* <Identifier>
+    ruby_keyword [a-zA-Z0-9_]+ <Identifier>
+    /
+    !ruby_keyword [a-zA-Z] [a-zA-Z0-9_]* <Identifier>
   end
 
   rule boolean
-    'true' <Boolean> / 'false' <Boolean> / 'TRUE' <Boolean> / 'FALSE' <Boolean>
+    'true' <Boolean> / 'false' <Boolean>
   end
 
   rule type
     'boolean' / 'integer' / 'decimal' / 'string' / model_name
+  end
+
+  rule ruby_keyword
+    'alias'	/
+    'and'	/
+    'begin' 	/
+    'break'	/
+    'case'	/
+    'class'	/
+    'def'	/
+    'do'	/
+    'else'	/
+    'elsif'	/
+    'end'	/
+    'ensure'	/
+    'false'	/
+    'for'	/
+    'if'	/
+    'in'	/
+    'module'	/
+    'next'	/
+    'nil'	/
+    'not'	/
+    'or'	/
+    'redo'	/
+    'rescue'	/
+    'retry'	/
+    'return'	/
+    'self'	/
+    'super'	/
+    'then'	/
+    'true'	/
+    'undef'	/
+    'unless'	/
+    'until'	/
+    'when'	/
+    'while'	/
+    'yield'
   end
 
   rule string

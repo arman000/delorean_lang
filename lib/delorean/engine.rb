@@ -5,39 +5,19 @@ module Delorean
   SIG = "_sig"
 
   class Context
-    attr_accessor :m, :last_node, :sigmap
+    attr_accessor :m, :last_node
 
     def initialize
       @m = BaseModule.clone
       @last_node = nil
       @node_attrs = {}
-      @sigmap = SigMap.new
-      initialize_sigmap
-    end
-
-    def initialize_sigmap
-      @sigmap.add_map(Delorean::OPFUNCS)
-      builtins = Delorean::BaseModule.methods.map(&:to_s).select {
-        |x| x.end_with?(SIG)
-      }.map {|x| x[0...-SIG.length]}
-
-      bmap = builtins.inject({}) { |d, f|
-        d[f] = Delorean::BaseModule.send("#{f}_sig".to_sym)
-        d
-      }
-
-      @sigmap.add_map(bmap)
-    end
-
-    def get_sig_type(name, sig)
-      @sigmap.get_type(name, sig)
     end
 
     def define_node(name, pname)
-      raise "#{name} already defined" if
+      raise RedefinedError, "#{name} already defined" if
         @m.constants.member? name.to_sym
 
-      raise "#{pname} not defined yet" if
+      raise UndefinedError, "#{pname} not defined yet" if
         pname and !@m.constants.member?(pname.to_sym)
 
       @m.module_eval("class #{name} < #{pname || Object}; end")
@@ -46,41 +26,41 @@ module Delorean
     end
 
     def call_attr(klass, name)
-      prename = "#{PRE}#{name}"
-
-      begin
-        klass.send prename.to_sym
-      rescue NoMethodError
-        TBase
-      end
+      klass.send "#{PRE}#{name}".to_sym
     end
 
     def call_last_node_attr(name)
-      raise "Not inside a node" unless @last_node
+      raise ParseError, "Not inside a node" unless @last_node
 
       klass = m.module_eval(@last_node)
-      call_attr(klass, name)
+      begin
+        call_attr(klass, name)
+      rescue NoMethodError
+        raise UndefinedError, "#{name} not defined in #{@last_node}"
+      end
     end
 
-    def define_attr(name, type)
-      raise "Can't define #{name} outside a node" unless @last_node
-      raise "Can't redefine #{name} in node #{@last_node}" if 
+    def define_attr(name, ptype=nil)
+      raise ParseError, "Can't define '#{name}' outside a node" unless
+        @last_node
+
+      raise RedefinedError, "Can't redefine '#{name}' in node #{@last_node}" if 
         @node_attrs[@last_node].member? name
+
       @node_attrs[@last_node] << name
       
       klass = m.module_eval(@last_node)
 
-      otype = call_attr(klass, name)
-      type = otype unless type
+      begin
+        optype = call_attr(klass, name)
+      rescue NoMethodError
+        optype = ptype
+      end
 
-      # puts 'z'*10, [type, otype].inspect
+      raise OverrideError, "Invalid override of '#{name}'" unless
+        ptype == optype
 
-      raise "Can't redefine #{name} as #{type}; original type was #{otype}" unless
-        (type <= otype) || otype == TBase # FIXME: hack since models aren't derived from TBase
-
-      # puts 'D'*10, "def self.#{PRE}#{name}; #{type}; end"
-
-      klass.class_eval("def self.#{PRE}#{name}; #{type}; end")
+      klass.class_eval("def self.#{PRE}#{name}; #{ptype}; end")
     end
 
     # FIXME: need to be able to support Node.attr access.  Perhaps, we
@@ -88,13 +68,14 @@ module Delorean
     # string by default so that it can be used in models.
 
     def model_class(model_name)
+      puts 'x'*30, model_name
       begin
         klass = m.module_eval(model_name)
       rescue NoMethodError, NameError
-        raise "Can't find model: #{model_name}"
+        raise UndefinedError, "Can't find model: #{model_name}"
       end
 
-      raise "Access to non-model: #{model_name}" unless
+      raise UndefinedError, "Access to non-model: #{model_name}" unless
         klass.instance_of?(Class) && klass < ActiveRecord::Base 
 
       klass
@@ -102,7 +83,7 @@ module Delorean
 
     def model_attr_type(klass, attr)
       col = klass.columns_hash[attr]
-      raise "No such attribute #{attr} on #{klass}" unless col
+      raise UndefinedError, "No such attribute #{attr} on #{klass}" unless col
       # puts '.'*30, col.type.to_s, Delorean.str_type(self, col.type.to_s)
       Delorean.str_type(self, col.type.to_s)
     end
@@ -151,7 +132,7 @@ module Delorean
           eval("throw :x; #{rhs};")
         }
       rescue SyntaxError
-        Delorean.error "syntax error '#{rhs}': #{line_no}"
+        raise ParseError, "syntax error '#{rhs}': #{line_no}"
       end
     end
 
@@ -248,7 +229,7 @@ module Delorean
 
         t = parser.parse(line)
 
-        Delorean.error "syntax error: #{line_no}" if !t
+        raise ParseError, "syntax error: #{line_no}" if !t
 
         t.check(context)
 

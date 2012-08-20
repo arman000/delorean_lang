@@ -2,58 +2,105 @@ require 'pp'
 
 =begin
 
-The following is the list of compile-time checks we perform:
+IMPLEMENTATION
 
-* For any attribute usage, make sure the attribute was previsously
-  defiend in current or parent node. Also, perform type check on
-  attribute usage.
+* for each attr, we define a sister class function attr_info.  This
+  function tells us the list of other attrs used by the attr.  Also,
+  tells us if the attr is a parameter.
 
-* For any function call, verify existance of the function.  Also,
-  verify number and type of arguments as well as type check for return
-  value.  Same needs to be applied to operator usage.  Operators and
-  functions may be overloaded. [FIXME: are we going to have a special
-  syntax for parameters?]
+  node_attrs tell us the direct attrs.  It doesn't tell us about
+  inherited ones.
 
-* For any table function call, verify the existance of given model and
-  a class method with the given name.  The function are named and must
-  match the function's argument signature.  The return type is also
-  defined in the signature of the function.  Class methods can return
-  database model instances.
+* Remove type mechanism
 
-* For any getattr (e.g. a.b.c), the existance of the attribute and its
-  type are checked.  For instance, for the expression a.b, a must be a
-  database type and must have model attribute "b".  The model type for
-  b also defined the type for the expression.
+  get_sig_type
+  initialize_sigmap
+  sigmap
+  Delorean.str_type
+  SigMap.match_call_type
 
-TYPES:
+######################################################################
 
-* nil implies undefined.  nil matches all types.
+IDEA: how about making the language a lot simpler.  Allow params to
+hide attrs and vice-versa.  Treat "nil" as undefined.  Anytime we're
+about to return nil, we instead raise undefined error. 
 
-* Base system types are: decimal, integer, string.
+The user can override any attrs, including those that return nil.  We
+remove any typing altogether. i.e. no typing for params.  Use a
+special notation for nil, e.g. ?.
 
-* Database types all start with caps and map to the database model of
-  the same name.
+Do we still need to define the _attr methods?  Since we're not keeping
+the parent relationships, this is the only way to determine if an attr
+is previsouly defined.
 
-Implementation:
+=end
 
-* As the document is parsed, we generate a class for each node.  Also,
-  for every node attribute defined, we define a method on that class
-  which returns information about the attribute.
+=begin
 
-* The context for compilation is the current node class as well as the
-  entire module which contains all node classes.
+* What does it mean for a parameter to be redefined?  IS it still a
+  parameter?  Can we have defualt values for parameters?  Can deffault
+  values be overwritten?  
 
-* The context also needs to define the set of system functions as well
-  as a way to check for definition of models.
+  -- Parameters are special.  We do not allow them to be overwritten
+     with attribute definitions.  But, we can allow defaults and
+     overwriting of default values with new param definitions.
 
-ISSUES:
+	A:
+	  integer? a = 123 # default
+	B: A
+	  integer? a = 456
 
-* Need to be able to handle nil when dealing with DB objects.
+  -- NOTE: What does it mean if a parameters is used from a parent
+     node?  Need to know what happens both in cases where parameter is
+     provided and where it is not.
 
-* Where can we get node name from?  Perhaps, NAME should be a special
-  attribute.
+	A:
+	  integer? a = 123
+	B: A
+	  b = A.a + 111
 
-* Should not allow true/false to be redefined.
+** Let's define params by their implementation.  Like attributes, each
+   param will have an associated instance variable for its node.  When
+   a node N is called and value V is provided for parameter P, we set
+   instance variable associated with P to V.  This is set on the
+   nearest ancestor node to N which defines P.  
+
+** Why can't we override params with attribute definitions?
+   
+######################################################################
+
+** Restrict parameter defaults to constant values.
+
+** Each node either has a set of attr definitions. An attr can be
+   defined as a parameter.  Each attr may depend on 0 or more local or
+   ancestor attrs.
+
+** To execute a node attr, we pass in a set of parameter values.  For
+   each value, the parameter is set on the node and _all_ ancestors
+   which define the parameter.
+
+** To implement this, any params refer to the original ancestor which
+   defines it.
+
+A:
+  integer? param = 123
+B: A
+  integer? param = 456
+  x = A.param
+C: B
+  integer? param = 789
+D: C
+
+class A
+  def param; 
+    @param || 123
+  end
+end
+
+class B
+  def param; @param || 456; end
+  def x; A.param; end
+end
 
 =end
 
@@ -61,6 +108,24 @@ require 'delorean/types'
 
 module Delorean
   class SNode < Treetop::Runtime::SyntaxNode
+  end
+
+  class Parameter < SNode
+    def check(context)
+      attr, ptype = i.text_value, t.text_value
+
+      context.model_class t.text_value if
+        t.text_value.match(/^[A-Z]/)
+
+      context.define_attr(attr, ptype)
+    end
+
+    def rewrite(context)
+      ""
+    end
+  end
+
+  class ParameterDefault < Parameter
   end
 
   class BaseNode < SNode
@@ -92,19 +157,6 @@ module Delorean
 
     def rewrite(context)
       "def self.#{i.text_value}; " + e.rewrite(context) + "; end"
-    end
-  end
-
-  class TypedFormula < Formula
-    def check(context)
-      attr, type = i.text_value, Delorean.str_type(context, t.text_value)
-
-      # puts 'T'*10, attr, type
-      res_t = e.check(context)
-      raise "type mismatch assigning #{res_t.to_s} to #{type.to_s}" unless
-        res_t <= type
-
-      context.define_attr(attr, type)
     end
   end
 

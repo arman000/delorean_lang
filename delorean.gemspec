@@ -15,5 +15,6 @@ Gem::Specification.new do |gem|
   gem.version       = Delorean::VERSION
 
   gem.add_dependency "treetop"
+  gem.add_dependency "activerecord"
   gem.add_development_dependency "rspec"
 end
