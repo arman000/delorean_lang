@@ -2,15 +2,6 @@ require 'pp'
 
 =begin
 
-IMPLEMENTATION
-
-* for each attr, we define a sister class function attr_info.  This
-  function tells us the list of other attrs used by the attr.  Also,
-  tells us if the attr is a parameter.
-
-  node_attrs tell us the direct attrs.  It doesn't tell us about
-  inherited ones.
-
 * Remove type mechanism
 
   get_sig_type
@@ -18,89 +9,6 @@ IMPLEMENTATION
   sigmap
   Delorean.str_type
   SigMap.match_call_type
-
-######################################################################
-
-IDEA: how about making the language a lot simpler.  Allow params to
-hide attrs and vice-versa.  Treat "nil" as undefined.  Anytime we're
-about to return nil, we instead raise undefined error. 
-
-The user can override any attrs, including those that return nil.  We
-remove any typing altogether. i.e. no typing for params.  Use a
-special notation for nil, e.g. ?.
-
-Do we still need to define the _attr methods?  Since we're not keeping
-the parent relationships, this is the only way to determine if an attr
-is previsouly defined.
-
-=end
-
-=begin
-
-* What does it mean for a parameter to be redefined?  IS it still a
-  parameter?  Can we have defualt values for parameters?  Can deffault
-  values be overwritten?  
-
-  -- Parameters are special.  We do not allow them to be overwritten
-     with attribute definitions.  But, we can allow defaults and
-     overwriting of default values with new param definitions.
-
-	A:
-	  integer? a = 123 # default
-	B: A
-	  integer? a = 456
-
-  -- NOTE: What does it mean if a parameters is used from a parent
-     node?  Need to know what happens both in cases where parameter is
-     provided and where it is not.
-
-	A:
-	  integer? a = 123
-	B: A
-	  b = A.a + 111
-
-** Let's define params by their implementation.  Like attributes, each
-   param will have an associated instance variable for its node.  When
-   a node N is called and value V is provided for parameter P, we set
-   instance variable associated with P to V.  This is set on the
-   nearest ancestor node to N which defines P.  
-
-** Why can't we override params with attribute definitions?
-   
-######################################################################
-
-** Restrict parameter defaults to constant values.
-
-** Each node either has a set of attr definitions. An attr can be
-   defined as a parameter.  Each attr may depend on 0 or more local or
-   ancestor attrs.
-
-** To execute a node attr, we pass in a set of parameter values.  For
-   each value, the parameter is set on the node and _all_ ancestors
-   which define the parameter.
-
-** To implement this, any params refer to the original ancestor which
-   defines it.
-
-A:
-  integer? param = 123
-B: A
-  integer? param = 456
-  x = A.param
-C: B
-  integer? param = 789
-D: C
-
-class A
-  def param; 
-    @param || 123
-  end
-end
-
-class B
-  def param; @param || 456; end
-  def x; A.param; end
-end
 
 =end
 
@@ -112,12 +20,7 @@ module Delorean
 
   class Parameter < SNode
     def check(context)
-      attr, ptype = i.text_value, t.text_value
-
-      context.model_class t.text_value if
-        t.text_value.match(/^[A-Z]/)
-
-      context.define_attr(attr, ptype)
+      context.define_attr(i.text_value, {})
     end
 
     def rewrite(context)
@@ -126,6 +29,14 @@ module Delorean
   end
 
   class ParameterDefault < Parameter
+    def check(context)
+      spec = e.check(context)
+      context.define_attr(i.text_value, spec)
+    end
+
+    def rewrite(context)
+      ""
+    end
   end
 
   class BaseNode < SNode
@@ -151,8 +62,8 @@ module Delorean
   class Formula < SNode
     def check(context)
       # puts '>'*10, i.text_value
-      e.check(context)
-      context.define_attr(i.text_value, nil)
+      res = e.check(context)
+      context.define_attr(i.text_value, res)
     end
 
     def rewrite(context)
@@ -173,8 +84,7 @@ module Delorean
   class UnOp < SNode
     def check(context)
       # puts 'u'*20, op.text_value
-      res_t = e.check(context)
-      return context.get_sig_type(op.text_value, [res_t])
+      e.check(context)
     end
 
     def rewrite(context)
@@ -185,9 +95,9 @@ module Delorean
   class BinOp < SNode
     def check(context)
       # puts 'o'*20, op.text_value
-      vtype = v.check(context)
-      etype = e.check(context)
-      return context.get_sig_type(op.text_value, [vtype, etype])
+      vc = v.check(context)
+      ec = e.check(context)
+      ec.merge(vc)
     end
 
     def rewrite(context)
@@ -197,7 +107,7 @@ module Delorean
 
   class Integer < SNode
     def check(context)
-      TInteger
+      {}
     end
 
     def rewrite(context)
@@ -207,7 +117,7 @@ module Delorean
 
   class String < SNode
     def check(context)
-      TString
+      {}
     end
 
     def rewrite(context)
@@ -217,7 +127,7 @@ module Delorean
 
   class Decimal < SNode
     def check(context)
-      TDecimal
+      {}
     end
 
     def rewrite(context)
@@ -227,7 +137,7 @@ module Delorean
 
   class Boolean < SNode
     def check(context)
-      TBoolean
+      {}
     end
 
     def rewrite(context)
@@ -238,7 +148,7 @@ module Delorean
   class Identifier < SNode
     def check(context)
       res = context.call_last_node_attr(text_value)
-      # puts '-'*10, [text_value, res].inspect
+      puts 'c'*10, [text_value, res].inspect
       res
     end
 
@@ -312,10 +222,10 @@ module Delorean
 
   class IfElse < SNode
     def check(context)
-      vtype = v.check(context)
-      e1type = e1.check(context)
-      e2type = e2.check(context)
-      return context.get_sig_type('?:', [vtype, e1type, e2type])
+      vc = v.check(context)
+      e1c = e1.check(context)
+      e2c = e2.check(context)
+      vc.merge(e1c).merge(e2c)
     end
 
     def rewrite(context)

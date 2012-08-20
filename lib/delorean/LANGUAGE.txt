@@ -1,0 +1,82 @@
+* We have a set of nodes.  Each node can be derived from another
+  node.  i.e. a derived node is a subclass.
+
+* Each node has one or more attributes definitions.  On a given node,
+  an attribute can not be defiend more than once.
+
+* Attributes are inherited by derived nodes.
+
+* Attribute definitions are expressions which may use other
+  attributes.  Any attributes used in such an expression must have
+  been previously defined on the node or its ancestors.
+
+* Attributes may be defined as parameters.  e.g.
+
+  A: 
+    a = ?
+    b = a*2
+
+  When attributes are parameters (undefined), then we look them up in
+  the paramters hash on execution.
+
+* A set of attributes on a given node can be executed.  The user can
+  provide a set of attribute values as parameters. e.g. in the above
+  example, the user can evaluate [A.b] and provide params {a: 123}.  The
+  result will be {A.b: 246}.
+
+* Expressions may refer to attribute values on ancestor nodes.  e.g.
+
+  A:
+    a = 123
+  B: A
+    a = 111
+    b = A.a * 2
+
+  In the above example, evaluation of [B.a, B.b] will result in 
+  {B.b: 246, B.a: 123}
+
+* We have a concept of default values for parameters. 
+
+  A:
+    a = 123
+    b =? a * 3
+
+  In the above, b is defined as a parameter with default a * 3.  If
+  "b" is passed in we use it, otherwise we evaluate it as a*3.
+  i.e. the parameter hash takes precedence.
+
+* Attributes can override parameters
+ 
+  A:
+    a = ?
+  B: A
+    a = 111
+    b = A.a * 2
+
+  Compute [B.a, B.b] given params {a: 123} =>  {B.a: 111, B.b: 246}
+
+######################################################################
+	IDEAS
+######################################################################
+
+* When looking up undefined values, we can look into the global
+  parameter dictionary.  This allows evaluation of unrelated nodes as
+  well.
+
+  A:
+    a = ?
+  B: A
+    a = 111
+    b = A.a * 2
+  C:
+    a = ?
+    c = a*3
+ 
+  In the above example, [B.a, B.b. C.c] given params {a: 123} results
+  in {B.a: 123, B.b: 246, C.c 369}
+
+######################################################################
+	ISSUES
+######################################################################
+
+

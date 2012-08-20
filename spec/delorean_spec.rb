@@ -13,17 +13,11 @@ describe "Delorean" do
     Delorean::Engine.new
   }
 
-  it "gives errors for unknown ActiveRecord param types" do
-    lambda {
-      engine.parse defn("A:",
-                        "  Mummy? b",
-                        )
-    }.should raise_error(Delorean::UndefinedError)
-  end
-
   it "can parse simple expressions - 1" do
     engine.parse defn("A:",
-                      "  b = a * -a / a",
+                      "  a = 123",
+                      "  x = -(a*2)",
+                      # "  b = -(a + 1)",
                       )
   end
 
@@ -35,17 +29,19 @@ describe "Delorean" do
 
   it "can parse params" do
     engine.parse defn("A:",
-                      "  integer? a",
-                      "  Dummy? b",
+                      "  a = ?",
+                      "  b =? a*2",
                       )
   end
 
-  it "gives errors for unknown param types" do
+  it "should accept default param definitions" do
     lambda {
       engine.parse defn("A:",
-                        "  junk? b",
+                        "  b =? 1",
+                        "  c =? -1.1",
+                        "  d = b + c",
                         )
-    }.should raise_error(Delorean::ParseError)
+    }.should_not raise_error
   end
 
   it "gives errors with attrs not in node" do
@@ -76,7 +72,14 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("B:",
-                        "  integer? b",
+                        "  b = ?",
+                        "  b = 123",
+                        )
+    }.should raise_error(Delorean::RedefinedError)
+
+    lambda {
+      engine.parse defn("B:",
+                        "  b =? 22",
                         "  b = 123",
                         )
     }.should raise_error(Delorean::RedefinedError)
@@ -85,7 +88,7 @@ describe "Delorean" do
   it "should raise error for nodes defined more than once" do
     lambda {
       engine.parse defn("B:",
-                        "  integer? b",
+                        "  b = ?",
                         "B:",
                         )
     }.should raise_error(Delorean::RedefinedError)
@@ -171,24 +174,6 @@ describe "Delorean" do
 
   it "should be able to override parameters with attribute definitions" do
     pending
-  end
-
-  it "should reject dup param definitions in same node" do
-    lambda {
-      engine.parse defn("A:",
-                        "  integer? a",
-                        "  integer? a",
-                        )
-    }.should raise_error(Delorean::RedefinedError)
-  end
-
-  it "should accept default param definitions" do
-    lambda {
-      engine.parse defn("A:",
-                        "  integer? b = 1",
-                        "  decimal? c = -1.1",
-                        )
-    }.should_not raise_error
   end
 
   it "should be able to get attr on ActiveRecord objects using a.b syntax" do

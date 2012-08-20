@@ -1,8 +1,8 @@
 grammar Delorean
   rule formula
-    t:type '?' space i:identifier space? '=' space? d:literal <ParameterDefault>
+    i:identifier space? '=' space '?' <Parameter>
     /
-    t:type '?' space i:identifier <Parameter>
+    i:identifier space? '=?' space? e:expression <ParameterDefault>
     /
     i:identifier space? '=' space? e:expression <Formula>
     /
@@ -34,13 +34,9 @@ grammar Delorean
   end
 
   rule value
-    literal / fn / model_fn / getattr
+    number / string / boolean / fn / model_fn / getattr
     /
     '(' space? e:expression space? ')' <Expr>
-  end
-
-  rule literal
-    number / string / boolean
   end
 
   rule fn
@@ -80,11 +76,11 @@ grammar Delorean
   end
 
   rule decimal
-    '-'? [0-9]* '.' [0-9]+ <Decimal>
+    [0-9]* '.' [0-9]+ <Decimal>
   end
 
   rule integer
-    '-'? [0-9]+ <Integer>
+    [0-9]+ <Integer>
   end
 
   rule identifier
@@ -95,10 +91,6 @@ grammar Delorean
 
   rule boolean
     'true' <Boolean> / 'false' <Boolean>
-  end
-
-  rule type
-    'boolean' / 'integer' / 'decimal' / 'string' / model_name
   end
 
   rule ruby_keyword

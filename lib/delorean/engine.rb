@@ -40,7 +40,7 @@ module Delorean
       end
     end
 
-    def define_attr(name, ptype=nil)
+    def define_attr(name, spec)
       raise ParseError, "Can't define '#{name}' outside a node" unless
         @last_node
 
@@ -51,21 +51,8 @@ module Delorean
       
       klass = m.module_eval(@last_node)
 
-      begin
-        optype = call_attr(klass, name)
-      rescue NoMethodError
-        optype = ptype
-      end
-
-      raise OverrideError, "Invalid override of '#{name}'" unless
-        ptype == optype
-
-      klass.class_eval("def self.#{PRE}#{name}; #{ptype}; end")
+      klass.class_eval("def self.#{PRE}#{name}; #{spec}; end")
     end
-
-    # FIXME: need to be able to support Node.attr access.  Perhaps, we
-    # need a 'node' type?  Need to define Node.name attribute as a
-    # string by default so that it can be used in models.
 
     def model_class(model_name)
       puts 'x'*30, model_name
