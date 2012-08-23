@@ -1,10 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-class Dummy < ActiveRecord::Base
+class Dummy2 < ActiveRecord::Base
   def self.call_me_maybe(*a)
-    res = a.inject(0, :+)
-    puts 'r-'*80, res
-    res
+    a.inject(0, :+)
   end
 
   CALL_ME_MAYBE_SIG = [0, Float::INFINITY]
@@ -138,7 +136,7 @@ describe "Delorean" do
 
   it "should be able to call class methods on ActiveRecord classes" do
     c = engine.parse defn("A:",
-                          "  b = Dummy.call_me_maybe(1, 2, 3, 4)",
+                          "  b = Dummy2.call_me_maybe(1, 2, 3, 4)",
                           )
     r = engine.evaluate(c, "A", "b")
     r.should == 10

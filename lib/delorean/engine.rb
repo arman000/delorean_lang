@@ -153,7 +153,6 @@ module Delorean
         puts '+'*30, rew.inspect
 
         context.m.module_eval(rew)
-
       end
 
      context

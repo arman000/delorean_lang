@@ -1,11 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-class Dummy < ActiveRecord::Base
+class Dummy1 < ActiveRecord::Base
   def self.call_me_maybe(*a)
     a.inspect
   end
 
   CALL_ME_MAYBE_SIG = [0, Float::INFINITY]
+
+  def self.hey_this_is_crazy
+  end
 end
 
 describe "Delorean" do
@@ -209,8 +212,16 @@ describe "Delorean" do
 
   it "should be able to call class methods on ActiveRecord classes" do
     engine.parse defn("A:",
-                      "  b = Dummy.call_me_maybe()",
+                      "  b = Dummy1.call_me_maybe()",
                       )
+  end
+
+  it "shouldn't be able to call ActiveRecord methods without signature" do
+    lambda {
+      engine.parse defn("A:",
+                        "  b = Dummy1.hey_this_is_crazy()",
+                        )
+    }.should raise_error(Delorean::UndefinedFunctionError)
   end
 
   it "should be able to override parameters with attribute definitions" do
