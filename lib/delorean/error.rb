@@ -13,7 +13,18 @@ module Delorean
   class RedefinedError < StandardError
   end
 
-  class NeedsParamError < StandardError
+  class UndefinedParamError < StandardError
   end
 
+  class UndefinedNodeError < StandardError
+  end
+
+  class UndefinedFunctionError < StandardError
+  end
+
+  class BadCallError < StandardError
+  end
+
+  class InvalidGetAttribute < StandardError
+  end
 end

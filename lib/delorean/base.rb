@@ -1,47 +1,46 @@
 require 'delorean/functions'
-require 'delorean/types'
 
 module Delorean
   module BaseModule
 
-    ######################################################################
+    class BaseClass
 
-    def self.MAX(*args)
-      args.max
+      # Using extend and include to get both constants and methods.
+      # Not sure if how to do this only with extend.
+      extend Delorean::Functions
+      include Delorean::Functions
+
+      ######################################################################
+
+      def self._get_attr(obj, attr)
+        if obj.instance_of? ActiveRecord::Base
+          return obj.get(attr) if obj.class.columns_hash.key? attr
+          raise InvalidGetAttribute, "bad attribute lookup #{attr} on #{obj}"
+        elsif obj.instance_of?(Class) && obj < BaseClass
+          # FIXME: do something
+          puts 'X'*30
+        end
+
+        raise InvalidGetAttribute, "bad attribute lookup #{attr} on #{obj}"
+      end
+
+      ######################################################################
+
+      def self._get_param(name)
+        PARAMS[name]
+      end
+
+      def self._fetch_param(name)
+        begin
+          PARAMS.fetch(name)
+        rescue KeyError
+          raise UndefinedParamError, "undefined parameter #{name}"
+        end
+      end
+
+      ######################################################################
+
     end
-
-    def self.MAX_sig
-      [
-       FuncDef.new(TInteger..TInteger, TInteger),
-       FuncDef.new(TDecimal..TDecimal, TDecimal),
-      ]
-    end
-
-    ######################################################################
-
-    def self.MIN(*args)
-      args.min
-    end
-
-    def self.MIN_sig
-      self.MAX_sig
-    end
-
-    ######################################################################
-
-    def self.ROUND(number, *args)
-      number.round(*args)
-    end
-
-    def self.ROUND_sig
-      [
-       FuncDef.new([TNumber], TDecimal),
-       FuncDef.new([TNumber, TInteger], TDecimal),
-      ]
-    end
-
-    ######################################################################
-
   end
 end
  

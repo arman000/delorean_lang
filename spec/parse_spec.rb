@@ -1,10 +1,11 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-def defn(*l)
-  l.join("\n") + "\n"
-end
-
 class Dummy < ActiveRecord::Base
+  def self.call_me_maybe(*a)
+    a.inspect
+  end
+
+  CALL_ME_MAYBE_SIG = [0, Float::INFINITY]
 end
 
 describe "Delorean" do
@@ -52,13 +53,64 @@ describe "Delorean" do
     }.should raise_error(Delorean::ParseError)
   end
 
+  it "should disallow bad attr names" do
+    lambda {
+      engine.parse defn("A:",
+                        "  B = 1",
+                        )
+    }.should raise_error(Delorean::ParseError)
+
+    lambda {
+      engine.parse defn("A:",
+                        "  _b = 1",
+                        )
+    }.should raise_error(Delorean::ParseError)
+
+  end
+
+  it "should disallow bad node names" do
+    lambda {
+      engine.parse defn("a:",
+                        )
+    }.should raise_error(Delorean::ParseError)
+
+    lambda {
+      engine.parse defn("_A:",
+                        )
+    }.should raise_error(Delorean::ParseError)
+  end
+
   it "should disallow recursion" do
-    # test for a = a + 1
+    lambda {
+      engine.parse defn("A:",
+                        "  a = 1",
+                        "B: A",
+                        "  a = a + 1",
+                        )
+    }.should raise_error(Delorean::RecursionError)
 
-    # also test for a = b; b = a;
+    lambda {
+      engine.parse defn("A:",
+                        "  a = 1",
+                        "  b = 2",
+                        "B: A",
+                        "  a = b * b",
+                        "  b = a + a",
+                        )
+    }.should raise_error(Delorean::RecursionError)
 
-    # inter-module recursion shouldn't happen since we won't allow
-    # recursive "require".
+    # this is not a recursion error
+    engine.parse defn("A:",
+                      "  a = 1",
+                      "  b = 2",
+                      "B: A",
+                      "  a = A.b * A.a",
+                      "  b = A.b + a",
+                      )
+  end
+
+  it "should check for inter-module recusion" do
+    # does this even happen?
     pending
   end
 
@@ -147,15 +199,6 @@ describe "Delorean" do
     }.should raise_error(Delorean::ParseError)
   end
 
-  it "should cache attr results and reuse them" do
-    # can probably test this using the call to a Dummy class method???
-    pending
-  end
-
-  it "should handle operator precedence properly" do
-    pending
-  end
-
   it "should be able to call other modules with named params" do
     # what's the syntax
 
@@ -164,16 +207,20 @@ describe "Delorean" do
     pending
   end
 
-  it "should be able to call class methods on ???special??? ActiveRecord classes" do
-    pending
-  end
-
-  it "should be able to set default values for parameters" do
-    pending
+  it "should be able to call class methods on ActiveRecord classes" do
+    engine.parse defn("A:",
+                      "  b = Dummy.call_me_maybe()",
+                      )
   end
 
   it "should be able to override parameters with attribute definitions" do
-    pending
+    engine.parse defn("A:",
+                      "  b =? 22",
+                      "B: A",
+                      "  b = 123",
+                      "C: B",
+                      "  b =? 11",
+                      )
   end
 
   it "should be able to get attr on ActiveRecord objects using a.b syntax" do
@@ -198,6 +245,63 @@ describe "Delorean" do
     pending
   end
 
-  
+  it "should be able to access derived attrs" do
+    engine.parse defn("A:",
+                      "  b =? 22",
+                      "B: A",
+                      "  c = b * 123",
+                      "C: B",
+                      "  d =? c * b + 11",
+                      )
+  end
+
+  it "should not be able to access attrs not defined in ancestors" do
+    lambda {
+      engine.parse defn("A:",
+                        "  b =? 22",
+                        "B: A",
+                        "  c = b * 123",
+                        "C: A",
+                        "  d =? c * b + 11",
+                        )
+    }.should raise_error(Delorean::UndefinedError)
+  end
+
+  it "should be able to access specific node attrs " do
+    engine.parse defn("A:",
+                      "  b = 123",
+                      "B: A",
+                      "  b = 111",
+                      "  c = A.b * 123",
+                      )
+
+    # # FIXME: how do we distinguish between our Delorean nodes/modules
+    # # vs ActiveRecord function calls??
+
+    # v = module_name::node_name.fn(args_list)
+
+    # # inter module node/attr call.
+    # n = module_name::node_name(keyword_args)
+    # v = n.attr1
+
+    # # implement a getattr.  If the operand is a module node, we call
+    # # it.  If it's an ActiveRecord object, then we get the attr
+    # # subject to permissions.
+
+  end
+
+  it "should be able to perform arbitrary getattr" do
+    engine.parse defn("A:",
+                      "  b = 22",
+                      "  c = b.x.y.z",
+                      )
+
+    lambda {
+      engine.parse defn("A:",
+                        "  c = b.x.y.z",
+                        )
+    }.should raise_error(Delorean::UndefinedError)
+
+  end
 
 end

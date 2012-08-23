@@ -20,24 +20,24 @@ module Delorean
       raise UndefinedError, "#{pname} not defined yet" if
         pname and !@m.constants.member?(pname.to_sym)
 
-      @m.module_eval("class #{name} < #{pname || Object}; end")
+      @m.module_eval("class #{name} < #{pname || 'BaseClass'}; end")
       @last_node = name
       @node_attrs[name] = []
     end
 
-    def call_attr(klass, name)
-      klass.send "#{PRE}#{name}".to_sym
+    def call_attr(node_name, attr_name)
+      klass = m.module_eval(node_name)
+
+      begin
+        klass.send "#{PRE}#{attr_name}".to_sym
+      rescue NoMethodError
+        raise UndefinedError, "#{attr_name} not defined in #{@node_name}"
+      end
     end
 
-    def call_last_node_attr(name)
+    def call_last_node_attr(attr_name)
       raise ParseError, "Not inside a node" unless @last_node
-
-      klass = m.module_eval(@last_node)
-      begin
-        call_attr(klass, name)
-      rescue NoMethodError
-        raise UndefinedError, "#{name} not defined in #{@last_node}"
-      end
+      call_attr(@last_node, attr_name)
     end
 
     def define_attr(name, spec)
@@ -75,27 +75,24 @@ module Delorean
       Delorean.str_type(self, col.type.to_s)
     end
 
-    def model_fn_type(model_name, fn, arg_types)
-      klass = model_class(model_name)
-      methods = klass.methods
+    def check_call_fn(fn, argcount, model_name=nil)
+      klass = model_name ? model_class(model_name) : (m::BaseClass)
 
-      raise "function #{model_name}.#{fn} not found" unless
-        methods.member? fn.to_sym
+      raise UndefinedFunctionError, "Function #{fn} not found" unless
+        klass.methods.member? fn.to_sym
 
-      raise "Signature #{model_name}.#{fn}#{SIG} not found" unless
-        methods.member? "#{fn}#{SIG}".to_sym
-      
-      args, res_type = klass.send "#{fn}#{SIG}".to_sym
+      sig = "#{fn}#{SIG}".upcase.to_sym
 
-      args_t = args.map { |a| Delorean.str_type(self, a) }
-      res_t  = Delorean.str_type(self, res_type)
+      raise UndefinedFunctionError, "Signature #{sig} not found" unless
+        klass.constants.member? sig
 
-      raise "Incorrect signature #{arg_types} when calling #{model_name}.#{fn}" unless
-        SigMap.match_call_type(args_t, arg_types)
+      min, max = klass.const_get(sig)
 
-      # puts 'r'*30, res_t.inspect
+      raise BadCallError, "Too many arguments to #{fn} (#{argcount} > #{max})" if
+        argcount > max
 
-      return res_t
+      raise BadCallError, "Too few arguments to #{fn} (#{argcount} < #{min})" if
+        argcount < min
     end
 
   end
@@ -150,51 +147,15 @@ module Delorean
       @nodes, @node_names = {}, []
     end
 
-    def materialize_attr(klass, attr)
-      klass.class_eval("def self.#{attr.name}; #{attr.rhs}; end")
-    end
-
-    def materialize
-      @node_names.each { |name|
-        node = @nodes[name]
-        EvalModule.module_eval("class #{node.name} < #{node.parent || Object}; end")
-        node.attr_list.each { |attr|
-          materialize_attr(eval("EvalModule::#{node.name}"), attr)
-        }
-      }
-    end
-
-    def node_attr_list(name)
-      cname = name
-      methods = []
-
-      while cname do 
-        node = @nodes[cname]
-        methods << node.attr_list.reverse.map(&:name)
-        cname = node.parent
+    def evaluate(context, node, attr, params={})
+      context.m::BaseClass.const_set("PARAMS", params)
+      begin
+        klass = context.m.module_eval(node)
+      rescue NameError
+        raise UndefinedNodeError, "node #{node} is undefined"
       end
-      
-      # Assumes that order of the list is not changed by uniq
-      methods = methods.flatten.uniq
-    end
 
-    def evaluate(name, args=[])
-      # dup of class to evaluate.  Its methods may be modified with the
-      # args passed in.
-      klass = eval("EvalModule::#{name}").dup
-      eval("#{name} = klass")
-      methods = self.node_attr_list(name)
-
-      # puts 'E'*10, args.inspect
-
-      args.each{ |arg|
-        materialize_attr(klass, Attr.parse(" " + arg, "args"))
-      }
-
-      methods.inject({}) { |m, method|
-        m[method] = klass.send method.to_sym
-        m
-      }
+      klass.send attr.to_sym
     end
 
     def parse(source)
@@ -220,30 +181,12 @@ module Delorean
 
         t.check(context)
 
-        puts '+'*30, t.rewrite(context)
+        rew = t.rewrite(context)
 
-        # m = line.match(/^(#{NODENAME_PAT})\s*:\s*(|#{NODENAME_PAT})\s*$/)
+        puts '+'*30, rew.inspect
 
-        # if m
-        #   lhs, rhs = m[1], m[2]
+        context.m.module_eval(rew)
 
-        #   rhs = nil if rhs and rhs.length<1
-
-        #   current_node = Node.new(lhs, rhs, line_no)
-
-        #   Delorean.error "can't redefine node #{name}: #{line_no}" if
-        #     @nodes.key?(current_node.name)
-
-        #   parent, name = current_node.parent, current_node.name
-        #   Delorean.error "no parent node #{parent}: #{line_no}" if
-        #     parent && !@nodes.key?(parent)
-
-        #   @nodes[name] = current_node
-        #   @node_names << name
-        # else
-        #   Delorean.error "not in node: #{line_no}" if !current_node
-        #   current_node.add_attr Attr.parse(line, line_no)
-        # end
       end
 
      context

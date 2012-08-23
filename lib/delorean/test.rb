@@ -157,3 +157,37 @@ require 'delorean'
 e=Delorean::Engine.new
 c=e.parse(source)
 
+######################################################################
+
+# irb
+
+load 'spec/spec_helper.rb'
+
+m = Delorean::BaseModule.clone
+m.module_eval("class A < BaseClass; def self.f(); _fetch_param('a'); end; end;")
+m.module_eval("class B < BaseClass; end;")
+
+m::BaseClass.const_set("PARAMS", {"a" => 123})
+m.module_eval("A.f")
+
+######################################################################
+
+load 'spec/spec_helper.rb'
+e = Delorean::Engine.new
+c = e.parse("")
+c.m.module_eval "class B < BaseClass; end"
+c.m.module_eval "class A < BaseClass; end"
+
+c = e.parse("A:")
+
+######################################################################
+
+load 'spec/spec_helper.rb'
+e = Delorean::Engine.new
+c = e.parse("")
+c.m.module_eval "class A; def self.a; MAX(1, 2, 3); end; end;"
+
+c.m.module_eval "A.a"
+
+load 'spec/spec_helper.rb'
+Delorean::BaseModule::X.a

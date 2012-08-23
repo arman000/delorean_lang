@@ -12,8 +12,6 @@ require 'pp'
 
 =end
 
-require 'delorean/types'
-
 module Delorean
   class SNode < Treetop::Runtime::SyntaxNode
   end
@@ -22,9 +20,9 @@ module Delorean
     def check(context)
       context.define_attr(i.text_value, {})
     end
-
     def rewrite(context)
-      ""
+      "class #{context.last_node}; " +
+        "def self.#{i.text_value}; self._fetch_param('#{i.text_value}'); end; end;"
     end
   end
 
@@ -35,7 +33,9 @@ module Delorean
     end
 
     def rewrite(context)
-      ""
+      "class #{context.last_node}; " +
+        "def self.#{i.text_value}; self._get_param('#{i.text_value}') || (" +
+        e.rewrite(context) + "); end; end;"
     end
   end
 
@@ -45,7 +45,8 @@ module Delorean
     end
 
     def rewrite(context)
-      "class #{n.text_value}"
+      # nodes are already defined in define_node
+      ""
     end
   end
 
@@ -55,7 +56,8 @@ module Delorean
     end
 
     def rewrite(context)
-      "class #{n.text_value} < #{p.text_value}"
+      # nodes are already defined in define_node
+      ""
     end
   end
 
@@ -67,7 +69,8 @@ module Delorean
     end
 
     def rewrite(context)
-      "def self.#{i.text_value}; " + e.rewrite(context) + "; end"
+      "class #{context.last_node}; " +
+        "def self.#{i.text_value}; " + e.rewrite(context) + "; end; end;"
     end
   end
 
@@ -157,17 +160,9 @@ module Delorean
     end
   end
 
-  class GetAttr < SNode
+  class NodeGetAttr < SNode
     def check(context)
-      # puts 'A'*30
-      itype = i.check(context)
-      # puts 'd'*10, ga, ga.text_value.inspect
-      attr_list = ga.text_value.split('.')
-
-      attr_list.each { |a|
-        itype = context.model_attr_type(itype, ga.text_value)
-      }
-      return itype
+      context.call_attr(n.text_value, i.text_value)
     end
 
     def rewrite(context)
@@ -175,12 +170,24 @@ module Delorean
     end
   end
 
+  class GetAttr < SNode
+    def check(context)
+      i.check(context)
+    end
+
+    def rewrite(context)
+      attr_list = ga.text_value.split('.')
+      attr_list.inject(i.text_value) {|x, y| "_get_attr(#{x}, '#{y}')"}
+    end
+  end
+
   class Fn < SNode
     def check(context)
-      arg_types = defined?(args) ? args.check(context) : []
-      # puts 'f'*10, fn, text_value
-      # puts 'a'*10, arg_types
-      context.get_sig_type(fn.text_value, arg_types)
+      res = defined?(args) ? args.check(context) : {}
+      puts 'f'*10, fn, text_value
+      puts 'a'*10, args, res
+      context.check_call_fn(fn.text_value, res.length)
+      res
     end
 
     def rewrite(context)
@@ -189,15 +196,15 @@ module Delorean
   end
 
   class FnArgs < SNode
-    def check(context)
+    def check(context, index=0)
       # puts 'ar'*10, context, arg0, text_value
 
       if defined? args_rest.args
         # puts '.'*10, args_rest.args
-        [arg0.check(context)] + args_rest.args.check(context)
+
+        {index => arg0.check(context)}.merge(args_rest.args.check(context, index+1))
       else
-        # puts 'u'*20
-        [arg0.check(context)]
+        {index => arg0.check(context)}
       end
     end
 
@@ -209,9 +216,9 @@ module Delorean
 
   class ModelFn < SNode
     def check(context)
-      arg_types = defined?(args) ? args.check(context) : []
-      # puts 'm'*10, arg_types.inspect, m.text_value, fn.text_value
-      context.model_fn_type(m.text_value, fn.text_value, arg_types)
+      res = defined?(args) ? args.check(context) : {}
+      context.check_call_fn(fn.text_value, res.length, m.text_value)
+      return res
     end
 
     def rewrite(context)

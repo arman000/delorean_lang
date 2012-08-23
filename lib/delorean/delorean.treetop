@@ -33,16 +33,16 @@ grammar Delorean
     '!' / '-'
   end
 
-  rule value
-    number / string / boolean / fn / model_fn / getattr
+ rule value
+    number / string / boolean / fn / model_fn / node_getattr / getattr
     /
     '(' space? e:expression space? ')' <Expr>
   end
 
   rule fn
-    fn:identifier '(' space? ')' <Fn>
+    fn:fn_name '(' space? ')' <Fn>
     /
-    fn:identifier '(' space? args:fn_args space? ')' <Fn>
+    fn:fn_name '(' space? args:fn_args space? ')' <Fn>
   end
 
   rule fn_args
@@ -61,8 +61,16 @@ grammar Delorean
     class_name '::' model_name
   end
 
+  rule fn_name
+    [A-Z] [A-Z0-9]*
+  end
+
   rule class_name
     [A-Z] [a-zA-Z0-9]*
+  end
+
+  rule node_getattr
+    n:node_name '.' i:identifier <NodeGetAttr>
   end
 
   rule getattr
@@ -86,7 +94,7 @@ grammar Delorean
   rule identifier
     ruby_keyword [a-zA-Z0-9_]+ <Identifier>
     /
-    !ruby_keyword [a-zA-Z] [a-zA-Z0-9_]* <Identifier>
+    !ruby_keyword [a-z] [a-zA-Z0-9_]* <Identifier>
   end
 
   rule boolean
