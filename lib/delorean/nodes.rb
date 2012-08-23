@@ -1,17 +1,5 @@
 require 'pp'
 
-=begin
-
-* Remove type mechanism
-
-  get_sig_type
-  initialize_sigmap
-  sigmap
-  Delorean.str_type
-  SigMap.match_call_type
-
-=end
-
 module Delorean
   class SNode < Treetop::Runtime::SyntaxNode
   end

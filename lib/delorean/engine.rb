@@ -68,13 +68,6 @@ module Delorean
       klass
     end
 
-    def model_attr_type(klass, attr)
-      col = klass.columns_hash[attr]
-      raise UndefinedError, "No such attribute #{attr} on #{klass}" unless col
-      # puts '.'*30, col.type.to_s, Delorean.str_type(self, col.type.to_s)
-      Delorean.str_type(self, col.type.to_s)
-    end
-
     def check_call_fn(fn, argcount, model_name=nil)
       klass = model_name ? model_class(model_name) : (m::BaseClass)
 
@@ -100,32 +93,6 @@ module Delorean
   def self.error(str)
     $stderr.puts str
     raise "ERROR"
-  end
-
-  class Attr
-    attr_accessor :name, :type, :rhs
-
-    def initialize(type, name, rhs, line_no)
-      @name, @rhs = name, rhs
-      @type = type if type.length>0
-
-      # check rhs syntax without evaluating it
-      begin
-        catch(:x) {
-          # puts '>'*30, rhs
-          eval("throw :x; #{rhs};")
-        }
-      rescue SyntaxError
-        raise ParseError, "syntax error '#{rhs}': #{line_no}"
-      end
-    end
-
-    def self.parse(line, line_no)
-      # puts 'L'*30, line.inspect
-      m = line.match(/^\s+(|.+\s+)(#{ATTRNAME_PAT})\s*=(.+)$/)
-      Delorean.error "bad attr syntax: #{line_no}" if !m
-      new(m[1].strip, m[2].strip, m[3].strip, line_no)
-    end
   end
 
   class Node
