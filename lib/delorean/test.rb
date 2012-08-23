@@ -191,3 +191,22 @@ c.m.module_eval "A.a"
 
 load 'spec/spec_helper.rb'
 Delorean::BaseModule::X.a
+
+######################################################################
+
+load 'spec/spec_helper.rb'
+
+ActiveRecord::Migration.create_table :dummy2s do |t|
+  t.string :name
+  t.timestamps
+end
+
+class Dummy2 < ActiveRecord::Base
+end
+
+Dummy2.attribute_names
+
+######################################################################
+
+load 'spec/spec_helper.rb'
+d = Dummy.i_just_met_you

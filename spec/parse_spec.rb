@@ -1,16 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-class Dummy1 < ActiveRecord::Base
-  def self.call_me_maybe(*a)
-    a.inspect
-  end
-
-  CALL_ME_MAYBE_SIG = [0, Float::INFINITY]
-
-  def self.hey_this_is_crazy
-  end
-end
-
 describe "Delorean" do
 
   let(:engine) {
@@ -68,7 +57,6 @@ describe "Delorean" do
                         "  _b = 1",
                         )
     }.should raise_error(Delorean::ParseError)
-
   end
 
   it "should disallow bad node names" do
@@ -212,14 +200,14 @@ describe "Delorean" do
 
   it "should be able to call class methods on ActiveRecord classes" do
     engine.parse defn("A:",
-                      "  b = Dummy1.call_me_maybe()",
+                      "  b = Dummy.call_me_maybe()",
                       )
   end
 
   it "shouldn't be able to call ActiveRecord methods without signature" do
     lambda {
       engine.parse defn("A:",
-                        "  b = Dummy1.hey_this_is_crazy()",
+                        "  b = Dummy.hey_this_is_crazy()",
                         )
     }.should raise_error(Delorean::UndefinedFunctionError)
   end
@@ -232,10 +220,6 @@ describe "Delorean" do
                       "C: B",
                       "  b =? 11",
                       )
-  end
-
-  it "should be able to get attr on ActiveRecord objects using a.b syntax" do
-    pending
   end
 
   it "should not be able to execute random methods on ActiveRecord objects" do

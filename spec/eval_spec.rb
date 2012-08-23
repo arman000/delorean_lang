@@ -1,13 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-class Dummy2 < ActiveRecord::Base
-  def self.call_me_maybe(*a)
-    a.inject(0, :+)
-  end
-
-  CALL_ME_MAYBE_SIG = [0, Float::INFINITY]
-end
-
 describe "Delorean" do
 
   let(:engine) {
@@ -40,6 +32,13 @@ describe "Delorean" do
   end
 
   it "should be able to evaluate multiple node attrs" do
+    pending
+  end
+
+  it "should properly handle decimal lookups" do
+    # need to make sure decimal values are properly looked up in
+    # hashes.  e.g. tables which are looked up using decimals should
+    # work properly.  Should we be using decimals instead of floats?
     pending
   end
 
@@ -95,7 +94,7 @@ describe "Delorean" do
     }.should raise_error(Delorean::UndefinedNodeError)
   end
 
-  it "should handle divide by zero" do
+  it "should handle runtime errors and report module/line number" do
     # FIXME: this should check that we can report the proper line
     # number and exception for zero division.
     pending
@@ -136,10 +135,28 @@ describe "Delorean" do
 
   it "should be able to call class methods on ActiveRecord classes" do
     c = engine.parse defn("A:",
-                          "  b = Dummy2.call_me_maybe(1, 2, 3, 4)",
+                          "  b = Dummy.call_me_maybe(1, 2, 3, 4)",
                           )
     r = engine.evaluate(c, "A", "b")
     r.should == 10
+  end
+
+  it "should be able to get attr on ActiveRecord objects using a.b syntax" do
+    c = engine.parse defn("A:",
+                          "  b = Dummy.i_just_met_you()",
+                          "  c = b.number",
+                          "  d = b.name",
+                          "  e = b.foo",
+                          )
+    r = engine.evaluate(c, "A", "c")
+    r.should == 0.404
+
+    r = engine.evaluate(c, "A", "d")
+    r.should == "i_just_met_you"
+
+    lambda {
+      r = engine.evaluate(c, "A", "e")
+    }.should raise_error(Delorean::InvalidGetAttribute)
   end
 
 end

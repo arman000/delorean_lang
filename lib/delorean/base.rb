@@ -13,15 +13,17 @@ module Delorean
       ######################################################################
 
       def self._get_attr(obj, attr)
-        if obj.instance_of? ActiveRecord::Base
-          return obj.get(attr) if obj.class.columns_hash.key? attr
-          raise InvalidGetAttribute, "bad attribute lookup #{attr} on #{obj}"
+        if obj.kind_of? ActiveRecord::Base
+          return obj.read_attribute(attr) if
+            obj.class.attribute_names.member? attr
+
+          raise InvalidGetAttribute, "bad ActiveRecord attribute lookup '#{attr}' on #{obj}"
         elsif obj.instance_of?(Class) && obj < BaseClass
           # FIXME: do something
           puts 'X'*30
         end
 
-        raise InvalidGetAttribute, "bad attribute lookup #{attr} on #{obj}"
+        raise InvalidGetAttribute, "bad attribute lookup '#{attr}' on #{obj}"
       end
 
       ######################################################################
