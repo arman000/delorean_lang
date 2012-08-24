@@ -33,7 +33,7 @@
     b = A.a * 2
 
   In the above example, evaluation of [B.a, B.b] will result in 
-  {B.b: 246, B.a: 123}
+  {B.a: 111, B.b: 246}
 
 * We have a concept of default values for parameters. 
 
