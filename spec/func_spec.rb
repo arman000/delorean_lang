@@ -64,4 +64,7 @@ describe "Delorean" do
     r.should == 12
   end
 
+  it "should handle IF/ELSE" do
+  end
+
 end

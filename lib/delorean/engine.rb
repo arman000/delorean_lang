@@ -90,11 +90,6 @@ module Delorean
 
   end
 
-  def self.error(str)
-    $stderr.puts str
-    raise "ERROR"
-  end
-
   class Node
     attr_accessor :attr_list, :parent, :name
 

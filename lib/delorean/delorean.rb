@@ -341,15 +341,15 @@ module Delorean
 
   module Expression1
     def v
-      elements[0]
+      elements[2]
     end
 
     def e1
-      elements[4]
+      elements[6]
     end
 
     def e2
-      elements[8]
+      elements[10]
     end
   end
 
@@ -406,7 +406,13 @@ module Delorean
       r0 = r1
     else
       i6, s6 = index, []
-      r7 = _nt_value
+      if has_terminal?('if', false, index)
+        r7 = instantiate_node(SyntaxNode,input, index...(index + 2))
+        @index += 2
+      else
+        terminal_parse_failure('if')
+        r7 = nil
+      end
       s6 << r7
       if r7
         r9 = _nt_space
@@ -417,13 +423,7 @@ module Delorean
         end
         s6 << r8
         if r8
-          if has_terminal?('?', false, index)
-            r10 = instantiate_node(SyntaxNode,input, index...(index + 1))
-            @index += 1
-          else
-            terminal_parse_failure('?')
-            r10 = nil
-          end
+          r10 = _nt_expression
           s6 << r10
           if r10
             r12 = _nt_space
@@ -434,7 +434,13 @@ module Delorean
             end
             s6 << r11
             if r11
-              r13 = _nt_expression
+              if has_terminal?('then', false, index)
+                r13 = instantiate_node(SyntaxNode,input, index...(index + 4))
+                @index += 4
+              else
+                terminal_parse_failure('then')
+                r13 = nil
+              end
               s6 << r13
               if r13
                 r15 = _nt_space
@@ -445,13 +451,7 @@ module Delorean
                 end
                 s6 << r14
                 if r14
-                  if has_terminal?(':', false, index)
-                    r16 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                    @index += 1
-                  else
-                    terminal_parse_failure(':')
-                    r16 = nil
-                  end
+                  r16 = _nt_expression
                   s6 << r16
                   if r16
                     r18 = _nt_space
@@ -462,8 +462,27 @@ module Delorean
                     end
                     s6 << r17
                     if r17
-                      r19 = _nt_expression
+                      if has_terminal?('else', false, index)
+                        r19 = instantiate_node(SyntaxNode,input, index...(index + 4))
+                        @index += 4
+                      else
+                        terminal_parse_failure('else')
+                        r19 = nil
+                      end
                       s6 << r19
+                      if r19
+                        r21 = _nt_space
+                        if r21
+                          r20 = r21
+                        else
+                          r20 = instantiate_node(SyntaxNode,input, index...index)
+                        end
+                        s6 << r20
+                        if r20
+                          r22 = _nt_expression
+                          s6 << r22
+                        end
+                      end
                     end
                   end
                 end
@@ -482,48 +501,48 @@ module Delorean
       if r6
         r0 = r6
       else
-        i20, s20 = index, []
-        r21 = _nt_value
-        s20 << r21
-        if r21
-          r23 = _nt_space
-          if r23
-            r22 = r23
+        i23, s23 = index, []
+        r24 = _nt_value
+        s23 << r24
+        if r24
+          r26 = _nt_space
+          if r26
+            r25 = r26
           else
-            r22 = instantiate_node(SyntaxNode,input, index...index)
+            r25 = instantiate_node(SyntaxNode,input, index...index)
           end
-          s20 << r22
-          if r22
-            r24 = _nt_binary_op
-            s20 << r24
-            if r24
-              r26 = _nt_space
-              if r26
-                r25 = r26
+          s23 << r25
+          if r25
+            r27 = _nt_binary_op
+            s23 << r27
+            if r27
+              r29 = _nt_space
+              if r29
+                r28 = r29
               else
-                r25 = instantiate_node(SyntaxNode,input, index...index)
+                r28 = instantiate_node(SyntaxNode,input, index...index)
               end
-              s20 << r25
-              if r25
-                r27 = _nt_expression
-                s20 << r27
+              s23 << r28
+              if r28
+                r30 = _nt_expression
+                s23 << r30
               end
             end
           end
         end
-        if s20.last
-          r20 = instantiate_node(BinOp,input, i20...index, s20)
-          r20.extend(Expression2)
+        if s23.last
+          r23 = instantiate_node(BinOp,input, i23...index, s23)
+          r23.extend(Expression2)
         else
-          @index = i20
-          r20 = nil
+          @index = i23
+          r23 = nil
         end
-        if r20
-          r0 = r20
+        if r23
+          r0 = r23
         else
-          r28 = _nt_value
-          if r28
-            r0 = r28
+          r31 = _nt_value
+          if r31
+            r0 = r31
           else
             @index = i0
             r0 = nil

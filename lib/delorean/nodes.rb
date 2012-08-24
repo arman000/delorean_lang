@@ -79,7 +79,7 @@ module Delorean
     end
 
     def rewrite(context)
-      "(" + op.text_value + e.rewrite(context) + ")"
+      op.text_value + e.rewrite(context)
     end
   end
 
@@ -92,7 +92,7 @@ module Delorean
     end
 
     def rewrite(context)
-      "(" + v.rewrite(context) + " " + op.text_value + " " + e.rewrite(context) + ")"
+      v.rewrite(context) + " " + op.text_value + " " + e.rewrite(context)
     end
   end
 
@@ -224,8 +224,8 @@ module Delorean
     end
 
     def rewrite(context)
-      "(" + v.rewrite(context) + " ? " +
-        e1.rewrite(context) + " : " + e2.rewrite(context) + ")"
+      "(" + v.rewrite(context) + ") ? (" +
+        e1.rewrite(context) + ") : (" + e2.rewrite(context) + ")"
     end
   end
 end

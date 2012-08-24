@@ -113,7 +113,31 @@ describe "Delorean" do
   end
 
   it "should handle operator precedence properly" do
-    pending
+    c = engine.parse defn("A:",
+                          "  b = 3+2*4-1",
+                          "  c = b*3+5",
+                          "  d = b*2-c*2",
+                          "  e = if (d < -10) then -123-1 else -456+1",
+                          )
+
+    r = engine.evaluate(c, "A", "d")
+    r.should == -50
+
+    r = engine.evaluate(c, "A", "e")
+    r.should == -124
+  end
+
+  it "should handle if/else" do
+    c = engine.parse defn("A:",
+                          "  d =? -10",
+                          '  e = if d < -10 then "gungam"+"style" else "korea"'
+                          )
+
+    r = engine.evaluate(c, "A", "e", {"d" => -100})
+    r.should == "gungam"+"style"
+
+    r = engine.evaluate(c, "A", "e")
+    r.should == "korea"
   end
 
   it "should be able to access specific node attrs " do
@@ -143,7 +167,7 @@ describe "Delorean" do
 
   it "should be able to get attr on ActiveRecord objects using a.b syntax" do
     c = engine.parse defn("A:",
-                          "  b = Dummy.i_just_met_you()",
+                          '  b = Dummy.i_just_met_you("this is crazy", 0.404)',
                           "  c = b.number",
                           "  d = b.name",
                           "  e = b.foo",
@@ -152,7 +176,7 @@ describe "Delorean" do
     r.should == 0.404
 
     r = engine.evaluate(c, "A", "d")
-    r.should == "i_just_met_you"
+    r.should == "this is crazy"
 
     lambda {
       r = engine.evaluate(c, "A", "e")

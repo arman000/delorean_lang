@@ -18,7 +18,9 @@ grammar Delorean
   rule expression
     op:unary_op space? e:expression <UnOp>
     /
-    v:value space? '?' space? e1:expression space? ':' space? e2:expression <IfElse>
+    'if' space? v:expression space?
+    'then' space? e1:expression space?
+    'else' space? e2:expression <IfElse>
     /
     v:value space? op:binary_op space? e:expression <BinOp>
     /
@@ -39,6 +41,7 @@ grammar Delorean
     '(' space? e:expression space? ')' <Expr>
   end
 
+  # built-in functions
   rule fn
     fn:fn_name '(' space? ')' <Fn>
     /

@@ -178,6 +178,13 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("A:",
+                        "  ifx = 123",
+                        "  elsey = ifx + 1",
+                        )
+    }.should_not raise_error
+
+    lambda {
+      engine.parse defn("A:",
                         "  true = false",
                         )
     }.should raise_error(Delorean::ParseError)
@@ -220,12 +227,6 @@ describe "Delorean" do
                       "C: B",
                       "  b =? 11",
                       )
-  end
-
-  it "should not be able to execute random methods on ActiveRecord objects" do
-    # e.g. not be able to call .delete using foo.delete or
-    # foo.delete() syntax.
-    pending
   end
 
   it "should be error to exec node attr without providing all needed params" do
@@ -299,4 +300,8 @@ describe "Delorean" do
 
   end
 
+  it "should handle multi-line parsing" do
+    # needed? what's the syntax?  Perhaps, use another indent level?
+    pending
+  end
 end

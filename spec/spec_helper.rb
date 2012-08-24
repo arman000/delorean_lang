@@ -29,11 +29,11 @@ ActiveRecord::Migration.create_table :dummies do |t|
 end
 
 class Dummy < ActiveRecord::Base
-  def self.i_just_met_you
-    Dummy.new(name: "i_just_met_you", number: 0.404)
+  def self.i_just_met_you(name, number)
+    Dummy.new(name: name, number: number)
   end
 
-  I_JUST_MET_YOU_SIG = [0, 0]
+  I_JUST_MET_YOU_SIG = [2, 2]
 
   def self.call_me_maybe(*a)
     a.inject(0, :+)
