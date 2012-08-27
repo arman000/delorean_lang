@@ -171,26 +171,26 @@ describe "Delorean" do
     }.should raise_error(Delorean::ParseError)
 
     lambda {
-      engine.parse defn("A:",
+      engine.parse defn("B:",
                         "  in1 = 123",
                         )
     }.should_not raise_error
 
     lambda {
-      engine.parse defn("A:",
+      engine.parse defn("C:",
                         "  ifx = 123",
                         "  elsey = ifx + 1",
                         )
     }.should_not raise_error
 
     lambda {
-      engine.parse defn("A:",
+      engine.parse defn("D:",
                         "  true = false",
                         )
     }.should raise_error(Delorean::ParseError)
 
     lambda {
-      engine.parse defn("A:",
+      engine.parse defn("E:",
                         "  a = 1",
                         "  return=a",
                         )
@@ -293,7 +293,7 @@ describe "Delorean" do
                       )
 
     lambda {
-      engine.parse defn("A:",
+      engine.parse defn("B:",
                         "  c = b.x.y.z",
                         )
     }.should raise_error(Delorean::UndefinedError)

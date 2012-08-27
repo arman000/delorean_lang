@@ -7,38 +7,35 @@ describe "Delorean" do
   }
 
   it "evaluate simple expressions" do
-    c = engine.parse defn("A:",
-                          "  a = 123",
-                          "  x = -(a * 2)",
-                          "  b = -(a + 1)",
-                          "  c = -a + 1",
-                          )
-    r = engine.evaluate(c, "A", "x")
-    r.should == -246
-
-    r = engine.evaluate(c, "A", "b")
-    r.should == -124
-
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "  x = -(a * 2)",
+                      "  b = -(a + 1)",
+                      "  c = -a + 1",
+                      )
+    
+    r = engine.evaluate_attrs("A", ["x", "b"])
+    r.should == [-246, -124]
   end
 
   it "proper unary expression evaluation" do
-    c = engine.parse defn("A:",
-                          "  a = 123",
-                          "  c = -a + 1",
-                          )
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "  c = -a + 1",
+                      )
 
-    r = engine.evaluate(c, "A", "c")
+    r = engine.evaluate("A", "c")
     r.should == -122
   end
 
   it "should be able to evaluate multiple node attrs" do
-    c = engine.parse defn("A:",
-                          "  a =? 123",
-                          "  b = a % 11",
-                          "  c = a / 4.0",
-                          )
+    engine.parse defn("A:",
+                      "  a =? 123",
+                      "  b = a % 11",
+                      "  c = a / 4.0",
+                      )
 
-    r = engine.evaluate_attrs(c, "A", ["c", "b"], {"a" => 16})
+    r = engine.evaluate_attrs("A", ["c", "b"], {"a" => 16})
     r.should == [4, 5]
   end
 
@@ -50,54 +47,54 @@ describe "Delorean" do
   end
 
   it "should give error when accessing undefined attr" do
-    c = engine.parse defn("A:",
-                          "  a = 1",
-                          "  c = a.to_s",
-                          )
+    engine.parse defn("A:",
+                      "  a = 1",
+                      "  c = a.to_s",
+                      )
 
     lambda {
-      r = engine.evaluate(c, "A", "c")
+      r = engine.evaluate("A", "c")
     }.should raise_error(Delorean::InvalidGetAttribute)
   end
 
   it "should handle default param values" do
-    c = engine.parse defn("A:",
-                          "  a =? 123",
-                          "  c = a / 123.0",
-                          )
+    engine.parse defn("A:",
+                      "  a =? 123",
+                      "  c = a / 123.0",
+                      )
 
-    r = engine.evaluate(c, "A", "c")
+    r = engine.evaluate("A", "c")
     r.should == 1
   end
 
   it "should give error when param is undefined for eval" do
-    c = engine.parse defn("A:",
-                          "  a = ?",
-                          "  c = a / 123.0",
-                          )
+    engine.parse defn("A:",
+                      "  a = ?",
+                      "  c = a / 123.0",
+                      )
 
     lambda {
-      r = engine.evaluate(c, "A", "c")
+      r = engine.evaluate("A", "c")
     }.should raise_error(Delorean::UndefinedParamError)
   end
 
   it "should handle simple param computation" do
-    c = engine.parse defn("A:",
-                          "  a = ?",
-                          "  c = a / 123.0",
-                          )
+    engine.parse defn("A:",
+                      "  a = ?",
+                      "  c = a / 123.0",
+                      )
 
-    r = engine.evaluate(c, "A", "c", {"a" => 123})
+    r = engine.evaluate("A", "c", {"a" => 123})
     r.should == 1
   end
 
   it "should give error on unknown node" do
-    c = engine.parse defn("A:",
-                          "  a = 1",
-                          )
+    engine.parse defn("A:",
+                      "  a = 1",
+                      )
 
     lambda {
-      r = engine.evaluate(c, "B", "a")
+      r = engine.evaluate("B", "a")
     }.should raise_error(Delorean::UndefinedNodeError)
   end
 
@@ -108,47 +105,47 @@ describe "Delorean" do
     # module, line, function/attr.  It also includes the exception
     # string.
     pending
-    c = engine.parse defn("A:",
-                          "  a = 1/0",
-                          )
-
+    engine.parse defn("A:",
+                      "  a = 1/0",
+                      )
+    
     lambda {
-      r = engine.evaluate(c, "A", "a")
+      r = engine.evaluate("A", "a")
     }.should raise_error(ZeroDivisionError)
   end
 
   it "should cache attr results and reuse them" do
-    c = engine.parse defn("A:",
-                          "  b = TIMESTAMP()",
-                          "  c = TIMESTAMP()",
-                          "B: A",
-                          "C:",
-                          "  b = TIMESTAMP()",
-                          )
-    rb = engine.evaluate(c, "A", "b")
+    engine.parse defn("A:",
+                      "  b = TIMESTAMP()",
+                      "  c = TIMESTAMP()",
+                      "B: A",
+                      "C:",
+                      "  b = TIMESTAMP()",
+                      )
+    rb = engine.evaluate("A", "b")
     sleep(0.1)
-    rc = engine.evaluate(c, "A", "c")
+    rc = engine.evaluate("A", "c")
 
     rb.should_not == rc
 
-    rbb = engine.evaluate(c, "A", "b")
-    rcc = engine.evaluate(c, "A", "c")
+    rbb = engine.evaluate("A", "b")
+    rcc = engine.evaluate("A", "c")
 
     rb.should == rbb
     rc.should == rcc
 
-    rbbb = engine.evaluate(c, "B", "b")
-    rccc = engine.evaluate(c, "B", "c")
+    rbbb = engine.evaluate("B", "b")
+    rccc = engine.evaluate("B", "c")
 
     rb.should == rbbb
     rc.should == rccc
 
-    r3 = engine.evaluate(c, "C", "b")
+    r3 = engine.evaluate("C", "b")
     r3.should_not == rb
 
     sleep(0.1)
 
-    r3.should == engine.evaluate(c, "C", "b")
+    r3.should == engine.evaluate("C", "b")
   end
 
   it "should properly report error on missing modules" do
@@ -156,17 +153,17 @@ describe "Delorean" do
   end
 
   it "should handle operator precedence properly" do
-    c = engine.parse defn("A:",
-                          "  b = 3+2*4-1",
-                          "  c = b*3+5",
-                          "  d = b*2-c*2",
-                          "  e = if (d < -10) then -123-1 else -456+1",
-                          )
+    engine.parse defn("A:",
+                      "  b = 3+2*4-1",
+                      "  c = b*3+5",
+                      "  d = b*2-c*2",
+                      "  e = if (d < -10) then -123-1 else -456+1",
+                      )
 
-    r = engine.evaluate(c, "A", "d")
+    r = engine.evaluate("A", "d")
     r.should == -50
 
-    r = engine.evaluate(c, "A", "e")
+    r = engine.evaluate("A", "e")
     r.should == -124
   end
 
@@ -176,55 +173,55 @@ describe "Delorean" do
                 '  e = if d < -10 then "gungam"+"style" else "korea"'
                 )
 
-    c = engine.parse text
-    r = engine.evaluate(c, "A", "e", {"d" => -100})
+    engine.parse text
+    r = engine.evaluate("A", "e", {"d" => -100})
     r.should == "gungam"+"style"
 
-    c = engine.parse text
-    r = engine.evaluate(c, "A", "e")
+    engine.parse text
+    r = engine.evaluate("A", "e")
     r.should == "korea"
   end
 
   it "should be able to access specific node attrs " do
-    c = engine.parse defn("A:",
-                          "  b = 123",
-                          "  c = ?",
-                          "B: A",
-                          "  b = 111",
-                          "  c = A.b * 123",
-                          "C:",
-                          "  c = A.c + B.c",
-                          )
-
-    r = engine.evaluate(c, "B", "c")
+    engine.parse defn("A:",
+                      "  b = 123",
+                      "  c = ?",
+                      "B: A",
+                      "  b = 111",
+                      "  c = A.b * 123",
+                      "C:",
+                      "  c = A.c + B.c",
+                      )
+    
+    r = engine.evaluate("B", "c")
     r.should == 123*123
-    r = engine.evaluate(c, "C", "c", {"c" => 5})
+    r = engine.evaluate("C", "c", {"c" => 5})
     r.should == 123*123 + 5
   end
 
   it "should be able to call class methods on ActiveRecord classes" do
-    c = engine.parse defn("A:",
-                          "  b = Dummy.call_me_maybe(1, 2, 3, 4)",
-                          )
-    r = engine.evaluate(c, "A", "b")
+    engine.parse defn("A:",
+                      "  b = Dummy.call_me_maybe(1, 2, 3, 4)",
+                      )
+    r = engine.evaluate("A", "b")
     r.should == 10
   end
 
   it "should be able to get attr on ActiveRecord objects using a.b syntax" do
-    c = engine.parse defn("A:",
-                          '  b = Dummy.i_just_met_you("this is crazy", 0.404)',
-                          "  c = b.number",
-                          "  d = b.name",
-                          "  e = b.foo",
-                          )
-    r = engine.evaluate(c, "A", "c")
+    engine.parse defn("A:",
+                      '  b = Dummy.i_just_met_you("this is crazy", 0.404)',
+                      "  c = b.number",
+                      "  d = b.name",
+                      "  e = b.foo",
+                      )
+    r = engine.evaluate("A", "c")
     r.should == 0.404
 
-    r = engine.evaluate(c, "A", "d")
+    r = engine.evaluate("A", "d")
     r.should == "this is crazy"
 
     lambda {
-      r = engine.evaluate(c, "A", "e")
+      r = engine.evaluate("A", "e")
     }.should raise_error(Delorean::InvalidGetAttribute)
   end
 

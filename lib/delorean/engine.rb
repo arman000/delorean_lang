@@ -5,10 +5,10 @@ module Delorean
   SIG = "_sig"
   MOD = "DELOREAN__"
 
-  class Context
+  class Engine
     attr_accessor :m, :last_node, :module_name, :line_no
 
-    def initialize(module_name)
+    def initialize(module_name="XXX")
       @m = BaseModule.clone
       @last_node, @node_attrs = nil, {}
       @module_name = module_name
@@ -93,23 +93,16 @@ module Delorean
         argcount < min
     end
 
-  end
-
-  class Engine
-    def initialize(folder=nil)
-      @folder = folder
+    def evaluate(node, attr, params={})
+      evaluate_attrs(node, [attr], params)[0]
     end
 
-    def evaluate(context, node, attr, params={})
-      evaluate_attrs(context, node, [attr], params)[0]
-    end
-
-    def evaluate_attrs(context, node, attrs, params={})
-      context.m::BaseClass.const_set("PARAMS", params)
+    def evaluate_attrs(node, attrs, params={})
+      m::BaseClass.const_set("PARAMS", params)
       begin
-        klass = context.m.module_eval(node)
+        klass = m.module_eval(node)
       rescue NameError
-        context.err(UndefinedNodeError, "node #{node} is undefined")
+        err(UndefinedNodeError, "node #{node} is undefined")
       end
       attrs.map {|attr| klass.send attr.to_sym}
     end
@@ -124,14 +117,15 @@ module Delorean
       [exc.message, bt]
     end
 
-    def parse(source, module_name="XXX")
-      context = Context.new(module_name)
-      parser = DeloreanParser.new
+    def parser
+      @@parser ||= DeloreanParser.new
+    end
 
+    def parse(source)
       current_node = nil
 
       source.each_line do |line|
-        context.line_no += 1
+        @line_no += 1
 
         # skip comments
         next if line.match(/^\s*\#/)
@@ -143,20 +137,16 @@ module Delorean
 
         t = parser.parse(line)
 
-        context.err(ParseError, "syntax error") if !t
+        err(ParseError, "syntax error") if !t
 
-        t.check(context)
+        t.check(self)
 
-        rew = t.rewrite(context)
+        rew = t.rewrite(self)
 
         puts rew
 
-        context.m.module_eval(rew, "#{MOD}#{module_name}", context.line_no)
+        m.module_eval(rew, "#{MOD}#{module_name}", @line_no)
       end
-
-     context
     end
-
   end
 end
-
