@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe "Delorean" do
 
   let(:engine) {
-    Delorean::Engine.new
+    Delorean::Engine.new "XXX"
   }
 
   it "evaluate simple expressions" do

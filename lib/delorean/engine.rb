@@ -8,7 +8,7 @@ module Delorean
   class Engine
     attr_accessor :m, :last_node, :module_name, :line_no
 
-    def initialize(module_name="XXX")
+    def initialize(module_name)
       @m = BaseModule.clone
       @last_node, @node_attrs = nil, {}
       @module_name = module_name
