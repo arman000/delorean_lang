@@ -1,4 +1,8 @@
 grammar Delorean
+  rule line
+    f:formula space? ('#' .*)? <Line>
+  end
+
   rule formula
     i:identifier space? '=' space '?' <Parameter>
     /
@@ -28,7 +32,7 @@ grammar Delorean
   end
 
   rule binary_op
-    '+' / '-' / '*' / '/' / '==' / '!=' / '>=' / '<=' / '>' / '<' / '&&' / '||'
+    '+' / '-' / '*' / '/' / '%' / '==' / '!=' / '>=' / '<=' / '>' / '<' / '&&' / '||'
   end
 
   rule unary_op

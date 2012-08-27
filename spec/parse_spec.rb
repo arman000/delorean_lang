@@ -300,8 +300,15 @@ describe "Delorean" do
 
   end
 
-  it "should handle multi-line parsing" do
-    # needed? what's the syntax?  Perhaps, use another indent level?
+  it "should handle lines with comments" do
+    engine.parse defn("A: # kaka",
+                      "  b = 22  # testing #",
+                      "  c = b",
+                      )
+  end
+
+  it "should be able to report error line during parse" do
+    # The exception should tell us which line caused the parse error
     pending
   end
 end

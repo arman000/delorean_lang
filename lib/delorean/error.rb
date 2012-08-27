@@ -2,29 +2,40 @@ module Delorean
   # FIXME: separate runtime/parse exceptions
 
   class ParseError < StandardError
+    attr_reader :line, :module_name
+
+    def initialize(message, module_name, line)
+      super(message)
+      @line = line
+      @module_name = module_name
+    end
   end
 
-  class RecursionError < StandardError
+  class UndefinedError < ParseError
   end
 
-  class UndefinedError < StandardError
+  class RedefinedError < ParseError
   end
 
-  class RedefinedError < StandardError
+  class UndefinedFunctionError < ParseError
+  end
+
+  class UndefinedNodeError < ParseError
+  end
+
+  class RecursionError < ParseError
+  end
+
+  class BadCallError < ParseError
+  end
+
+  class InvalidGetAttribute < StandardError
   end
 
   class UndefinedParamError < StandardError
   end
 
-  class UndefinedNodeError < StandardError
+  class ModuleNotFoundError < StandardError
   end
 
-  class UndefinedFunctionError < StandardError
-  end
-
-  class BadCallError < StandardError
-  end
-
-  class InvalidGetAttribute < StandardError
-  end
 end

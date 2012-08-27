@@ -210,3 +210,32 @@ Dummy2.attribute_names
 
 load 'spec/spec_helper.rb'
 d = Dummy.i_just_met_you
+
+######################################################################
+
+sample = <<eof
+A:
+  a = 123 + "123"
+B: A
+  b = ax
+eof
+
+load 'spec/spec_helper.rb'
+e = Delorean::Engine.new
+begin
+  c = e.parse(sample)
+rescue => exc
+end
+
+
+begin
+  e.evaluate(c, 'B', 'b')
+rescue => detail
+  print detail.backtrace.map{ |x|   
+    x.match(/^(.+?):(\d+)(|:in `(.+)')$/); 
+    [$1,$2.to_i,$4] 
+  }
+end
+
+######################################################################
+

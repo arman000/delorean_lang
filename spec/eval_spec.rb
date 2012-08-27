@@ -32,7 +32,14 @@ describe "Delorean" do
   end
 
   it "should be able to evaluate multiple node attrs" do
-    pending
+    c = engine.parse defn("A:",
+                          "  a =? 123",
+                          "  b = a % 11",
+                          "  c = a / 4.0",
+                          )
+
+    r = engine.evaluate_attrs(c, "A", ["c", "b"], {"a" => 16})
+    r.should == [4, 5]
   end
 
   it "should properly handle decimal lookups" do
@@ -96,7 +103,10 @@ describe "Delorean" do
 
   it "should handle runtime errors and report module/line number" do
     # FIXME: this should check that we can report the proper line
-    # number and exception for zero division.
+    # number and exception for zero division.  Should also provide a
+    # backtrace for delorean code. Backtrace is a list of triples:
+    # module, line, function/attr.  It also includes the exception
+    # string.
     pending
     c = engine.parse defn("A:",
                           "  a = 1/0",
@@ -108,7 +118,40 @@ describe "Delorean" do
   end
 
   it "should cache attr results and reuse them" do
-    # can probably test this using the call to a Dummy class method???
+    c = engine.parse defn("A:",
+                          "  b = TIMESTAMP()",
+                          "  c = TIMESTAMP()",
+                          "B: A",
+                          "C:",
+                          "  b = TIMESTAMP()",
+                          )
+    rb = engine.evaluate(c, "A", "b")
+    sleep(0.1)
+    rc = engine.evaluate(c, "A", "c")
+
+    rb.should_not == rc
+
+    rbb = engine.evaluate(c, "A", "b")
+    rcc = engine.evaluate(c, "A", "c")
+
+    rb.should == rbb
+    rc.should == rcc
+
+    rbbb = engine.evaluate(c, "B", "b")
+    rccc = engine.evaluate(c, "B", "c")
+
+    rb.should == rbbb
+    rc.should == rccc
+
+    r3 = engine.evaluate(c, "C", "b")
+    r3.should_not == rb
+
+    sleep(0.1)
+
+    r3.should == engine.evaluate(c, "C", "b")
+  end
+
+  it "should properly report error on missing modules" do
     pending
   end
 
@@ -128,14 +171,16 @@ describe "Delorean" do
   end
 
   it "should handle if/else" do
-    c = engine.parse defn("A:",
-                          "  d =? -10",
-                          '  e = if d < -10 then "gungam"+"style" else "korea"'
-                          )
+    text = defn("A:",
+                "  d =? -10",
+                '  e = if d < -10 then "gungam"+"style" else "korea"'
+                )
 
+    c = engine.parse text
     r = engine.evaluate(c, "A", "e", {"d" => -100})
     r.should == "gungam"+"style"
 
+    c = engine.parse text
     r = engine.evaluate(c, "A", "e")
     r.should == "korea"
   end

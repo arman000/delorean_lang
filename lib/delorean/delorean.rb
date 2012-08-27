@@ -5,7 +5,96 @@ module Delorean
   include Treetop::Runtime
 
   def root
-    @root ||= :formula
+    @root ||= :line
+  end
+
+  module Line0
+  end
+
+  module Line1
+    def f
+      elements[0]
+    end
+
+  end
+
+  def _nt_line
+    start_index = index
+    if node_cache[:line].has_key?(index)
+      cached = node_cache[:line][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0, s0 = index, []
+    r1 = _nt_formula
+    s0 << r1
+    if r1
+      r3 = _nt_space
+      if r3
+        r2 = r3
+      else
+        r2 = instantiate_node(SyntaxNode,input, index...index)
+      end
+      s0 << r2
+      if r2
+        i5, s5 = index, []
+        if has_terminal?('#', false, index)
+          r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
+          @index += 1
+        else
+          terminal_parse_failure('#')
+          r6 = nil
+        end
+        s5 << r6
+        if r6
+          s7, i7 = [], index
+          loop do
+            if index < input_length
+              r8 = instantiate_node(SyntaxNode,input, index...(index + 1))
+              @index += 1
+            else
+              terminal_parse_failure("any character")
+              r8 = nil
+            end
+            if r8
+              s7 << r8
+            else
+              break
+            end
+          end
+          r7 = instantiate_node(SyntaxNode,input, i7...index, s7)
+          s5 << r7
+        end
+        if s5.last
+          r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
+          r5.extend(Line0)
+        else
+          @index = i5
+          r5 = nil
+        end
+        if r5
+          r4 = r5
+        else
+          r4 = instantiate_node(SyntaxNode,input, index...index)
+        end
+        s0 << r4
+      end
+    end
+    if s0.last
+      r0 = instantiate_node(Line,input, i0...index, s0)
+      r0.extend(Line1)
+    else
+      @index = i0
+      r0 = nil
+    end
+
+    node_cache[:line][start_index] = r0
+
+    r0
   end
 
   module Formula0
@@ -608,88 +697,99 @@ module Delorean
           if r4
             r0 = r4
           else
-            if has_terminal?('==', false, index)
-              r5 = instantiate_node(SyntaxNode,input, index...(index + 2))
-              @index += 2
+            if has_terminal?('%', false, index)
+              r5 = instantiate_node(SyntaxNode,input, index...(index + 1))
+              @index += 1
             else
-              terminal_parse_failure('==')
+              terminal_parse_failure('%')
               r5 = nil
             end
             if r5
               r0 = r5
             else
-              if has_terminal?('!=', false, index)
+              if has_terminal?('==', false, index)
                 r6 = instantiate_node(SyntaxNode,input, index...(index + 2))
                 @index += 2
               else
-                terminal_parse_failure('!=')
+                terminal_parse_failure('==')
                 r6 = nil
               end
               if r6
                 r0 = r6
               else
-                if has_terminal?('>=', false, index)
+                if has_terminal?('!=', false, index)
                   r7 = instantiate_node(SyntaxNode,input, index...(index + 2))
                   @index += 2
                 else
-                  terminal_parse_failure('>=')
+                  terminal_parse_failure('!=')
                   r7 = nil
                 end
                 if r7
                   r0 = r7
                 else
-                  if has_terminal?('<=', false, index)
+                  if has_terminal?('>=', false, index)
                     r8 = instantiate_node(SyntaxNode,input, index...(index + 2))
                     @index += 2
                   else
-                    terminal_parse_failure('<=')
+                    terminal_parse_failure('>=')
                     r8 = nil
                   end
                   if r8
                     r0 = r8
                   else
-                    if has_terminal?('>', false, index)
-                      r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                      @index += 1
+                    if has_terminal?('<=', false, index)
+                      r9 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                      @index += 2
                     else
-                      terminal_parse_failure('>')
+                      terminal_parse_failure('<=')
                       r9 = nil
                     end
                     if r9
                       r0 = r9
                     else
-                      if has_terminal?('<', false, index)
+                      if has_terminal?('>', false, index)
                         r10 = instantiate_node(SyntaxNode,input, index...(index + 1))
                         @index += 1
                       else
-                        terminal_parse_failure('<')
+                        terminal_parse_failure('>')
                         r10 = nil
                       end
                       if r10
                         r0 = r10
                       else
-                        if has_terminal?('&&', false, index)
-                          r11 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                          @index += 2
+                        if has_terminal?('<', false, index)
+                          r11 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                          @index += 1
                         else
-                          terminal_parse_failure('&&')
+                          terminal_parse_failure('<')
                           r11 = nil
                         end
                         if r11
                           r0 = r11
                         else
-                          if has_terminal?('||', false, index)
+                          if has_terminal?('&&', false, index)
                             r12 = instantiate_node(SyntaxNode,input, index...(index + 2))
                             @index += 2
                           else
-                            terminal_parse_failure('||')
+                            terminal_parse_failure('&&')
                             r12 = nil
                           end
                           if r12
                             r0 = r12
                           else
-                            @index = i0
-                            r0 = nil
+                            if has_terminal?('||', false, index)
+                              r13 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                              @index += 2
+                            else
+                              terminal_parse_failure('||')
+                              r13 = nil
+                            end
+                            if r13
+                              r0 = r13
+                            else
+                              @index = i0
+                              r0 = nil
+                            end
                           end
                         end
                       end

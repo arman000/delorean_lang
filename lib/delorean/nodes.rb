@@ -4,13 +4,23 @@ module Delorean
   class SNode < Treetop::Runtime::SyntaxNode
   end
 
+  class Line < SNode
+    def check(context)
+      f.check(context)
+    end
+    def rewrite(context)
+      f.rewrite(context)
+    end
+  end
+
   class Parameter < SNode
     def check(context)
       context.define_attr(i.text_value, {})
     end
     def rewrite(context)
       "class #{context.last_node}; " +
-        "def self.#{i.text_value}; self._fetch_param('#{i.text_value}'); end; end;"
+        "def self.#{i.text_value}; CACHE[:#{i.text_value}] ||= " +
+        "self._fetch_param('#{i.text_value}'); end; end;"
     end
   end
 
@@ -22,7 +32,8 @@ module Delorean
 
     def rewrite(context)
       "class #{context.last_node}; " +
-        "def self.#{i.text_value}; self._get_param('#{i.text_value}') || (" +
+        "def self.#{i.text_value}; CACHE[:#{i.text_value}] ||= " +
+        "self._get_param('#{i.text_value}') || (" +
         e.rewrite(context) + "); end; end;"
     end
   end
@@ -58,7 +69,8 @@ module Delorean
 
     def rewrite(context)
       "class #{context.last_node}; " +
-        "def self.#{i.text_value}; " + e.rewrite(context) + "; end; end;"
+        "def self.#{i.text_value};  CACHE[:#{i.text_value}] ||= " +
+        e.rewrite(context) + "; end; end;"
     end
   end
 
@@ -86,8 +98,7 @@ module Delorean
   class BinOp < SNode
     def check(context)
       # puts 'o'*20, op.text_value
-      vc = v.check(context)
-      ec = e.check(context)
+      vc, ec = v.check(context), e.check(context)
       ec.merge(vc)
     end
 
@@ -138,9 +149,7 @@ module Delorean
 
   class Identifier < SNode
     def check(context)
-      res = context.call_last_node_attr(text_value)
-      puts 'c'*10, [text_value, res].inspect
-      res
+      context.call_last_node_attr(text_value)
     end
 
     def rewrite(context)
@@ -171,10 +180,12 @@ module Delorean
 
   class Fn < SNode
     def check(context)
-      res = defined?(args) ? args.check(context) : {}
+      acount, res =
+        defined?(args) ? [args.arg_count, args.check(context)] : [0, {}]
+
       puts 'f'*10, fn, text_value
-      puts 'a'*10, args, res
-      context.check_call_fn(fn.text_value, res.length)
+      puts 'a'*10, defined?(args) && args, res
+      context.check_call_fn(fn.text_value, acount)
       res
     end
 
@@ -184,28 +195,29 @@ module Delorean
   end
 
   class FnArgs < SNode
-    def check(context, index=0)
+    def check(context)
       # puts 'ar'*10, context, arg0, text_value
 
-      if defined? args_rest.args
-        # puts '.'*10, args_rest.args
-
-        {index => arg0.check(context)}.merge(args_rest.args.check(context, index+1))
-      else
-        {index => arg0.check(context)}
-      end
+      arg0.check(context).merge(defined?(args_rest.args) ?
+                                args_rest.args.check(context) : {})
     end
 
     def rewrite(context)
       arg0.rewrite(context) +
         (defined?(args_rest.args) ? ", " + args_rest.args.rewrite(context) : "")
     end
+
+    def arg_count
+      defined?(args_rest.args) ? 1 + args_rest.args.arg_count : 1
+    end
   end
 
   class ModelFn < SNode
     def check(context)
-      res = defined?(args) ? args.check(context) : {}
-      context.check_call_fn(fn.text_value, res.length, m.text_value)
+      acount, res =
+        defined?(args) ? [args.arg_count, args.check(context)] : [0, {}]
+
+      context.check_call_fn(fn.text_value, acount, m.text_value)
       return res
     end
 
@@ -217,9 +229,8 @@ module Delorean
 
   class IfElse < SNode
     def check(context)
-      vc = v.check(context)
-      e1c = e1.check(context)
-      e2c = e2.check(context)
+      vc, e1c, e2c =
+        v.check(context), e1.check(context), e2.check(context)
       vc.merge(e1c).merge(e2c)
     end
 
