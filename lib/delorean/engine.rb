@@ -37,8 +37,6 @@ module Delorean
     end
 
     def call_attr(node_name, attr_name)
-      puts 'a.'*20, attr_name
-
       klass = @pm.module_eval(node_name)
 
       begin
@@ -69,7 +67,7 @@ module Delorean
 
       code = "class #{@last_node}; def self.#{name}(_x); #{checks.join(';')}; end; end"
 
-      pp 'x'*30, code
+      # pp code
 
       @pm.module_eval(code)
 
@@ -147,7 +145,7 @@ module Delorean
         # generate ruby code
         gen = t.rewrite(self)
 
-        puts gen
+        # puts gen
 
         @m.module_eval(gen, "#{MOD}#{module_name}", @line_no)
       end
