@@ -6,11 +6,18 @@ describe "Delorean" do
     Delorean::Engine.new("YYY")
   }
 
+  it "can parse very simple calls" do
+    engine.parse defn("X:",
+                      "  a = 123",
+                      "  b = a",
+                      )
+  end
+
   it "can parse simple expressions - 1" do
     engine.parse defn("A:",
                       "  a = 123",
                       "  x = -(a*2)",
-                      # "  b = -(a + 1)",
+                      "  b = -(a + 1)",
                       )
   end
 
@@ -84,23 +91,46 @@ describe "Delorean" do
                         )
     }.should raise_error(Delorean::RecursionError)
 
+    engine.reset
+
     lambda {
       engine.parse defn("A:",
                         "  a = 1",
-                        "  b = 2",
                         "B: A",
-                        "  a = b * b",
-                        "  b = a + a",
+                        "  b = a",
+                        "  a = b",
                         )
     }.should raise_error(Delorean::RecursionError)
 
+  end
+
+  it "should allow non-recursive code 1" do
     # this is not a recursion error
     engine.parse defn("A:",
                       "  a = 1",
                       "  b = 2",
                       "B: A",
-                      "  a = A.b * A.a",
-                      "  b = A.b + a",
+                      "  a = A.b",
+                      "  b = a",
+                      )
+
+  end
+
+  it "should allow non-recursive code 2" do
+    engine.parse defn("A:",
+                      "  a = 1",
+                      "  b = 2",
+                      "B: A",
+                      "  a = A.b",
+                      "  b = A.b + B.a",
+                      )
+  end
+
+  it "should allow non-recursive code 3" do
+    engine.parse defn("A:",
+                      "  b = 2",
+                      "  a = A.b + A.b",
+                      "  c = a + b + a + b",
                       )
   end
 
@@ -232,7 +262,7 @@ describe "Delorean" do
   it "shouldn't be able to call ActiveRecord methods without signature" do
     lambda {
       engine.parse defn("A:",
-                        "  b = Dummy.hey_this_is_crazy()",
+                        "  b = Dummy.this_is_crazy()",
                         )
     }.should raise_error(Delorean::UndefinedFunctionError)
   end
@@ -247,7 +277,7 @@ describe "Delorean" do
                       )
   end
 
-  it "should be error to exec node attr without providing all needed params" do
+  it "should raise error on node attr access without all needed params" do
     pending
   end
 
@@ -284,9 +314,17 @@ describe "Delorean" do
   it "should be able to access specific node attrs " do
     engine.parse defn("A:",
                       "  b = 123",
+                      "  c = A.b",
+                      )
+
+    engine.reset
+
+    engine.parse defn("A:",
+                      "  b = 123",
                       "B: A",
                       "  b = 111",
                       "  c = A.b * 123",
+                      "  d = B.b",
                       )
 
     # # FIXME: how do we distinguish between our Delorean nodes/modules

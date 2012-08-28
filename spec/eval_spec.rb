@@ -41,13 +41,6 @@ describe "Delorean" do
     r.should == [4, 5]
   end
 
-  it "should properly handle decimal lookups" do
-    # need to make sure decimal values are properly looked up in
-    # hashes.  e.g. tables which are looked up using decimals should
-    # work properly.  Should we be using decimals instead of floats?
-    pending
-  end
-
   it "should give error when accessing undefined attr" do
     engine.parse defn("A:",
                       "  a = 1",
@@ -206,9 +199,11 @@ describe "Delorean" do
   it "should be able to call class methods on ActiveRecord classes" do
     engine.parse defn("A:",
                       "  b = Dummy.call_me_maybe(1, 2, 3, 4)",
+                      "  c = Dummy.call_me_maybe()",
+                      "  d = Dummy.call_me_maybe(5) + b + c",
                       )
-    r = engine.evaluate("A", "b")
-    r.should == 10
+    r = engine.evaluate_attrs("A", ["b", "c", "d"])
+    r.should == [10, 0, 15]
   end
 
   it "should be able to get attr on ActiveRecord objects using a.b syntax" do

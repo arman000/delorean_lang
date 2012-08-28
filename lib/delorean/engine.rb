@@ -1,7 +1,7 @@
+require 'pp'
 require 'delorean/base'
 
 module Delorean
-  PRE = '_'
   SIG = "_sig"
   MOD = "DELOREAN__"
 
@@ -10,33 +10,39 @@ module Delorean
 
     def initialize(module_name)
       @module_name = module_name
-      @param_module_map = {}
+
+      # mapping of module to execution environment (cache + params)
+      @param_env_map = {}
       reset
     end
 
     def reset
-      @m = nil
+      @m, @pm = nil, nil
       @last_node, @node_attrs = nil, {}
       @line_no = 0
     end
 
     def define_node(name, pname)
       err(RedefinedError, "#{name} already defined") if
-        @m.constants.member? name.to_sym
+        @pm.constants.member? name.to_sym
 
       err(UndefinedError, "#{pname} not defined yet") if
-        pname and !@m.constants.member?(pname.to_sym)
+        pname and !@pm.constants.member?(pname.to_sym)
 
-      @m.module_eval("class #{name} < #{pname || 'BaseClass'}; CACHE={}; end")
+      code = "class #{name} < #{pname || 'Object'}; end"
+      @pm.module_eval(code)
+
       @last_node = name
       @node_attrs[name] = []
     end
 
     def call_attr(node_name, attr_name)
-      klass = @m.module_eval(node_name)
+      puts 'a.'*20, attr_name
+
+      klass = @pm.module_eval(node_name)
 
       begin
-        klass.send "#{PRE}#{attr_name}".to_sym
+        klass.send("#{attr_name}".to_sym, [])
       rescue NoMethodError
         err(UndefinedError, "'#{attr_name}' not defined in #{node_name}")
       end
@@ -56,9 +62,22 @@ module Delorean
 
       @node_attrs[@last_node] << name
       
-      klass = @m.module_eval(@last_node)
+      checks = spec.map{ |a|
+        n = a.index('.') ? a : (@last_node + "." + a)
+        "_x.member?('#{n}') ? raise('#{n}') : #{a}(_x + ['#{n}'])"
+      }
 
-      klass.class_eval("def self.#{PRE}#{name}; #{spec}; end")
+      code = "class #{@last_node}; def self.#{name}(_x); #{checks.join(';')}; end; end"
+
+      pp 'x'*30, code
+
+      @pm.module_eval(code)
+
+      begin
+        call_attr(@last_node, name)
+      rescue RuntimeError
+        err(RecursionError, "'#{name}' is recursive")
+      end
     end
 
     def model_class(model_name)
@@ -106,6 +125,7 @@ module Delorean
       raise "can't call parse again without reset" if @m
 
       @m = BaseModule.clone
+      @pm = Module.new
 
       source.each_line do |line|
         @line_no += 1
@@ -143,14 +163,14 @@ module Delorean
 
     def evaluate_attrs(node, attrs, params={})
       # clone the base engine module if we don't have it for given params
-      mm = @param_module_map[params] ||= @m.clone
+      _env = @param_env_map[params] ||= params
 
       begin
-        klass = mm.module_eval(node)
+        klass = @m.module_eval(node)
       rescue NameError
         err(UndefinedNodeError, "node #{node} is undefined")
       end
-      attrs.map {|attr| klass.send(attr.to_sym, params)}
+      attrs.map {|attr| klass.send(attr.to_sym, _env)}
     end
 
     def parse_runtime_exception(exc)
@@ -164,17 +184,6 @@ module Delorean
     end
 
     ######################################################################
-
-  end
-
-  class ExecutionEnv
-
-    def initialize
-      @engines = {}
-    end
-
-    def get_engine(module_name, source, params)
-    end
 
   end
 

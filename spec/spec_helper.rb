@@ -41,7 +41,7 @@ class Dummy < ActiveRecord::Base
 
   CALL_ME_MAYBE_SIG = [0, Float::INFINITY]
 
-  def self.hey_this_is_crazy
+  def self.this_is_crazy
   end
 end
 

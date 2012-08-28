@@ -43,8 +43,7 @@ module Delorean
     end
 
     def rewrite(context)
-      # nodes are already defined in define_node
-      ""
+      "class #{n.text_value} < BaseClass; end"
     end
   end
 
@@ -54,8 +53,7 @@ module Delorean
     end
 
     def rewrite(context)
-      # nodes are already defined in define_node
-      ""
+      "class #{n.text_value} < #{p.text_value}; end"
     end
   end
 
@@ -99,7 +97,7 @@ module Delorean
     def check(context)
       # puts 'o'*20, op.text_value
       vc, ec = v.check(context), e.check(context)
-      ec.merge(vc)
+      ec + vc
     end
 
     def rewrite(context)
@@ -107,9 +105,9 @@ module Delorean
     end
   end
 
-  class Integer < SNode
+  class Literal < SNode
     def check(context)
-      {}
+      []
     end
 
     def rewrite(context)
@@ -117,39 +115,22 @@ module Delorean
     end
   end
 
-  class String < SNode
-    def check(context)
-      {}
-    end
-
-    def rewrite(context)
-      text_value # FIXME: not sure about this.  Are the quotes here?
-    end
+  class Integer < Literal
   end
 
-  class Decimal < SNode
-    def check(context)
-      {}
-    end
-
-    def rewrite(context)
-      text_value
-    end
+  class String < Literal
   end
 
-  class Boolean < SNode
-    def check(context)
-      {}
-    end
+  class Decimal < Literal
+  end
 
-    def rewrite(context)
-      text_value.downcase
-    end
+  class Boolean < Literal
   end
 
   class Identifier < SNode
     def check(context)
       context.call_last_node_attr(text_value)
+      [text_value]
     end
 
     def rewrite(context)
@@ -160,6 +141,7 @@ module Delorean
   class NodeGetAttr < SNode
     def check(context)
       context.call_attr(n.text_value, i.text_value)
+      [text_value]
     end
 
     def rewrite(context)
@@ -181,7 +163,7 @@ module Delorean
   class Fn < SNode
     def check(context)
       acount, res =
-        defined?(args) ? [args.arg_count, args.check(context)] : [0, {}]
+        defined?(args) ? [args.arg_count, args.check(context)] : [0, []]
 
       # puts 'f'*10, fn, text_value
       # puts 'a'*10, defined?(args) && args, res
@@ -198,8 +180,8 @@ module Delorean
     def check(context)
       # puts 'ar'*10, context, arg0, text_value
 
-      arg0.check(context).merge(defined?(args_rest.args) ?
-                                args_rest.args.check(context) : {})
+      arg0.check(context) + (defined?(args_rest.args) ?
+                             args_rest.args.check(context) : [])
     end
 
     def rewrite(context)
@@ -215,7 +197,7 @@ module Delorean
   class ModelFn < SNode
     def check(context)
       acount, res =
-        defined?(args) ? [args.arg_count, args.check(context)] : [0, {}]
+        defined?(args) ? [args.arg_count, args.check(context)] : [0, []]
 
       context.check_call_fn(fn.text_value, acount, m.text_value)
       return res
@@ -231,7 +213,7 @@ module Delorean
     def check(context)
       vc, e1c, e2c =
         v.check(context), e1.check(context), e2.check(context)
-      vc.merge(e1c).merge(e2c)
+      vc + e1c + e2c
     end
 
     def rewrite(context)
