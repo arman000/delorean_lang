@@ -1,5 +1,6 @@
 module Delorean
-  # FIXME: separate runtime/parse exceptions
+  ######################################################################
+  # Parse Errors
 
   class ParseError < StandardError
     attr_reader :line, :module_name
@@ -28,6 +29,9 @@ module Delorean
 
   class BadCallError < ParseError
   end
+
+  ######################################################################
+  # Runtime Errors
 
   class InvalidGetAttribute < StandardError
   end
