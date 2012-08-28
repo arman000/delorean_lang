@@ -6,12 +6,17 @@ module Delorean
   MOD = "DELOREAN__"
 
   class Engine
-    attr_accessor :m, :last_node, :module_name, :line_no
+    attr_accessor :last_node, :module_name, :line_no
 
     def initialize(module_name)
-      @m = BaseModule.clone
-      @last_node, @node_attrs = nil, {}
       @module_name = module_name
+      @param_module_map = {}
+      reset
+    end
+
+    def reset
+      @m = nil
+      @last_node, @node_attrs = nil, {}
       @line_no = 0
     end
 
@@ -28,7 +33,7 @@ module Delorean
     end
 
     def call_attr(node_name, attr_name)
-      klass = m.module_eval(node_name)
+      klass = @m.module_eval(node_name)
 
       begin
         klass.send "#{PRE}#{attr_name}".to_sym
@@ -51,14 +56,14 @@ module Delorean
 
       @node_attrs[@last_node] << name
       
-      klass = m.module_eval(@last_node)
+      klass = @m.module_eval(@last_node)
 
       klass.class_eval("def self.#{PRE}#{name}; #{spec}; end")
     end
 
     def model_class(model_name)
       begin
-        klass = m.module_eval(model_name)
+        klass = @m.module_eval(model_name)
       rescue NoMethodError, NameError
         err(UndefinedError, "Can't find model: #{model_name}")
       end
@@ -74,7 +79,7 @@ module Delorean
     end
 
     def check_call_fn(fn, argcount, model_name=nil)
-      klass = model_name ? model_class(model_name) : (m::BaseClass)
+      klass = model_name ? model_class(model_name) : (@m::BaseClass)
 
       err(UndefinedFunctionError, "Function #{fn} not found") unless
         klass.methods.member? fn.to_sym
@@ -93,36 +98,14 @@ module Delorean
         argcount < min
     end
 
-    def evaluate(node, attr, params={})
-      evaluate_attrs(node, [attr], params)[0]
-    end
-
-    def evaluate_attrs(node, attrs, params={})
-      m::BaseClass.const_set("PARAMS", params)
-      begin
-        klass = m.module_eval(node)
-      rescue NameError
-        err(UndefinedNodeError, "node #{node} is undefined")
-      end
-      attrs.map {|attr| klass.send attr.to_sym}
-    end
-
-    def parse_runtime_exception(exc)
-      # parse out the delorean-related backtrace records
-      bt = exc.backtrace.map{ |x|
-        x.match(/^#{MOD}(.+?):(\d+)(|:in `(.+)')$/);
-        $1 && [$1, $2.to_i, $4]
-      }.reject(&:!)
-
-      [exc.message, bt]
-    end
-
     def parser
       @@parser ||= DeloreanParser.new
     end
 
     def parse(source)
-      current_node = nil
+      raise "can't call parse again without reset" if @m
+
+      @m = BaseModule.clone
 
       source.each_line do |line|
         @line_no += 1
@@ -141,12 +124,58 @@ module Delorean
 
         t.check(self)
 
-        rew = t.rewrite(self)
+        # generate ruby code
+        gen = t.rewrite(self)
 
-        puts rew
+        puts gen
 
-        m.module_eval(rew, "#{MOD}#{module_name}", @line_no)
+        @m.module_eval(gen, "#{MOD}#{module_name}", @line_no)
       end
     end
+
+    ######################################################################
+    # Runtime
+    ######################################################################
+
+    def evaluate(node, attr, params={})
+      evaluate_attrs(node, [attr], params)[0]
+    end
+
+    def evaluate_attrs(node, attrs, params={})
+      # clone the base engine module if we don't have it for given params
+      mm = @param_module_map[params] ||= @m.clone
+
+      begin
+        klass = mm.module_eval(node)
+      rescue NameError
+        err(UndefinedNodeError, "node #{node} is undefined")
+      end
+      attrs.map {|attr| klass.send(attr.to_sym, params)}
+    end
+
+    def parse_runtime_exception(exc)
+      # parse out the delorean-related backtrace records
+      bt = exc.backtrace.map{ |x|
+        x.match(/^#{MOD}(.+?):(\d+)(|:in `(.+)')$/);
+        $1 && [$1, $2.to_i, $4]
+      }.reject(&:!)
+
+      [exc.message, bt]
+    end
+
+    ######################################################################
+
   end
+
+  class ExecutionEnv
+
+    def initialize
+      @engines = {}
+    end
+
+    def get_engine(module_name, source, params)
+    end
+
+  end
+
 end

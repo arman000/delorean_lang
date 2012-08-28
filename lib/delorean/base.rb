@@ -28,13 +28,9 @@ module Delorean
 
       ######################################################################
 
-      def self._get_param(name)
-        PARAMS[name]
-      end
-
-      def self._fetch_param(name)
+      def self._fetch_param(_e, name)
         begin
-          PARAMS.fetch(name)
+          _e.fetch(name)
         rescue KeyError
           raise UndefinedParamError, "undefined parameter #{name}"
         end

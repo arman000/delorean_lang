@@ -52,6 +52,8 @@ describe "Delorean" do
                         )
     }.should raise_error(Delorean::ParseError)
 
+    engine.reset
+
     lambda {
       engine.parse defn("A:",
                         "  _b = 1",
@@ -64,6 +66,8 @@ describe "Delorean" do
       engine.parse defn("a:",
                         )
     }.should raise_error(Delorean::ParseError)
+
+    engine.reset
 
     lambda {
       engine.parse defn("_A:",
@@ -113,12 +117,16 @@ describe "Delorean" do
                         )
     }.should raise_error(Delorean::RedefinedError)
 
+    engine.reset
+
     lambda {
       engine.parse defn("B:",
                         "  b = ?",
                         "  b = 123",
                         )
     }.should raise_error(Delorean::RedefinedError)
+
+    engine.reset
 
     lambda {
       engine.parse defn("B:",
@@ -135,6 +143,8 @@ describe "Delorean" do
                         "B:",
                         )
     }.should raise_error(Delorean::RedefinedError)
+
+    engine.reset
 
     lambda {
       engine.parse defn("B:",
@@ -170,11 +180,15 @@ describe "Delorean" do
                         )
     }.should raise_error(Delorean::ParseError)
 
+    engine.reset
+
     lambda {
       engine.parse defn("B:",
                         "  in1 = 123",
                         )
     }.should_not raise_error
+
+    engine.reset
 
     lambda {
       engine.parse defn("C:",
@@ -183,11 +197,15 @@ describe "Delorean" do
                         )
     }.should_not raise_error
 
+    engine.reset
+
     lambda {
       engine.parse defn("D:",
                         "  true = false",
                         )
     }.should raise_error(Delorean::ParseError)
+
+    engine.reset
 
     lambda {
       engine.parse defn("E:",
@@ -291,6 +309,8 @@ describe "Delorean" do
                       "  b = 22",
                       "  c = b.x.y.z",
                       )
+
+    engine.reset
 
     lambda {
       engine.parse defn("B:",

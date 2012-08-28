@@ -44,27 +44,12 @@ describe "Delorean" do
   it "should handle ROUND" do
     engine.parse defn("A:",
                       "  a = ROUND(12.3456, 2)",
+                      "  b = ROUND(12.3456, 1)",
+                      "  c = ROUND(12.3456)",
                       )
 
-    r = engine.evaluate("A", "a")
-    r.should == 12.35
-
-    engine.parse defn("B:",
-                      "  a = ROUND(12.3456, 1)",
-                      )
-
-    r = engine.evaluate("B", "a")
-    r.should == 12.3
-
-    engine.parse defn("C:",
-                      "  a = ROUND(12.3456)",
-                      )
-
-    r = engine.evaluate("C", "a")
-    r.should == 12
-  end
-
-  it "should handle IF/ELSE" do
+    r = engine.evaluate_attrs("A", ["a", "b", "c"])
+    r.should == [12.35, 12.3, 12]
   end
 
 end

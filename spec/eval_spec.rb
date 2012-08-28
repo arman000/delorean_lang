@@ -14,6 +14,8 @@ describe "Delorean" do
                       "  c = -a + 1",
                       )
     
+    engine.evaluate_attrs("A", ["a"]).should == [123]
+
     r = engine.evaluate_attrs("A", ["x", "b"])
     r.should == [-246, -124]
   end
@@ -122,30 +124,33 @@ describe "Delorean" do
                       "C:",
                       "  b = TIMESTAMP()",
                       )
-    rb = engine.evaluate("A", "b")
+
+    _e = {}
+
+    rb = engine.evaluate("A", "b", _e)
     sleep(0.1)
-    rc = engine.evaluate("A", "c")
+    rc = engine.evaluate("A", "c", _e)
 
     rb.should_not == rc
 
-    rbb = engine.evaluate("A", "b")
-    rcc = engine.evaluate("A", "c")
+    rbb = engine.evaluate("A", "b", _e)
+    rcc = engine.evaluate("A", "c", _e)
 
     rb.should == rbb
     rc.should == rcc
 
-    rbbb = engine.evaluate("B", "b")
-    rccc = engine.evaluate("B", "c")
+    rbbb = engine.evaluate("B", "b", _e)
+    rccc = engine.evaluate("B", "c", _e)
 
     rb.should == rbbb
     rc.should == rccc
 
-    r3 = engine.evaluate("C", "b")
+    r3 = engine.evaluate("C", "b", _e)
     r3.should_not == rb
 
     sleep(0.1)
 
-    r3.should == engine.evaluate("C", "b")
+    r3.should == engine.evaluate("C", "b", _e)
   end
 
   it "should properly report error on missing modules" do
@@ -177,7 +182,6 @@ describe "Delorean" do
     r = engine.evaluate("A", "e", {"d" => -100})
     r.should == "gungam"+"style"
 
-    engine.parse text
     r = engine.evaluate("A", "e")
     r.should == "korea"
   end

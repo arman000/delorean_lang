@@ -19,8 +19,8 @@ module Delorean
     end
     def rewrite(context)
       "class #{context.last_node}; " +
-        "def self.#{i.text_value}; CACHE[:#{i.text_value}] ||= " +
-        "self._fetch_param('#{i.text_value}'); end; end;"
+        "def self.#{i.text_value}(_e); _e['#{i.text_value}'] ||= " +
+        "self._fetch_param(_e, '#{i.text_value}'); end; end;"
     end
   end
 
@@ -32,9 +32,8 @@ module Delorean
 
     def rewrite(context)
       "class #{context.last_node}; " +
-        "def self.#{i.text_value}; CACHE[:#{i.text_value}] ||= " +
-        "self._get_param('#{i.text_value}') || (" +
-        e.rewrite(context) + "); end; end;"
+        "def self.#{i.text_value}(_e); _e[:#{i.text_value}] ||= " +
+        "_e['#{i.text_value}'] || (" + e.rewrite(context) + "); end; end;"
     end
   end
 
@@ -69,7 +68,8 @@ module Delorean
 
     def rewrite(context)
       "class #{context.last_node}; " +
-        "def self.#{i.text_value};  CACHE[:#{i.text_value}] ||= " +
+        "def self.#{i.text_value}(_e); " +
+        "_e['#{context.last_node}.#{i.text_value}'] ||= " +
         e.rewrite(context) + "; end; end;"
     end
   end
@@ -153,7 +153,7 @@ module Delorean
     end
 
     def rewrite(context)
-      text_value
+      text_value + '(_e)'
     end
   end
 
@@ -163,7 +163,7 @@ module Delorean
     end
 
     def rewrite(context)
-      text_value
+      text_value + '(_e)'
     end
   end
 
@@ -174,7 +174,7 @@ module Delorean
 
     def rewrite(context)
       attr_list = ga.text_value.split('.')
-      attr_list.inject(i.text_value) {|x, y| "_get_attr(#{x}, '#{y}')"}
+      attr_list.inject(i.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}')"}
     end
   end
 
@@ -183,8 +183,8 @@ module Delorean
       acount, res =
         defined?(args) ? [args.arg_count, args.check(context)] : [0, {}]
 
-      puts 'f'*10, fn, text_value
-      puts 'a'*10, defined?(args) && args, res
+      # puts 'f'*10, fn, text_value
+      # puts 'a'*10, defined?(args) && args, res
       context.check_call_fn(fn.text_value, acount)
       res
     end
