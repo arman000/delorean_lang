@@ -160,7 +160,6 @@ module Delorean
     end
 
     def evaluate_attrs(node, attrs, params={})
-      # clone the base engine module if we don't have it for given params
       _env = @param_env_map[params] ||= params
 
       begin
@@ -168,6 +167,7 @@ module Delorean
       rescue NameError
         err(UndefinedNodeError, "node #{node} is undefined")
       end
+
       attrs.map {|attr| klass.send(attr.to_sym, _env)}
     end
 

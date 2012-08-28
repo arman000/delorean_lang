@@ -250,6 +250,12 @@ describe "Delorean" do
 
     # probably need a module "require" mechanism.  Should not allow
     # recursive require.
+
+    # # inter module node/attr call.
+    # n = module_name::node_name(keyword_args)
+    # v = n.attr1
+
+    # in _get_attr: If the operand is a module node, we call it.
     pending
   end
 
@@ -326,20 +332,6 @@ describe "Delorean" do
                       "  c = A.b * 123",
                       "  d = B.b",
                       )
-
-    # # FIXME: how do we distinguish between our Delorean nodes/modules
-    # # vs ActiveRecord function calls??
-
-    # v = module_name::node_name.fn(args_list)
-
-    # # inter module node/attr call.
-    # n = module_name::node_name(keyword_args)
-    # v = n.attr1
-
-    # # implement a getattr.  If the operand is a module node, we call
-    # # it.  If it's an ActiveRecord object, then we get the attr
-    # # subject to permissions.
-
   end
 
   it "should be able to perform arbitrary getattr" do
@@ -366,7 +358,27 @@ describe "Delorean" do
   end
 
   it "should be able to report error line during parse" do
-    # The exception should tell us which line caused the parse error
-    pending
+    begin
+      engine.parse defn("A:",
+                        "  b = 123",
+                        "B: .A",
+                        )
+    rescue => exc
+    end
+
+    exc.module_name.should == "YYY"
+    exc.line.should == 3
+
+    engine.reset
+
+    begin
+      engine.parse defn("A:",
+                        "  b = 3 % b",
+                        )
+    rescue => exc
+    end
+
+    exc.module_name.should == "YYY"
+    exc.line.should == 2
   end
 end

@@ -94,19 +94,32 @@ describe "Delorean" do
   end
 
   it "should handle runtime errors and report module/line number" do
-    # FIXME: this should check that we can report the proper line
-    # number and exception for zero division.  Should also provide a
-    # backtrace for delorean code. Backtrace is a list of triples:
-    # module, line, function/attr.  It also includes the exception
-    # string.
-    pending
     engine.parse defn("A:",
                       "  a = 1/0",
+                      "  b = 10 * a",
                       )
     
-    lambda {
-      r = engine.evaluate("A", "a")
-    }.should raise_error(ZeroDivisionError)
+    begin
+      engine.evaluate("A", "b")
+    rescue => exc
+      res = engine.parse_runtime_exception(exc)
+    end
+
+    res.should == ["divided by 0", [["XXX", 2, "/"], ["XXX", 2, "a"], ["XXX", 3, "b"]]]
+  end
+
+  it "should handle runtime errors 2" do
+    engine.parse defn("A:",
+                      "  b = Dummy.call_me_maybe('a', 'b')",
+                      )
+    
+    begin
+      engine.evaluate("A", "b")
+    rescue => exc
+      res = engine.parse_runtime_exception(exc)
+    end
+
+    res[1].should == [["XXX", 2, "b"]]
   end
 
   it "should cache attr results and reuse them" do

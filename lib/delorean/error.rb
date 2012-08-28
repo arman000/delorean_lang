@@ -35,7 +35,4 @@ module Delorean
   class UndefinedParamError < StandardError
   end
 
-  class ModuleNotFoundError < StandardError
-  end
-
 end
