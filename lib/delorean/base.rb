@@ -17,7 +17,7 @@ module Delorean
           return obj.read_attribute(attr) if
             obj.class.attribute_names.member? attr
 
-          raise InvalidGetAttribute, "bad ActiveRecord attribute lookup '#{attr}' on #{obj}"
+          raise InvalidGetAttribute, "ActiveRecord lookup '#{attr}' on #{obj}"
         elsif obj.instance_of?(Class) && obj < BaseClass
           # FIXME: do something
           puts 'X'*30

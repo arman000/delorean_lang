@@ -63,9 +63,9 @@ module Delorean
       checks = spec.map{ |a|
         n = a.index('.') ? a : (@last_node + "." + a)
         "_x.member?('#{n}') ? raise('#{n}') : #{a}(_x + ['#{n}'])"
-      }
+      }.join(';')
 
-      code = "class #{@last_node}; def self.#{name}(_x); #{checks.join(';')}; end; end"
+      code = "class #{@last_node}; def self.#{name}(_x); #{checks}; end; end"
 
       # pp code
 
@@ -108,10 +108,10 @@ module Delorean
 
       min, max = klass.const_get(sig)
 
-      err(BadCallError, "Too many arguments to #{fn} (#{argcount} > #{max})") if
+      err(BadCallError, "Too many args to #{fn} (#{argcount} > #{max})") if
         argcount > max
 
-      err(BadCallError, "Too few arguments to #{fn} (#{argcount} < #{min})") if
+      err(BadCallError, "Too few args to #{fn} (#{argcount} < #{min})") if
         argcount < min
     end
 
