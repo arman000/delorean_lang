@@ -108,6 +108,9 @@ grammar Delorean
     'true' <Boolean> / 'false' <Boolean>
   end
 
+  # FIXME: disallowing all Ruby keywords is pretty bogus.  The
+  # translator should simply mangle attr names.
+
   rule ruby_keyword
     'alias'	/
     'and'	/

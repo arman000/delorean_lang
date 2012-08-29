@@ -134,6 +134,25 @@ describe "Delorean" do
                       )
   end
 
+  it "should check for recursion with default params 1" do
+    lambda {
+      engine.parse defn("A:",
+                        "  a =? a",
+                        )
+    }.should raise_error(Delorean::UndefinedError)
+  end
+
+  it "should check for recursion with default params 2" do
+    lambda {
+      engine.parse defn("A:",
+                        "  a = 1",
+                        "B: A",
+                        "  b =? a",
+                        "  a =? b",
+                        )
+    }.should raise_error(Delorean::RecursionError)
+  end
+
   it "should check for inter-module recusion" do
     # does this even happen?
     pending
@@ -380,5 +399,13 @@ describe "Delorean" do
 
     exc.module_name.should == "YYY"
     exc.line.should == 2
+  end
+
+  it "should raise error on malformed string" do
+    lambda {
+      engine.parse defn("A:",
+                        '  d = "testing"" ',
+                        )
+    }.should raise_error(Delorean::ParseError)
   end
 end

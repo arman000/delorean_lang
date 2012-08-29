@@ -63,6 +63,7 @@ module Delorean
       checks = spec.map{ |a|
         n = a.index('.') ? a : (@last_node + "." + a)
         "_x.member?('#{n}') ? raise('#{n}') : #{a}(_x + ['#{n}'])"
+
       }.join(';')
 
       code = "class #{@last_node}; def self.#{name}(_x); #{checks}; end; end"
@@ -120,10 +121,11 @@ module Delorean
     end
 
     def parse(source)
-      raise "can't call parse again without reset" if @m
+      raise "can't call parse again without reset" if @pm
 
-      @m = BaseModule.clone
-      @pm = Module.new
+      # @m module is used at runtime for code evaluation.  @pm module
+      # is only used during parsing to check for errors.
+      @m, @pm = BaseModule.clone, Module.new
 
       source.each_line do |line|
         @line_no += 1

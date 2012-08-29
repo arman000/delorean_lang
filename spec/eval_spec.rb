@@ -237,4 +237,21 @@ describe "Delorean" do
     }.should raise_error(Delorean::InvalidGetAttribute)
   end
 
+  it "should not eval inside strings" do
+    engine.parse defn("A:",
+                      '  d = "#{this is a test}"',
+                      )
+
+    r = engine.evaluate("A", "d")
+    r.should == '#{this is a test}'
+  end
+
+  it "should ignore undeclared params sent to eval which match attr names" do
+    engine.parse defn("A:",
+                      "  d = 12",
+                      )
+    r = engine.evaluate("A", "d", {"d" => 5, "e" => 6})
+    r.should == 12
+  end
+
 end

@@ -118,13 +118,18 @@ module Delorean
   class Integer < Literal
   end
 
-  class String < Literal
-  end
-
   class Decimal < Literal
   end
 
   class Boolean < Literal
+  end
+
+  class String < Literal
+    def rewrite(context)
+      # remove the quotes and requote.  We don't want #{str} evals to
+      # just pass through.
+      text_value[1..-2].inspect
+    end
   end
 
   class Identifier < SNode
