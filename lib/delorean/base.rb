@@ -4,7 +4,6 @@ module Delorean
   module BaseModule
 
     class BaseClass
-
       # Using extend and include to get both constants and methods.
       # Not sure if how to do this only with extend.
       extend Delorean::Functions

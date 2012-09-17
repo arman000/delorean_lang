@@ -4,9 +4,10 @@ require 'delorean/base'
 module Delorean
   SIG = "_sig"
   MOD = "DELOREAN__"
+  POST = "__D"
 
   class Engine
-    attr_accessor :last_node, :module_name, :line_no
+    attr_accessor :last_node, :module_name, :line_no, :param_set
 
     def initialize(module_name)
       @module_name = module_name
@@ -20,6 +21,7 @@ module Delorean
       @m, @pm = nil, nil
       @last_node, @node_attrs = nil, {}
       @line_no = 0
+      @param_set = Set.new
     end
 
     def define_node(name, pname)
@@ -39,8 +41,10 @@ module Delorean
     def call_attr(node_name, attr_name)
       klass = @pm.module_eval(node_name)
 
+      # puts attr_name, "#{attr_name}#{POST}".to_sym, klass.methods.inspect
+
       begin
-        klass.send("#{attr_name}".to_sym, [])
+        klass.send("#{attr_name}#{POST}".to_sym, [])
       rescue NoMethodError
         err(UndefinedError, "'#{attr_name}' not defined in #{node_name}")
       end
@@ -62,11 +66,11 @@ module Delorean
       
       checks = spec.map{ |a|
         n = a.index('.') ? a : (@last_node + "." + a)
-        "_x.member?('#{n}') ? raise('#{n}') : #{a}(_x + ['#{n}'])"
+        "_x.member?('#{n}') ? raise('#{n}') : #{a}#{POST}(_x + ['#{n}'])"
 
       }.join(';')
 
-      code = "class #{@last_node}; def self.#{name}(_x); #{checks}; end; end"
+      code = "class #{@last_node}; def self.#{name}#{POST}(_x); #{checks}; end; end"
 
       # pp code
 
@@ -147,10 +151,33 @@ module Delorean
         # generate ruby code
         gen = t.rewrite(self)
 
-        # puts gen
+        # pp gen
 
-        @m.module_eval(gen, "#{MOD}#{module_name}", @line_no)
+        begin
+          @m.module_eval(gen, "#{MOD}#{module_name}", @line_no)
+        rescue => exc
+          # bad ruby code generated, shoudn't happen
+          err(ParseError, "codegen error: " + exc.message)
+        end
       end
+    end
+
+    ######################################################################
+    # Script development/testing
+    ######################################################################
+
+    def enumerate_attrs
+      @node_attrs.keys.inject({}) { |h, n|
+        klass = @m.module_eval(n)
+        h[n] = klass.methods.map(&:to_s).select {|x| x.end_with?(POST)}.map {|x|
+          x.sub(/#{POST}$/, '')
+        }
+        h
+      }
+    end
+
+    def enumerate_params
+      @param_set
     end
 
     ######################################################################
@@ -170,14 +197,14 @@ module Delorean
         err(UndefinedNodeError, "node #{node} is undefined")
       end
 
-      attrs.map {|attr| klass.send(attr.to_sym, _env)}
+      attrs.map {|attr| klass.send("#{attr}#{POST}".to_sym, _env)}
     end
 
     def parse_runtime_exception(exc)
       # parse out the delorean-related backtrace records
       bt = exc.backtrace.map{ |x|
         x.match(/^#{MOD}(.+?):(\d+)(|:in `(.+)')$/);
-        $1 && [$1, $2.to_i, $4]
+        $1 && [$1, $2.to_i, $4.sub(/#{POST}$/, '')]
       }.reject(&:!)
 
       [exc.message, bt]

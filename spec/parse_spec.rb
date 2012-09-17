@@ -408,4 +408,22 @@ describe "Delorean" do
                         )
     }.should raise_error(Delorean::ParseError)
   end
+
+  it "should not allow inherited ruby methods as attrs" do
+    lambda {
+      engine.parse defn("A:",
+                        "  a = name",
+                        )
+    }.should raise_error(Delorean::UndefinedError)
+
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "  a = new",
+                        )
+    }.should raise_error(Delorean::UndefinedError)
+
+  end
+
 end

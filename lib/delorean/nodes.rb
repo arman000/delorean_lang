@@ -16,10 +16,12 @@ module Delorean
   class Parameter < SNode
     def check(context)
       context.define_attr(i.text_value, {})
+      context.param_set.add i.text_value
     end
+
     def rewrite(context)
       "class #{context.last_node}; " +
-        "def self.#{i.text_value}(_e); _e['#{i.text_value}'] ||= " +
+        "def self.#{i.text_value}#{POST}(_e); _e['#{i.text_value}'] ||= " +
         "self._fetch_param(_e, '#{i.text_value}'); end; end;"
     end
   end
@@ -28,11 +30,12 @@ module Delorean
     def check(context)
       spec = e.check(context)
       context.define_attr(i.text_value, spec)
+      context.param_set.add i.text_value
     end
 
     def rewrite(context)
       "class #{context.last_node}; " +
-        "def self.#{i.text_value}(_e); _e[:#{i.text_value}] ||= " +
+        "def self.#{i.text_value}#{POST}(_e); _e[:#{i.text_value}] ||= " +
         "_e['#{i.text_value}'] || (" + e.rewrite(context) + "); end; end;"
     end
   end
@@ -66,7 +69,7 @@ module Delorean
 
     def rewrite(context)
       "class #{context.last_node}; " +
-        "def self.#{i.text_value}(_e); " +
+        "def self.#{i.text_value}#{POST}(_e); " +
         "_e['#{context.last_node}.#{i.text_value}'] ||= " +
         e.rewrite(context) + "; end; end;"
     end
@@ -139,7 +142,7 @@ module Delorean
     end
 
     def rewrite(context)
-      text_value + '(_e)'
+      text_value + POST + '(_e)'
     end
   end
 
@@ -150,7 +153,7 @@ module Delorean
     end
 
     def rewrite(context)
-      text_value + '(_e)'
+      text_value + POST + '(_e)'
     end
   end
 
