@@ -191,13 +191,18 @@ module Delorean
     def evaluate_attrs(node, attrs, params={})
       _env = @param_env_map[params] ||= params
 
+      raise "bad node '#{node}'" unless node.match(/[A-Z][A-Za-z0-9]/)
+
       begin
         klass = @m.module_eval(node)
       rescue NameError
         err(UndefinedNodeError, "node #{node} is undefined")
       end
 
-      attrs.map {|attr| klass.send("#{attr}#{POST}".to_sym, _env)}
+      attrs.map {|attr|
+        raise "bad attribute '#{attr}'" unless attr.match(/[a-z][A-Za-z0-9_]/)
+        klass.send("#{attr}#{POST}".to_sym, _env)
+      }
     end
 
     def parse_runtime_exception(exc)
