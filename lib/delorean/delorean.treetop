@@ -63,9 +63,9 @@ grammar Delorean
   end
 
   rule model_name
-    class_name
-    /
     class_name '::' model_name
+    /
+    class_name
   end
 
   rule fn_name

@@ -237,6 +237,14 @@ describe "Delorean" do
     }.should raise_error(Delorean::InvalidGetAttribute)
   end
 
+  it "should be able to call class methods on ActiveRecord classes in modules" do
+    engine.parse defn("A:",
+                      "  b = M::LittleDummy.heres_my_number(867, 5309)",
+                      )
+    r = engine.evaluate("A", "b")
+    r.should == 867 + 5309
+  end
+
   it "should not eval inside strings" do
     engine.parse defn("A:",
                       '  d = "#{this is a test}"',

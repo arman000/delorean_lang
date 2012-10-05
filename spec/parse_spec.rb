@@ -292,6 +292,12 @@ describe "Delorean" do
     }.should raise_error(Delorean::UndefinedFunctionError)
   end
 
+  it "should be able to call class methods on ActiveRecord classes in modules" do
+    engine.parse defn("A:",
+                      "  b = M::LittleDummy.heres_my_number(867, 5309)",
+                      )
+  end
+
   it "should be able to override parameters with attribute definitions" do
     engine.parse defn("A:",
                       "  b =? 22",
@@ -423,7 +429,9 @@ describe "Delorean" do
                         "  a = new",
                         )
     }.should raise_error(Delorean::UndefinedError)
-
   end
+
+
+
 
 end

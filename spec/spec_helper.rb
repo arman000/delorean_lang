@@ -45,4 +45,14 @@ class Dummy < ActiveRecord::Base
   end
 end
 
+module M
+  class LittleDummy < ActiveRecord::Base
+    def self.heres_my_number(*a)
+      a.inject(0, :+)
+    end
+
+    HERES_MY_NUMBER_SIG = [0, Float::INFINITY]
+  end
+end
+
 ######################################################################

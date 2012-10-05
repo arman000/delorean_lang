@@ -1385,36 +1385,36 @@ module Delorean
     end
 
     i0 = index
-    r1 = _nt_class_name
+    i1, s1 = index, []
+    r2 = _nt_class_name
+    s1 << r2
+    if r2
+      if has_terminal?('::', false, index)
+        r3 = instantiate_node(SyntaxNode,input, index...(index + 2))
+        @index += 2
+      else
+        terminal_parse_failure('::')
+        r3 = nil
+      end
+      s1 << r3
+      if r3
+        r4 = _nt_model_name
+        s1 << r4
+      end
+    end
+    if s1.last
+      r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
+      r1.extend(ModelName0)
+    else
+      @index = i1
+      r1 = nil
+    end
     if r1
       r0 = r1
     else
-      i2, s2 = index, []
-      r3 = _nt_class_name
-      s2 << r3
-      if r3
-        if has_terminal?('::', false, index)
-          r4 = instantiate_node(SyntaxNode,input, index...(index + 2))
-          @index += 2
-        else
-          terminal_parse_failure('::')
-          r4 = nil
-        end
-        s2 << r4
-        if r4
-          r5 = _nt_model_name
-          s2 << r5
-        end
-      end
-      if s2.last
-        r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
-        r2.extend(ModelName0)
-      else
-        @index = i2
-        r2 = nil
-      end
-      if r2
-        r0 = r2
+      r5 = _nt_class_name
+      if r5
+        r0 = r5
       else
         @index = i0
         r0 = nil
