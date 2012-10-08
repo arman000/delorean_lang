@@ -262,4 +262,50 @@ describe "Delorean" do
     r.should == 12
   end
 
+  it "should handle different param defaults on nodes" do
+    engine.parse defn("A:",
+                      "  p =? 1",
+                      "  c = p * 123",
+                      "B: A",
+                      "  p =? 2",
+                      "C: A",
+                      "  p =? 3",
+                      )
+
+    r = engine.evaluate("C", "c", {"p" => 5})
+    r.should == 5*123
+
+    r = engine.evaluate("B", "c", {"p" => 10})
+    r.should == 10*123
+
+    r = engine.evaluate("A", "c")
+    r.should == 1*123
+
+    r = engine.evaluate("B", "c")
+    r.should == 2*123
+
+    r = engine.evaluate("C", "c")
+    r.should == 3*123
+  end
+
+  it "should allow overriding of attrs as params" do
+    engine.parse defn("A:",
+                      "  a = 2",
+                      "  b = a*3",
+                      "B: A",
+                      "  a = ?",
+                      )
+
+    r = engine.evaluate("A", "b", {"a" => 10})
+    r.should == 2*3
+
+    r = engine.evaluate("B", "b", {"a" => 10})
+    r.should == 10*3
+    
+    lambda {
+      r = engine.evaluate("B", "b")
+    }.should raise_error(Delorean::UndefinedParamError)
+
+  end
+  
 end

@@ -431,7 +431,4 @@ describe "Delorean" do
     }.should raise_error(Delorean::UndefinedError)
   end
 
-
-
-
 end
