@@ -151,7 +151,7 @@ module Delorean
         # generate ruby code
         gen = t.rewrite(self)
 
-        # pp gen
+        pp gen
 
         begin
           @m.module_eval(gen, "#{MOD}#{module_name}", @line_no)

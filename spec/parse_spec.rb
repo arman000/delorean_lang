@@ -222,12 +222,12 @@ describe "Delorean" do
     }.should raise_error(Delorean::UndefinedError)
   end
 
-  it "should be an error to use ruby keywords as identifier" do
+  it "should be able to use ruby keywords as identifier" do
     lambda {
       engine.parse defn("A:",
                         "  in = 123",
                         )
-    }.should raise_error(Delorean::ParseError)
+    }.should_not raise_error
 
     engine.reset
 
@@ -252,7 +252,7 @@ describe "Delorean" do
       engine.parse defn("D:",
                         "  true = false",
                         )
-    }.should raise_error(Delorean::ParseError)
+    }.should_not raise_error
 
     engine.reset
 
@@ -261,7 +261,7 @@ describe "Delorean" do
                         "  a = 1",
                         "  return=a",
                         )
-    }.should raise_error(Delorean::ParseError)
+    }.should_not raise_error
   end
 
   it "should be able to call other modules with named params" do
