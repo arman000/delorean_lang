@@ -316,4 +316,35 @@ describe "Delorean" do
 
   end
   
+  sample_script = <<eof
+A:
+	a = 2
+	p = ?
+	c = a * 2
+	pc = p + c
+
+C: A
+    p =? 3
+
+B: A
+	p =? 5
+eof
+
+  it "should allow overriding of attrs as params" do
+    engine.parse sample_script
+
+    r = engine.evaluate("C", "c")
+    r.should == 4
+
+    r = engine.evaluate("B", "pc")
+    r.should == 4 + 5
+
+    r = engine.evaluate("C", "pc")
+    r.should == 4 + 3
+
+    lambda {
+      r = engine.evaluate("A", "pc")
+    }.should raise_error(Delorean::UndefinedParamError)
+  end
+
 end
