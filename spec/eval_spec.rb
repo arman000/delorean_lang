@@ -237,6 +237,14 @@ describe "Delorean" do
     }.should raise_error(Delorean::InvalidGetAttribute)
   end
 
+  it "should be able to get attr on ActiveRecord objects using Class.method().attr syntax" do
+    engine.parse defn("A:",
+                      '  b = Dummy.i_just_met_you("CRJ", 1.234).name',
+                      )
+    r = engine.evaluate("A", "b")
+    r.should == "CRJ"
+  end
+
   it "should be able to call class methods on ActiveRecord classes in modules" do
     engine.parse defn("A:",
                       "  b = M::LittleDummy.heres_my_number(867, 5309)",

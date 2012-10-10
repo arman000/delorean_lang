@@ -29,6 +29,8 @@ ActiveRecord::Migration.create_table :dummies do |t|
 end
 
 class Dummy < ActiveRecord::Base
+  attr_accessible :name, :number
+
   def self.i_just_met_you(name, number)
     Dummy.new(name: name, number: number)
   end

@@ -39,8 +39,8 @@ grammar Delorean
     '!' / '-'
   end
 
- rule value
-    number / string / boolean / fn / model_fn / node_getattr / getattr
+  rule value
+    number / string / boolean / fn / model_fn_getattr / model_fn / node_getattr / getattr
     /
     '(' space? e:expression space? ')' <Expr>
   end
@@ -78,6 +78,10 @@ grammar Delorean
 
   rule node_getattr
     n:node_name '.' i:identifier <NodeGetAttr>
+  end
+
+  rule model_fn_getattr
+    mfn:model_fn '.' i:identifier <ModelFnGetAttr>
   end
 
   rule getattr

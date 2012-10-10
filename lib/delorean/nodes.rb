@@ -164,7 +164,20 @@ module Delorean
 
     def rewrite(context)
       attr_list = ga.text_value.split('.')
+#      puts 'g'*10, attr_list.inject(i.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}')"}
       attr_list.inject(i.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}')"}
+    end
+  end
+
+  class ModelFnGetAttr < SNode
+    def check(context)
+      mfn.check(context)
+    end
+
+    def rewrite(context)
+      x = mfn.rewrite(context)
+#      puts '*'*15, "_get_attr(#{x}, '#{i.text_value}')"
+      "_get_attr(#{x}, '#{i.text_value}')"
     end
   end
 

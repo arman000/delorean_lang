@@ -278,6 +278,14 @@ describe "Delorean" do
     pending
   end
 
+  it "should be able to chain method calls on model functions" do
+    lambda {
+      engine.parse defn("A:",
+                        "  b = Dummy.i_just_met_you('CRJ', 123).name"
+                        )
+    }.should_not raise_error
+  end
+
   it "should be able to call class methods on ActiveRecord classes" do
     engine.parse defn("A:",
                       "  b = Dummy.call_me_maybe()",

@@ -885,71 +885,76 @@ module Delorean
           if r4
             r0 = r4
           else
-            r5 = _nt_model_fn
+            r5 = _nt_model_fn_getattr
             if r5
               r0 = r5
             else
-              r6 = _nt_node_getattr
+              r6 = _nt_model_fn
               if r6
                 r0 = r6
               else
-                r7 = _nt_getattr
+                r7 = _nt_node_getattr
                 if r7
                   r0 = r7
                 else
-                  i8, s8 = index, []
-                  if has_terminal?('(', false, index)
-                    r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                    @index += 1
-                  else
-                    terminal_parse_failure('(')
-                    r9 = nil
-                  end
-                  s8 << r9
-                  if r9
-                    r11 = _nt_space
-                    if r11
-                      r10 = r11
-                    else
-                      r10 = instantiate_node(SyntaxNode,input, index...index)
-                    end
-                    s8 << r10
-                    if r10
-                      r12 = _nt_expression
-                      s8 << r12
-                      if r12
-                        r14 = _nt_space
-                        if r14
-                          r13 = r14
-                        else
-                          r13 = instantiate_node(SyntaxNode,input, index...index)
-                        end
-                        s8 << r13
-                        if r13
-                          if has_terminal?(')', false, index)
-                            r15 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                            @index += 1
-                          else
-                            terminal_parse_failure(')')
-                            r15 = nil
-                          end
-                          s8 << r15
-                        end
-                      end
-                    end
-                  end
-                  if s8.last
-                    r8 = instantiate_node(Expr,input, i8...index, s8)
-                    r8.extend(Value0)
-                  else
-                    @index = i8
-                    r8 = nil
-                  end
+                  r8 = _nt_getattr
                   if r8
                     r0 = r8
                   else
-                    @index = i0
-                    r0 = nil
+                    i9, s9 = index, []
+                    if has_terminal?('(', false, index)
+                      r10 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                      @index += 1
+                    else
+                      terminal_parse_failure('(')
+                      r10 = nil
+                    end
+                    s9 << r10
+                    if r10
+                      r12 = _nt_space
+                      if r12
+                        r11 = r12
+                      else
+                        r11 = instantiate_node(SyntaxNode,input, index...index)
+                      end
+                      s9 << r11
+                      if r11
+                        r13 = _nt_expression
+                        s9 << r13
+                        if r13
+                          r15 = _nt_space
+                          if r15
+                            r14 = r15
+                          else
+                            r14 = instantiate_node(SyntaxNode,input, index...index)
+                          end
+                          s9 << r14
+                          if r14
+                            if has_terminal?(')', false, index)
+                              r16 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                              @index += 1
+                            else
+                              terminal_parse_failure(')')
+                              r16 = nil
+                            end
+                            s9 << r16
+                          end
+                        end
+                      end
+                    end
+                    if s9.last
+                      r9 = instantiate_node(Expr,input, i9...index, s9)
+                      r9.extend(Value0)
+                    else
+                      @index = i9
+                      r9 = nil
+                    end
+                    if r9
+                      r0 = r9
+                    else
+                      @index = i0
+                      r0 = nil
+                    end
                   end
                 end
               end
@@ -1579,6 +1584,57 @@ module Delorean
     end
 
     node_cache[:node_getattr][start_index] = r0
+
+    r0
+  end
+
+  module ModelFnGetattr0
+    def mfn
+      elements[0]
+    end
+
+    def i
+      elements[2]
+    end
+  end
+
+  def _nt_model_fn_getattr
+    start_index = index
+    if node_cache[:model_fn_getattr].has_key?(index)
+      cached = node_cache[:model_fn_getattr][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0, s0 = index, []
+    r1 = _nt_model_fn
+    s0 << r1
+    if r1
+      if has_terminal?('.', false, index)
+        r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
+        @index += 1
+      else
+        terminal_parse_failure('.')
+        r2 = nil
+      end
+      s0 << r2
+      if r2
+        r3 = _nt_identifier
+        s0 << r3
+      end
+    end
+    if s0.last
+      r0 = instantiate_node(ModelFnGetAttr,input, i0...index, s0)
+      r0.extend(ModelFnGetattr0)
+    else
+      @index = i0
+      r0 = nil
+    end
+
+    node_cache[:model_fn_getattr][start_index] = r0
 
     r0
   end
