@@ -10,9 +10,14 @@ module Delorean
     attr_accessor :last_node, :module_name, :line_no, :param_set
 
     def initialize(module_name)
+      # name of current module
       @module_name = module_name
 
       # mapping of module to execution environment (cache + params)
+      # FIXME: is this really being used?  I don't think this will
+      # work properly if we have different default values specified
+      # for a param on different nodes and we evaluate attrs on those
+      # nodes with the same engine.
       @param_env_map = {}
       reset
     end
@@ -34,11 +39,14 @@ module Delorean
       code = "class #{name} < #{pname || 'Object'}; end"
       @pm.module_eval(code)
 
+      # latest defined node
       @last_node = name
+      # mapping of node name to list of attrs it defines
       @node_attrs[name] = []
     end
 
     def call_attr(node_name, attr_name)
+      # get the class associated with node
       klass = @pm.module_eval(node_name)
 
       # puts attr_name, "#{attr_name}#{POST}".to_sym, klass.methods.inspect
