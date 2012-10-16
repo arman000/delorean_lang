@@ -20,6 +20,10 @@ module Delorean
     end
 
     def rewrite(context)
+      # Adds a parameter to the current node.  Parameters are
+      # implemented as functions (just like attrs).  The environment
+      # arg (_e) is a Hash.  _fetch_param() simply looks up the param
+      # in _e and raises an error it not found.
       "class #{context.last_node}; " +
         "def self.#{i.text_value}#{POST}(_e); _e['#{i.text_value}'] ||= " +
         "self._fetch_param(_e, '#{i.text_value}'); end; end;"
@@ -34,6 +38,9 @@ module Delorean
     end
 
     def rewrite(context)
+      # Implements default parameters.  It returns the param if it's
+      # already defined in the environment (_e).  Otherwise returns
+      # the eval of default value expression.
       "class #{context.last_node}; " +
         "def self.#{i.text_value}#{POST}(_e); _e[:#{i.text_value}] ||= " +
         "_e['#{i.text_value}'] || (" + e.rewrite(context) + "); end; end;"
@@ -46,6 +53,7 @@ module Delorean
     end
 
     def rewrite(context)
+      # Nodes are simply translated to classes.
       "class #{n.text_value} < BaseClass; end"
     end
   end
@@ -56,6 +64,7 @@ module Delorean
     end
 
     def rewrite(context)
+      # A sub-node (derived node) is just a subclass.
       "class #{n.text_value} < #{p.text_value}; end"
     end
   end
@@ -68,6 +77,7 @@ module Delorean
     end
 
     def rewrite(context)
+      # an attr is defined as a class function on the node class.
       "class #{context.last_node}; " +
         "def self.#{i.text_value}#{POST}(_e); " +
         "_e['#{context.last_node}.#{i.text_value}'] ||= " +
@@ -142,6 +152,9 @@ module Delorean
     end
 
     def rewrite(context)
+      # identifiers are just attr accesses.  These are translated to
+      # class method calls.  POST is used in mangling the attr names.
+      # _e is the environment.
       text_value + POST + '(_e)'
     end
   end

@@ -26,6 +26,8 @@ module Delorean
       @m, @pm = nil, nil
       @last_node, @node_attrs = nil, {}
       @line_no = 0
+
+      # set of all params
       @param_set = Set.new
     end
 
@@ -75,7 +77,6 @@ module Delorean
       checks = spec.map{ |a|
         n = a.index('.') ? a : (@last_node + "." + a)
         "_x.member?('#{n}') ? raise('#{n}') : #{a}#{POST}(_x + ['#{n}'])"
-
       }.join(';')
 
       code = "class #{@last_node}; def self.#{name}#{POST}(_x); #{checks}; end; end"
@@ -114,6 +115,7 @@ module Delorean
       err(UndefinedFunctionError, "Function #{fn} not found") unless
         klass.methods.member? fn.to_sym
 
+      # signature methods must be named FUNCTION_NAME_SIG
       sig = "#{fn}#{SIG}".upcase.to_sym
 
       err(UndefinedFunctionError, "Signature #{sig} not found") unless
@@ -162,6 +164,7 @@ module Delorean
         # pp gen
 
         begin
+          # evaluate generated code in @m
           @m.module_eval(gen, "#{MOD}#{module_name}", @line_no)
         rescue => exc
           # bad ruby code generated, shoudn't happen
@@ -174,6 +177,7 @@ module Delorean
     # Script development/testing
     ######################################################################
 
+    # enumerate qualified list of all attrs.
     def enumerate_attrs
       @node_attrs.keys.inject({}) { |h, n|
         klass = @m.module_eval(n)
