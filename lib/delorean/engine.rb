@@ -42,6 +42,7 @@ module Delorean
 
       # latest defined node
       @last_node = name
+
       # mapping of node name to list of attrs it defines
       @node_attrs[name] = []
     end

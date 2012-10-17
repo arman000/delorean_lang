@@ -52,6 +52,7 @@ module Delorean
   end
 
   class BaseNode < SNode
+    # defines a base node
     def check(context)
       context.parse_define_node(n.text_value, nil)
     end
@@ -75,9 +76,7 @@ module Delorean
 
   class Formula < SNode
     def check(context)
-      # puts '>'*10, i.text_value
-      res = e.check(context)
-      context.parse_define_attr(i.text_value, res)
+      context.parse_define_attr(i.text_value, e.check(context))
     end
 
     def rewrite(context)
@@ -102,7 +101,6 @@ module Delorean
   # unary operator
   class UnOp < SNode
     def check(context)
-      # puts 'u'*20, op.text_value
       e.check(context)
     end
 
@@ -113,7 +111,6 @@ module Delorean
 
   class BinOp < SNode
     def check(context)
-      # puts 'o'*20, op.text_value
       vc, ec = v.check(context), e.check(context)
       # returns list of attrs used in RHS and LHS
       ec + vc
@@ -159,7 +156,7 @@ module Delorean
     end
 
     def rewrite(context)
-      # identifiers are just attr accesses.  These are translated to
+      # Identifiers are just attr accesses.  These are translated to
       # class method calls.  POST is used in mangling the attr names.
       # _e is the environment.
       text_value + POST + '(_e)'
@@ -184,7 +181,6 @@ module Delorean
 
     def rewrite(context)
       attr_list = ga.text_value.split('.')
-#      puts 'g'*10, attr_list.inject(i.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}')"}
       attr_list.inject(i.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}')"}
     end
   end
@@ -196,7 +192,6 @@ module Delorean
 
     def rewrite(context)
       x = mfn.rewrite(context)
-#      puts '*'*15, "_get_attr(#{x}, '#{i.text_value}')"
       "_get_attr(#{x}, '#{i.text_value}')"
     end
   end
@@ -206,8 +201,6 @@ module Delorean
       acount, res =
         defined?(args) ? [args.arg_count, args.check(context)] : [0, []]
 
-      # puts 'f'*10, fn, text_value
-      # puts 'a'*10, defined?(args) && args, res
       context.parse_check_call_fn(fn.text_value, acount)
       res
     end
@@ -219,8 +212,6 @@ module Delorean
 
   class FnArgs < SNode
     def check(context)
-      # puts 'ar'*10, context, arg0, text_value
-
       arg0.check(context) + (defined?(args_rest.args) ?
                              args_rest.args.check(context) : [])
     end
