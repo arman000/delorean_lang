@@ -32,6 +32,12 @@ module Delorean
 
   class ParameterDefault < Parameter
     def check(context)
+      # The check function returns the list of attrs used in the
+      # default expression.  This is then used to make check if the
+      # attrs are available in the param's context.  NOTE: in a
+      # previous implementation, spec used to include attr type
+      # information so that we could perform static type checking.
+      # This mechanism has been removed.
       spec = e.check(context)
       context.define_attr(i.text_value, spec)
       context.param_set.add i.text_value
@@ -95,6 +101,7 @@ module Delorean
     end
   end
 
+  # unary operator
   class UnOp < SNode
     def check(context)
       # puts 'u'*20, op.text_value
@@ -110,6 +117,7 @@ module Delorean
     def check(context)
       # puts 'o'*20, op.text_value
       vc, ec = v.check(context), e.check(context)
+      # returns list of attrs used in RHS and LHS
       ec + vc
     end
 
@@ -123,6 +131,7 @@ module Delorean
       []
     end
 
+    # Delorean literals have same syntax as Ruby
     def rewrite(context)
       text_value
     end

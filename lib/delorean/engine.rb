@@ -74,7 +74,7 @@ module Delorean
 
       @node_attrs[@last_node] << name
       
-      checks = spec.map{ |a|
+      checks = spec.map { |a|
         n = a.index('.') ? a : (@last_node + "." + a)
         "_x.member?('#{n}') ? raise('#{n}') : #{a}#{POST}(_x + ['#{n}'])"
       }.join(';')
