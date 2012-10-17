@@ -15,7 +15,7 @@ module Delorean
 
   class Parameter < SNode
     def check(context)
-      context.define_attr(i.text_value, {})
+      context.parse_define_attr(i.text_value, {})
       context.param_set.add i.text_value
     end
 
@@ -39,7 +39,7 @@ module Delorean
       # information so that we could perform static type checking.
       # This mechanism has been removed.
       spec = e.check(context)
-      context.define_attr(i.text_value, spec)
+      context.parse_define_attr(i.text_value, spec)
       context.param_set.add i.text_value
     end
 
@@ -55,7 +55,7 @@ module Delorean
 
   class BaseNode < SNode
     def check(context)
-      context.define_node(n.text_value, nil)
+      context.parse_define_node(n.text_value, nil)
     end
 
     def rewrite(context)
@@ -66,7 +66,7 @@ module Delorean
 
   class SubNode < SNode
     def check(context)
-      context.define_node(n.text_value, p.text_value)
+      context.parse_define_node(n.text_value, p.text_value)
     end
 
     def rewrite(context)
@@ -79,7 +79,7 @@ module Delorean
     def check(context)
       # puts '>'*10, i.text_value
       res = e.check(context)
-      context.define_attr(i.text_value, res)
+      context.parse_define_attr(i.text_value, res)
     end
 
     def rewrite(context)
@@ -156,7 +156,7 @@ module Delorean
 
   class Identifier < SNode
     def check(context)
-      context.call_last_node_attr(text_value)
+      context.parse_call_last_node_attr(text_value)
       [text_value]
     end
 
@@ -170,7 +170,7 @@ module Delorean
 
   class NodeGetAttr < SNode
     def check(context)
-      context.call_attr(n.text_value, i.text_value)
+      context.parse_call_attr(n.text_value, i.text_value)
       [text_value]
     end
 
@@ -210,7 +210,7 @@ module Delorean
 
       # puts 'f'*10, fn, text_value
       # puts 'a'*10, defined?(args) && args, res
-      context.check_call_fn(fn.text_value, acount)
+      context.parse_check_call_fn(fn.text_value, acount)
       res
     end
 
@@ -242,8 +242,8 @@ module Delorean
       acount, res =
         defined?(args) ? [args.arg_count, args.check(context)] : [0, []]
 
-      context.check_call_fn(fn.text_value, acount, m.text_value)
-      return res
+      context.parse_check_call_fn(fn.text_value, acount, m.text_value)
+      res
     end
 
     def rewrite(context)

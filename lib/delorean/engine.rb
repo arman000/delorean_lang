@@ -1,4 +1,3 @@
-require 'pp'
 require 'delorean/base'
 
 module Delorean
@@ -31,7 +30,7 @@ module Delorean
       @param_set = Set.new
     end
 
-    def define_node(name, pname)
+    def parse_define_node(name, pname)
       err(RedefinedError, "#{name} already defined") if
         @pm.constants.member? name.to_sym
 
@@ -47,7 +46,9 @@ module Delorean
       @node_attrs[name] = []
     end
 
-    def call_attr(node_name, attr_name)
+    # Parse-time check to see if attr is available.  If not, error is
+    # raised.
+    def parse_call_attr(node_name, attr_name)
       # get the class associated with node
       klass = @pm.module_eval(node_name)
 
@@ -60,12 +61,14 @@ module Delorean
       end
     end
 
-    def call_last_node_attr(attr_name)
+    # Parse-time check to see if attr is available on current node.
+    def parse_call_last_node_attr(attr_name)
       err(ParseError, "Not inside a node") unless @last_node
-      call_attr(@last_node, attr_name)
+      parse_call_attr(@last_node, attr_name)
     end
 
-    def define_attr(name, spec)
+    # parse-time attr definition
+    def parse_define_attr(name, spec)
       err(ParseError, "Can't define '#{name}' outside a node") unless
         @last_node
 
@@ -86,14 +89,16 @@ module Delorean
       @pm.module_eval(code)
 
       begin
-        call_attr(@last_node, name)
+        parse_call_attr(@last_node, name)
       rescue RuntimeError
         err(RecursionError, "'#{name}' is recursive")
       end
     end
 
-    def model_class(model_name)
+    def parse_model_class(model_name)
       begin
+        # need the runtime module here (@m) since we need to
+        # introspect methods/attrs.
         klass = @m.module_eval(model_name)
       rescue NoMethodError, NameError
         err(UndefinedError, "Can't find model: #{model_name}")
@@ -109,8 +114,8 @@ module Delorean
       raise exc.new(msg, @module_name, @line_no)
     end
 
-    def check_call_fn(fn, argcount, model_name=nil)
-      klass = model_name ? model_class(model_name) : (@m::BaseClass)
+    def parse_check_call_fn(fn, argcount, model_name=nil)
+      klass = model_name ? parse_model_class(model_name) : (@m::BaseClass)
 
       err(UndefinedFunctionError, "Function #{fn} not found") unless
         klass.methods.member? fn.to_sym
@@ -217,6 +222,8 @@ module Delorean
       }
     end
 
+    # FIXME: should be renamed to grok_runtime_exception so as to not
+    # be confused with other parse_* calls which occur at parse time.
     def parse_runtime_exception(exc)
       # parse out the delorean-related backtrace records
       bt = exc.backtrace.map{ |x|
