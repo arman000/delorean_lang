@@ -6,7 +6,7 @@ module Delorean
   POST = "__D"
 
   class Engine
-    attr_accessor :last_node, :module_name, :line_no, :param_set
+    attr_reader :last_node, :module_name, :line_no
 
     def initialize(module_name)
       # name of current module
@@ -93,6 +93,11 @@ module Delorean
       rescue RuntimeError
         err(RecursionError, "'#{name}' is recursive")
       end
+    end
+
+    def parse_define_param(name, spec)
+      parse_define_attr(name, spec)
+      @param_set.add(name)
     end
 
     def parse_model_class(model_name)

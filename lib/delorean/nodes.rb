@@ -15,8 +15,7 @@ module Delorean
 
   class Parameter < SNode
     def check(context)
-      context.parse_define_attr(i.text_value, {})
-      context.param_set.add i.text_value
+      context.parse_define_param(i.text_value, [])
     end
 
     def rewrite(context)
@@ -39,8 +38,7 @@ module Delorean
       # information so that we could perform static type checking.
       # This mechanism has been removed.
       spec = e.check(context)
-      context.parse_define_attr(i.text_value, spec)
-      context.param_set.add i.text_value
+      context.parse_define_param(i.text_value, spec)
     end
 
     def rewrite(context)
@@ -148,8 +146,8 @@ module Delorean
 
   class String < Literal
     def rewrite(context)
-      # remove the quotes and requote.  We don't want #{str} evals to
-      # just pass through.
+      # remove the quotes and requote.  We don't want the likes of #{}
+      # evals to just pass through.
       text_value[1..-2].inspect
     end
   end
