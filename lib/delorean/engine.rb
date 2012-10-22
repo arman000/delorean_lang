@@ -11,13 +11,6 @@ module Delorean
     def initialize(module_name)
       # name of current module
       @module_name = module_name
-
-      # mapping of module to execution environment (cache + params)
-      # FIXME: is this really being used?  I don't think this will
-      # work properly if we have different default values specified
-      # for a param on different nodes and we evaluate attrs on those
-      # nodes with the same engine.
-      @param_env_map = {}
       reset
     end
 
@@ -212,8 +205,6 @@ module Delorean
     end
 
     def evaluate_attrs(node, attrs, params={})
-      _env = @param_env_map[params] ||= params
-
       raise "bad node '#{node}'" unless node.match(/^[A-Z][A-Za-z0-9]*$/)
 
       begin
@@ -224,7 +215,7 @@ module Delorean
 
       attrs.map {|attr|
         raise "bad attribute '#{attr}'" unless attr.match(/^[a-z][A-Za-z0-9_]*$/)
-        klass.send("#{attr}#{POST}".to_sym, _env)
+        klass.send("#{attr}#{POST}".to_sym, params)
       }
     end
 
