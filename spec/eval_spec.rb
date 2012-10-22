@@ -347,4 +347,35 @@ eof
     }.should raise_error(Delorean::UndefinedParamError)
   end
 
+  it "engines of same name should be independent" do
+    engin2 = Delorean::Engine.new(engine.module_name)
+
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "  b = a*3",
+                      "B: A",
+                      "  c = b*2",
+                      )
+
+    engin2.parse defn("A:",
+                      "  a = 222.0",
+                      "  b = a/5",
+                      "B: A",
+                      "  c = b*3",
+                      "C:",
+                      "  d = 111",
+                      )
+
+    engine.evaluate_attrs("A", ["a", "b"]).should == [123, 123*3]
+    engin2.evaluate_attrs("A", ["a", "b"]).should == [222.0, 222.0/5]
+
+    engine.evaluate_attrs("B", ["a", "b", "c"]).should == [123, 123*3, 123*3*2]
+    engin2.evaluate_attrs("B", ["a", "b", "c"]).should == [222.0, 222.0/5, 222.0/5*3]
+
+    engin2.evaluate("C", "d").should == 111
+    lambda {
+      engine.evaluate("C", "d")
+    }.should raise_error(Delorean::UndefinedNodeError)
+  end
+
 end
