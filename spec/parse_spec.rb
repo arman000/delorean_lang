@@ -29,7 +29,7 @@ describe "Delorean" do
 
   it "can parse params" do
     engine.parse defn("A:",
-                      "  a = ?",
+                      "  a =?",
                       "  b =? a*2",
                       )
   end
@@ -170,7 +170,7 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("B:",
-                        "  b = ?",
+                        "  b =?",
                         "  b = 123",
                         )
     }.should raise_error(Delorean::RedefinedError)
@@ -188,7 +188,7 @@ describe "Delorean" do
   it "should raise error for nodes defined more than once" do
     lambda {
       engine.parse defn("B:",
-                        "  b = ?",
+                        "  b =?",
                         "B:",
                         )
     }.should raise_error(Delorean::RedefinedError)

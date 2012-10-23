@@ -14,7 +14,7 @@ describe "Delorean" do
                       "Z:",
                       "XX: Y",
                       "  a = 11",
-                      "  c = ?",
+                      "  c =?",
                       "  d = 456",
                       )
     engine.enumerate_attrs.should == {
@@ -33,7 +33,7 @@ describe "Delorean" do
                       "Z:",
                       "XX: Y",
                       "  a = 11",
-                      "  c = ?",
+                      "  c =?",
                       "  d = 123",
                       "YY: XX",
                       "  c =? 22",

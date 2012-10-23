@@ -4,9 +4,9 @@ grammar Delorean
   end
 
   rule formula
-    i:identifier space? '=' space '?' <Parameter>
-    /
     i:identifier space? '=?' space? e:expression <ParameterDefault>
+    /
+    i:identifier space? '=?' <Parameter>
     /
     i:identifier space? '=' space? e:expression <Formula>
     /

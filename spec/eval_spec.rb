@@ -64,7 +64,7 @@ describe "Delorean" do
 
   it "should give error when param is undefined for eval" do
     engine.parse defn("A:",
-                      "  a = ?",
+                      "  a =?",
                       "  c = a / 123.0",
                       )
 
@@ -75,7 +75,7 @@ describe "Delorean" do
 
   it "should handle simple param computation" do
     engine.parse defn("A:",
-                      "  a = ?",
+                      "  a =?",
                       "  c = a / 123.0",
                       )
 
@@ -195,7 +195,7 @@ describe "Delorean" do
   it "should be able to access specific node attrs " do
     engine.parse defn("A:",
                       "  b = 123",
-                      "  c = ?",
+                      "  c =?",
                       "B: A",
                       "  b = 111",
                       "  c = A.b * 123",
@@ -310,7 +310,7 @@ describe "Delorean" do
                       "  a = 2",
                       "  b = a*3",
                       "B: A",
-                      "  a = ?",
+                      "  a =?",
                       )
 
     r = engine.evaluate("A", "b", {"a" => 10})
@@ -328,7 +328,7 @@ describe "Delorean" do
   sample_script = <<eof
 A:
 	a = 2
-	p = ?
+	p =?
 	c = a * 2
 	pc = p + c
 
