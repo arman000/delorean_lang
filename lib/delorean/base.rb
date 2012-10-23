@@ -13,8 +13,13 @@ module Delorean
 
       def self._get_attr(obj, attr)
         if obj.kind_of? ActiveRecord::Base
+          klass = obj.class
+
           return obj.read_attribute(attr) if
-            obj.class.attribute_names.member? attr
+            klass.attribute_names.member? attr
+
+          return obj.send(attr) if
+            klass.reflect_on_all_associations.map(&:name).member? attr
 
           raise InvalidGetAttribute, "ActiveRecord lookup '#{attr}' on #{obj}"
         elsif obj.instance_of?(Class) && obj < BaseClass
