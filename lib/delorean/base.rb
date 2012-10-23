@@ -18,8 +18,8 @@ module Delorean
           return obj.read_attribute(attr) if
             klass.attribute_names.member? attr
 
-          return obj.send(attr) if
-            klass.reflect_on_all_associations.map(&:name).member? attr
+          return obj.send(attr.to_sym) if
+            klass.reflect_on_all_associations.map(&:name).member? attr.to_sym
 
           raise InvalidGetAttribute, "ActiveRecord lookup '#{attr}' on #{obj}"
         elsif obj.instance_of?(Class) && obj < BaseClass

@@ -245,6 +245,15 @@ describe "Delorean" do
     r.should == "CRJ"
   end
 
+  it "should be able to get assoc attr on ActiveRecord objects" do
+    engine.parse defn("A:",
+                      '  b = Dummy.miss_you_so_bad()',
+                      '  c = b.dummy',
+                      )
+    r = engine.evaluate("A", "c")
+    r.name.should == "hello"
+  end
+
   it "should be able to call class methods on ActiveRecord classes in modules" do
     engine.parse defn("A:",
                       "  b = M::LittleDummy.heres_my_number(867, 5309)",

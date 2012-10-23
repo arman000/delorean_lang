@@ -25,11 +25,13 @@ ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 ActiveRecord::Migration.create_table :dummies do |t|
   t.string :name
   t.decimal :number
+  t.references :dummy
   t.timestamps
 end
 
 class Dummy < ActiveRecord::Base
-  attr_accessible :name, :number
+  attr_accessible :name, :number, :dummy
+  belongs_to :dummy
 
   def self.i_just_met_you(name, number)
     Dummy.new(name: name, number: number)
@@ -45,6 +47,13 @@ class Dummy < ActiveRecord::Base
 
   def self.this_is_crazy
   end
+
+  def self.miss_you_so_bad
+    d = Dummy.create(name: "hello", number: 123)
+    res = Dummy.new(name: "jello", number: 456, dummy: d)
+  end
+
+  MISS_YOU_SO_BAD_SIG = [0, 0]
 end
 
 module M
