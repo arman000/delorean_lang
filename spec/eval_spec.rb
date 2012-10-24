@@ -122,43 +122,6 @@ describe "Delorean" do
     res[1].should == [["XXX", 2, "b"]]
   end
 
-  it "should cache attr results and reuse them" do
-    engine.parse defn("A:",
-                      "  b = TIMESTAMP()",
-                      "  c = TIMESTAMP()",
-                      "B: A",
-                      "C:",
-                      "  b = TIMESTAMP()",
-                      )
-
-    _e = {}
-
-    rb = engine.evaluate("A", "b", _e)
-    sleep(0.1)
-    rc = engine.evaluate("A", "c", _e)
-
-    rb.should_not == rc
-
-    rbb = engine.evaluate("A", "b", _e)
-    rcc = engine.evaluate("A", "c", _e)
-
-    rb.should == rbb
-    rc.should == rcc
-
-    rbbb = engine.evaluate("B", "b", _e)
-    rccc = engine.evaluate("B", "c", _e)
-
-    rb.should == rbbb
-    rc.should == rccc
-
-    r3 = engine.evaluate("C", "b", _e)
-    r3.should_not == rb
-
-    sleep(0.1)
-
-    r3.should == engine.evaluate("C", "b", _e)
-  end
-
   it "should properly report error on missing modules" do
     pending
   end
