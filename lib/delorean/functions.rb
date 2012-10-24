@@ -25,6 +25,16 @@ module Delorean
     ROUND_SIG = [ 1, 2 ]
 
     ######################################################################
+
+    def DATE_PART(date, part)
+      return date.month if part == "m"
+      return date.year if part == "y"
+      return date.day if part == "d"
+    end
+
+    DATE_PART_SIG = [ 2, 2 ]
+
+    ######################################################################
   end
 end
 
