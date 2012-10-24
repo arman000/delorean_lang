@@ -52,12 +52,12 @@ describe "Delorean" do
     r.should == [12.35, 12.3, 12]
   end
 
-  it "should handle DATE_PART" do
+  it "should handle DATEPART" do
     engine.parse defn("A:",
                       "  p =?",
-                      "  y = DATE_PART(p, 'y')",
-                      "  d = DATE_PART(p, 'd')",
-                      "  m = DATE_PART(p, 'm')",
+                      "  y = DATEPART(p, 'y')",
+                      "  d = DATEPART(p, 'd')",
+                      "  m = DATEPART(p, 'm')",
                       )
 
     r = engine.evaluate_attrs("A", ["y", "d", "m"], {"p" => Date.today})

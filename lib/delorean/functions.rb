@@ -26,13 +26,13 @@ module Delorean
 
     ######################################################################
 
-    def DATE_PART(date, part)
+    def DATEPART(date, part)
       return date.month if part == "m"
       return date.year if part == "y"
       return date.day if part == "d"
     end
 
-    DATE_PART_SIG = [ 2, 2 ]
+    DATEPART_SIG = [ 2, 2 ]
 
     ######################################################################
   end
