@@ -60,8 +60,51 @@ describe "Delorean" do
                       "  m = DATEPART(p, 'm')",
                       )
 
-    r = engine.evaluate_attrs("A", ["y", "d", "m"], {"p" => Date.today})
-    r.should == [Date.today.year, Date.today.day, Date.today.month]
+    p = Date.today
+    r = engine.evaluate_attrs("A", ["y", "d", "m"], {"p" => p})
+    r.should == [p.year, p.day, p.month]
+
+    # Non date argument should raise an error
+    expect { engine.evaluate_attrs("A", ["y", "d", "m"], {"p" => 123}) }.to raise_error
+     # Invalid part argument should raise an error
+    engine.reset
+    engine.parse defn("A:",
+                      "  p =?",
+                      "  x = DATEPART(p, 'x')",
+                      )
+    expect { engine.evaluate_attrs("A", ["x"], {"p" => p}) }.to raise_error
+  end
+
+  it "should handle DATEADD" do
+    engine.parse defn("A:",
+                      "  p =?",
+                      "  y = DATEADD(p, 1, 'y')",
+                      "  d = DATEADD(p, 30, 'd')",
+                      "  m = DATEADD(p, 2, 'm')",
+                      )
+
+    p = Date.today
+    r = engine.evaluate_attrs("A", ["y", "d", "m"], {"p" => p})
+    r.should == [p + 1.years, p + 30.days, p + 2.months]
+
+    # Non date argument should raise an error
+    expect { engine.evaluate_attrs("A", ["y", "d", "m"], {"p" => 123}) }.to raise_error
+
+    # Invalid interval argument should raise an error
+    engine.reset
+    engine.parse defn("A:",
+                      "  p =?",
+                      "  m = DATEADD(p, 1.3, 'm')",
+                      )
+    expect { engine.evaluate_attrs("A", ["m"], {"p" => p}) }.to raise_error
+   
+    # Invalid part argument should raise an error
+    engine.reset
+    engine.parse defn("A:",
+                      "  p =?",
+                      "  x = DATEADD(p, 1, 'x')",
+                      )
+    expect { engine.evaluate_attrs("A", ["x"], {"p" => p}) }.to raise_error
   end
 
 end
