@@ -27,6 +27,8 @@ module Delorean
     ######################################################################
 
     def DATEPART(date, part)
+      raise "non-date arg to DATEPART" unless date.is_a?(Date)
+
       return date.month if part == "m"
       return date.year if part == "y"
       return date.day if part == "d"
