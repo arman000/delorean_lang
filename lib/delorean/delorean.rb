@@ -1743,7 +1743,12 @@ module Delorean
         break
       end
     end
-    r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
+    if s1.empty?
+      @index = i1
+      r1 = nil
+    else
+      r1 = instantiate_node(SyntaxNode,input, i1...index, s1)
+    end
     s0 << r1
     if r1
       if has_terminal?('.', false, index)

@@ -52,6 +52,14 @@ describe "Delorean" do
     }.should raise_error(Delorean::ParseError)
   end
 
+  it "should disallow .<digits> literals" do
+    lambda {
+      engine.parse defn("A:",
+                        "  a = .123",
+                        )
+    }.should raise_error(Delorean::ParseError)
+  end
+
   it "should disallow bad attr names" do
     lambda {
       engine.parse defn("A:",
