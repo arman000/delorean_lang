@@ -12,6 +12,8 @@ module Delorean
       ######################################################################
 
       def self._get_attr(obj, attr)
+        return nil if obj.nil?
+
         if obj.kind_of? ActiveRecord::Base
           klass = obj.class
 

@@ -208,6 +208,16 @@ describe "Delorean" do
     r.should == "CRJ"
   end
 
+  it "get attr on nil should return nil" do
+    engine.parse defn("A:",
+                      '  b = Dummy.i_just_met_you("CRJ", 1.234).dummy',
+                      '  c = b.gaga',
+                      '  d = b.gaga || 55',
+                      )
+    r = engine.evaluate_attrs("A", ["b", "c", "d"])
+    r.should == [nil, nil, 55]
+  end
+
   it "should be able to get assoc attr on ActiveRecord objects" do
     engine.parse defn("A:",
                       '  b = Dummy.miss_you_so_bad()',
