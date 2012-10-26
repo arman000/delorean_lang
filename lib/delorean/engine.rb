@@ -181,19 +181,40 @@ module Delorean
     # Script development/testing
     ######################################################################
 
-    # enumerate qualified list of all attrs.
+    # enumerate all nodes
+    def enumerate_nodes
+      n = SortedSet.new
+      @node_attrs.keys.each {|k| n.add(k) }
+      n
+    end
+
+    # enumerate qualified list of all attrs
     def enumerate_attrs
+      enumerate_attrs_by_node(nil)
+    end
+
+    # enumerate qualified list of attrs by node (or all if nil is passed in)
+    def enumerate_attrs_by_node(node)
       @node_attrs.keys.inject({}) { |h, n|
         klass = @m.module_eval(n)
         h[n] = klass.methods.map(&:to_s).select {|x| x.end_with?(POST)}.map {|x|
           x.sub(/#{POST}$/, '')
-        }
+        } if node == n || node.nil?
         h
       }
     end
 
+    # enumerate all params
     def enumerate_params
       @param_set
+    end
+
+    # enumerate params by a single node
+    def enumerate_params_by_node(node)
+      attrs = enumerate_attrs_by_node(node)
+      ps = Set.new
+      attrs.each_value {|v| v.map {|p| ps.add(p) if @param_set.include?(p.to_s)}}
+      ps
     end
 
     ######################################################################
