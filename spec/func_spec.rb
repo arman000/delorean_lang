@@ -52,6 +52,30 @@ describe "Delorean" do
     r.should == [12.35, 12.3, 12]
   end
 
+  it "should handle TIMEPART" do
+    engine.parse defn("A:",
+                      "  p =?",
+                      "  p2 =?",
+                      "  h = TIMEPART(p, 'h')",
+                      "  m = TIMEPART(p, 'm')",
+                      "  s = TIMEPART(p, 's')",
+                      "  d = TIMEPART(p, 'd')",
+                      "  d2 = TIMEPART(p2, 'd')",
+                      "  h2 = TIMEPART(p2, 'h')",
+                      )
+
+    p = Time.now
+    params = {"p" => p, "p2" => Float::INFINITY}
+    r = engine.evaluate_attrs("A", %w{h m s d d2}, params)
+    r.should == [p.hour, p.min, p.sec, p.to_date, Float::INFINITY]
+
+    expect { engine.evaluate_attrs("A", ["h2"], params) }.to raise_error
+
+    # Non time argument should raise an error
+    expect { engine.evaluate_attrs("A", ["m"], {"p" => 123}) }.to raise_error
+
+  end
+
   it "should handle DATEPART" do
     engine.parse defn("A:",
                       "  p =?",

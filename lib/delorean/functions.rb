@@ -26,6 +26,26 @@ module Delorean
 
     ######################################################################
 
+    def TIMEPART(time, part)
+      if time == Float::INFINITY
+        return time if part == "d"
+        raise "Can only access date part of Infinity"
+      end
+
+      raise "non-time arg to TIMEPART" unless time.is_a?(Time)
+      
+      return time.hour if part == "h"
+      return time.min if part == "m"
+      return time.sec if part == "s"
+      return time.to_date if part == "d"
+
+      raise "unknown part arg to TIMEPART"
+    end
+
+    TIMEPART_SIG = [ 2, 2 ]
+
+    ######################################################################
+
     def DATEPART(date, part)
       raise "non-date arg to DATEPART" unless date.is_a?(Date)
 
