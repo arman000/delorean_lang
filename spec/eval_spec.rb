@@ -360,4 +360,56 @@ eof
     }.should raise_error(Delorean::UndefinedNodeError)
   end
 
+  it "should handle invalid expression evaluation" do
+    # Should handle errors on expression such as -[] or -"xxx" or ("x"
+    # + []) better. Currently, it raised NoMethodError.
+    pending
+  end
+
+  it "should eval lists" do
+    engine.parse defn("A:",
+                      "  b = []",
+                      "  c = [1,2,3]",
+                      "  d = [b, c, b, c, 1, 2, '123', 1.1, -1.23]",
+                      "  e = [1, 1+1, 1+1+1, 1*2*4]",
+                      )
+
+    engine.evaluate_attrs("A", %w{b c d e}).should ==
+      [[],
+       [1, 2, 3],
+       [[], [1, 2, 3], [], [1, 2, 3], 1, 2, "123", 1.1, -1.23],
+       [1, 2, 3, 8],
+      ]
+  end
+
+  it "should eval list comprehension" do
+    engine.parse defn("A:",
+                      "  b = [i: [1,2,3] | i*5]",
+                      )
+    engine.evaluate("A", "b").should == [5, 10, 15]
+  end
+
+  it "should eval nested list comprehension" do
+    engine.parse defn("A:",
+                      "  b = [a: [1,2,3] | [c: [4,5] | a+c]]",
+                      )
+    engine.evaluate("A", "b").should == [[5, 6], [6, 7], [7, 8]]
+
+  end
+
+  it "should eval list comprehension variable override" do
+    engine.parse defn("A:",
+                      "  b = [b: [1,2,3] | b/2.0]",
+                      )
+    engine.evaluate("A", "b").should == [0.5, 1.0, 1.5]
+  end
+
+  it "should eval list comprehension variable override (2)" do
+    engine.parse defn("A:",
+                      "  a = 1",
+                      "  b = [a: [1,2,3] | a+1]",
+                      )
+    engine.evaluate("A", "b").should == [2, 3, 4]
+  end
+
 end

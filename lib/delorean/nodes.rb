@@ -158,8 +158,10 @@ module Delorean
     def rewrite(context)
       # Identifiers are just attr accesses.  These are translated to
       # class method calls.  POST is used in mangling the attr names.
-      # _e is the environment.
-      text_value + POST + '(_e)'
+      # _e is the environment.  Comprehension vars (in comp_set) are
+      # not passed the env arg.
+      arg = context.comp_set.member?(text_value) ? "" : '(_e)'
+      text_value + POST + arg
     end
   end
 
@@ -253,4 +255,36 @@ module Delorean
         e1.rewrite(context) + ") : (" + e2.rewrite(context) + ")"
     end
   end
+
+  class ListExpr < SNode
+    def check(context)
+      defined?(args) ? args.check(context) : []
+    end
+
+    def rewrite(context)
+      "[" + (defined?(args) ? args.rewrite(context) : "") + "]"
+    end
+  end
+
+  class ListComprehension < SNode
+    def check(context)
+      e1c = e1.check(context)
+      context.parse_define_var(i.text_value)
+      # need to check e2 in a context where the comprehension var is
+      # defined.
+      e2c = e2.check(context)
+      context.parse_undef_var(i.text_value)
+      e2c.delete(i.text_value)
+      e1c + e2c
+    end
+
+    def rewrite(context)
+      res = "(#{e1.rewrite(context)}).map{"
+      context.parse_define_var(i.text_value)
+      res += "|#{i.rewrite(context)}| (#{e2.rewrite(context)}) }"
+      context.parse_undef_var(i.text_value)
+      res
+    end
+  end
+
 end

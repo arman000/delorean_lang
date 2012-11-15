@@ -20,6 +20,8 @@ grammar Delorean
   end
 
   rule expression
+    list_expr
+    /
     op:unary_op space? e:expression <UnOp>
     /
     'if' space? v:expression space?
@@ -29,6 +31,15 @@ grammar Delorean
     v:value space? op:binary_op space? e:expression <BinOp>
     /
     value
+  end
+
+  rule list_expr
+    '[]' <ListExpr>
+    /
+    '[' space? i:identifier ':' space? e1:expression space? '|'
+      space? e2:expression space? ']' <ListComprehension>
+    /
+    '[' space? args:fn_args space? ']' <ListExpr>
   end
 
   rule binary_op

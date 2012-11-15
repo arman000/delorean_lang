@@ -447,4 +447,89 @@ describe "Delorean" do
     }.should raise_error(Delorean::UndefinedError)
   end
 
+  it "should be able to parse lists " do
+    engine.parse defn("A:",
+                      "  b = []",
+                      "  c = [1,2,3]",
+                      "  d = [b, c, b, c, 1, 2, '123', 1.1]",
+                      "  e = [1, 1+1, 1+1+1]",
+                      )
+
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "  a = [",
+                        )
+    }.should raise_error(Delorean::ParseError)
+
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "  a = []-",
+                        )
+    }.should raise_error(Delorean::ParseError)
+
+  end
+
+  it "should parse list comprehension" do
+    engine.parse defn("A:",
+                      "  b = [i: [] | 123]",
+                      )
+
+  end
+
+  it "should parse list comprehension (2)" do
+    engine.parse defn("A:",
+                      "  b = [i: [1,2,3] | i+1]",
+                      )
+
+  end
+
+  it "should parse nested list comprehension" do
+    engine.parse defn("A:",
+                      "  b = [a: [1,2,3] | [c: [4,5] | a+c]]",
+                      )
+
+  end
+
+  it "should accept list comprehension variable override" do
+    engine.parse defn("A:",
+                      "  b = [b: [1,2,3] | b+1]",
+                      )
+  end
+
+  it "should accept list comprehension variable override (2)" do
+    engine.parse defn("A:",
+                      "  a = 1",
+                      "  b = [a: [1,2,3] | a+1]",
+                      )
+  end
+
+  it "errors out on bad list comprehension" do
+    lambda {
+      engine.parse defn("A:",
+                        "  b = [x: [1,2,3] | i+1]",
+                        )
+    }.should raise_error(Delorean::UndefinedError)
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "  a = [b: b | 123]",
+                        )
+    }.should raise_error(Delorean::UndefinedError)
+    engine.reset
+
+    # disallow nested comprehension var reuse
+    lambda {
+      engine.parse defn("A:",
+                        "  b = [a: [1,2,3] | [a: [4,5] | a+1]]",
+                        )
+    }.should raise_error(Delorean::RedefinedError)
+    engine.reset
+  end
+
 end
+

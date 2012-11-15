@@ -6,7 +6,7 @@ module Delorean
   POST = "__D"
 
   class Engine
-    attr_reader :last_node, :module_name, :line_no
+    attr_reader :last_node, :module_name, :line_no, :comp_set
 
     def initialize(module_name)
       # name of current module
@@ -18,6 +18,9 @@ module Delorean
       @m, @pm = nil, nil
       @last_node, @node_attrs = nil, {}
       @line_no = 0
+
+      # list comprehension vars
+      @comp_set = Set.new
 
       # set of all params
       @param_set = Set.new
@@ -43,6 +46,8 @@ module Delorean
     # Parse-time check to see if attr is available.  If not, error is
     # raised.
     def parse_call_attr(node_name, attr_name)
+      return [] if comp_set.member?(attr_name)
+
       # get the class associated with node
       klass = @pm.module_eval(node_name)
 
@@ -59,6 +64,19 @@ module Delorean
     def parse_call_last_node_attr(attr_name)
       err(ParseError, "Not inside a node") unless @last_node
       parse_call_attr(@last_node, attr_name)
+    end
+
+    def parse_define_var(var_name)
+      err(RedefinedError,
+          "List comprehension can't redefine variable '#{var_name}'") if
+        comp_set.member? var_name
+
+      comp_set.add var_name
+    end
+
+    def parse_undef_var(var_name)
+      err(ParseError, "internal error") unless comp_set.member? var_name
+      comp_set.delete var_name
     end
 
     # parse-time attr definition
@@ -165,7 +183,7 @@ module Delorean
         # generate ruby code
         gen = t.rewrite(self)
 
-        # pp gen
+        # p gen
 
         begin
           # evaluate generated code in @m
