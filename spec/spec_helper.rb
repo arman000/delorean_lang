@@ -54,6 +54,12 @@ class Dummy < ActiveRecord::Base
   end
 
   MISS_YOU_SO_BAD_SIG = [0, 0]
+
+  def self.i_threw_a_hash_in_the_well
+    {a: 123, "a" => 456, b: 789}
+  end
+
+  I_THREW_A_HASH_IN_THE_WELL_SIG = [0, 0]
 end
 
 module M

@@ -24,6 +24,9 @@ module Delorean
             klass.reflect_on_all_associations.map(&:name).member? attr.to_sym
 
           raise InvalidGetAttribute, "ActiveRecord lookup '#{attr}' on #{obj}"
+        elsif obj.instance_of?(Hash)
+          return obj[attr] if obj.member?(attr)
+          return obj[attr.to_sym]
         elsif obj.instance_of?(Class) && obj < BaseClass
           # FIXME: do something
           puts 'X'*30

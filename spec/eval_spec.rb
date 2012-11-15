@@ -208,6 +208,16 @@ describe "Delorean" do
     r.should == "CRJ"
   end
 
+  it "should be able to get attr on Hash objects using a.b syntax" do
+    engine.parse defn("A:",
+                      '  b = Dummy.i_threw_a_hash_in_the_well()',
+                      "  c = b.a",
+                      "  d = b.b",
+                      "  e = b.this_is_crazy",
+                      )
+    engine.evaluate_attrs("A", %w{c d e}).should == [456, 789, nil]
+  end
+
   it "get attr on nil should return nil" do
     engine.parse defn("A:",
                       '  b = Dummy.i_just_met_you("CRJ", 1.234).dummy',
