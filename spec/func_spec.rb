@@ -131,4 +131,12 @@ describe "Delorean" do
     expect { engine.evaluate_attrs("A", ["x"], {"p" => p}) }.to raise_error
   end
 
+  it "should handle INDEX" do
+    engine.parse defn("A:",
+                      "  a = [i: [1,2] | INDEX([0, 11, 22, 33], i)]",
+                      )
+
+    engine.evaluate("A", "a").should == [11,22]
+  end
+
 end

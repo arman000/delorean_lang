@@ -74,6 +74,15 @@ module Delorean
     DATEADD_SIG = [ 3, 3 ]
 
     ######################################################################
+
+    def INDEX(array, i)
+      raise "non-array arg to INDEX" unless array.is_a?(Array)
+      raise "non-integer index on call to INDEX" unless i.is_a?(Fixnum)
+      array.at(i)
+    end
+
+    INDEX_SIG = [ 2, 2 ]
+
+    ######################################################################
   end
 end
-
