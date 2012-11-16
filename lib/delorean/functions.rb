@@ -18,6 +18,22 @@ module Delorean
 
     ######################################################################
 
+    def MAXLIST(arg)
+      raise "argument must be list" unless arg.is_a? Array
+      arg.max
+    end
+
+    MAXLIST_SIG = [ 1, 1 ]
+
+    def MINLIST(arg)
+      raise "argument must be list" unless arg.is_a? Array
+      arg.min
+    end
+
+    MINLIST_SIG = [ 1, 1 ]
+
+    ######################################################################
+
     def ROUND(number, *args)
       number.round(*args)
     end

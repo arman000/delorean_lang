@@ -41,6 +41,22 @@ describe "Delorean" do
     r.should == -3
   end
 
+  it "should handle MAXLIST" do
+    engine.parse defn("A:",
+                      "  a = MAXLIST([1, 2, 3])",
+                      )
+
+    engine.evaluate("A", "a").should == 3
+  end
+
+  it "should handle MINLIST" do
+    engine.parse defn("A:",
+                      "  a = MINLIST([1, 10, -3])",
+                      )
+
+    engine.evaluate("A", "a").should == -3
+  end
+
   it "should handle ROUND" do
     engine.parse defn("A:",
                       "  a = ROUND(12.3456, 2)",
