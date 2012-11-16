@@ -1,16 +1,16 @@
 grammar Delorean
   rule line
-    f:formula space? ('#' .*)? <Line>
+    f:formula sp? ('#' .*)? <Line>
   end
 
   rule formula
-    i:identifier space? '=?' space? e:expression <ParameterDefault>
+    i:identifier sp? '=?' sp? e:expression <ParameterDefault>
     /
-    i:identifier space? '=?' <Parameter>
+    i:identifier sp? '=?' <Parameter>
     /
-    i:identifier space? '=' space? e:expression <Formula>
+    i:identifier sp? '=' sp? e:expression <Formula>
     /
-    n:node_name ':' space? p:node_name <SubNode>
+    n:node_name ':' sp? p:node_name <SubNode>
     /
     n:node_name ':' <BaseNode>
   end
@@ -22,13 +22,13 @@ grammar Delorean
   rule expression
     list_expr
     /
-    op:unary_op space? e:expression <UnOp>
+    op:unary_op sp? e:expression <UnOp>
     /
-    'if' space? v:expression space?
-    'then' space? e1:expression space?
-    'else' space? e2:expression <IfElse>
+    'if' sp? v:expression sp?
+    'then' sp? e1:expression sp?
+    'else' sp? e2:expression <IfElse>
     /
-    v:value space? op:binary_op space? e:expression <BinOp>
+    v:value sp? op:binary_op sp? e:expression <BinOp>
     /
     value
   end
@@ -36,10 +36,10 @@ grammar Delorean
   rule list_expr
     '[]' <ListExpr>
     /
-    '[' space? i:identifier ':' space? e1:expression space? '|'
-      space? e2:expression space? ']' <ListComprehension>
+    '[' sp? i:identifier ':' sp? e1:expression sp? '|'
+      sp? e2:expression sp? ']' <ListComprehension>
     /
-    '[' space? args:fn_args space? ']' <ListExpr>
+    '[' sp? args:fn_args sp? ']' <ListExpr>
   end
 
   rule binary_op
@@ -51,26 +51,27 @@ grammar Delorean
   end
 
   rule value
-    number / string / boolean / fn / model_fn_getattr / model_fn / node_getattr / getattr
+    number / string / boolean
+    / script_call / fn / model_fn_getattr / model_fn / node_getattr / getattr
     /
-    '(' space? e:expression space? ')' <Expr>
+    '(' sp? e:expression sp? ')' <Expr>
   end
 
   # built-in functions
   rule fn
-    fn:fn_name '(' space? ')' <Fn>
+    fn:fn_name '(' sp? ')' <Fn>
     /
-    fn:fn_name '(' space? args:fn_args space? ')' <Fn>
+    fn:fn_name '(' sp? args:fn_args sp? ')' <Fn>
   end
 
   rule fn_args
-    arg0:expression args_rest:(space? ',' space? args:fn_args)? <FnArgs>
+    arg0:expression args_rest:(sp? ',' sp? args:fn_args)? <FnArgs>
   end
 
   rule model_fn
-    m:model_name '.' fn:identifier '(' space? ')' <ModelFn>
+    m:model_name '.' fn:identifier '(' sp? ')' <ModelFn>
     /
-    m:model_name '.' fn:identifier '(' space? args:fn_args space? ')' <ModelFn>
+    m:model_name '.' fn:identifier '(' sp? args:fn_args sp? ')' <ModelFn>
   end
 
   rule model_name
@@ -85,6 +86,15 @@ grammar Delorean
 
   rule class_name
     [A-Z] [a-zA-Z0-9]*
+  end
+
+  # script calling
+  rule script_call
+    '@' i:identifier? '(' sp? al:kw_args sp? ')' <ScriptCall>
+  end
+
+  rule kw_args
+    k:(i:identifier ':' sp?)? arg0:expression args_rest:(sp? ',' sp? al:kw_args)? <KwArgs>
   end
 
   rule node_getattr
@@ -127,7 +137,7 @@ grammar Delorean
     "'" [^']* "'" <String>
   end
 
-  rule space
+  rule sp
     [\s]+
   end
 end

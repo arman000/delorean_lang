@@ -19,7 +19,7 @@ module Delorean
       @last_node, @node_attrs = nil, {}
       @line_no = 0
 
-      # list comprehension vars
+      # set of comprehension vars
       @comp_set = Set.new
 
       # set of all params
@@ -183,7 +183,7 @@ module Delorean
         # generate ruby code
         gen = t.rewrite(self)
 
-        # p gen
+        # puts gen
 
         begin
           # evaluate generated code in @m
@@ -251,6 +251,8 @@ module Delorean
       rescue NameError
         err(UndefinedNodeError, "node #{node} is undefined")
       end
+
+      params[:_engine] = self
 
       attrs.map {|attr|
         raise "bad attribute '#{attr}'" unless attr.match(/^[a-z][A-Za-z0-9_]*$/)

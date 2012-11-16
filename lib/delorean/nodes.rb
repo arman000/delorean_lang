@@ -287,4 +287,46 @@ module Delorean
     end
   end
 
+  class KwArgs < SNode
+    def check(context)
+      arg0.check(context) + (defined?(args_rest.args) ?
+                             args_rest.args.check(context) : [])
+    end
+
+    def rewrite(context)
+      arg0_rw = arg0.rewrite(context)
+
+      if defined?(args_rest.al)
+        args, kw = args_rest.al.rewrite(context)
+      else
+        args, kw = [], {}
+      end
+
+      if defined?(k.i)
+        kw[k.i.text_value] = arg0_rw
+      else
+        args << arg0_rw
+      end
+
+      [args, kw]
+    end
+  end
+
+  class ScriptCall < SNode
+    def check(context)
+      i.check(context) unless i.text_value.empty?
+      al.check(context) if defined?(al)
+      []
+    end
+
+    def rewrite(context)
+      node_name = i.text_value.empty? ? "nil" : i.rewrite(context)
+      args, kw = al.rewrite(context)
+
+      args_str = '[' + args.reverse.join(',') + ']'
+      kw_str = '{' + kw.map {|k, v| "'#{k}' => #{v}" }.join(',') + '}'
+
+      "_script_call(#{node_name}, _e, #{args_str}, #{kw_str})"
+    end
+  end
 end

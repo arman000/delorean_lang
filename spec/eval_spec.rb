@@ -422,4 +422,27 @@ eof
     engine.evaluate("A", "b").should == [2, 3, 4]
   end
 
+  it "should eval module calls" do
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "  b = 456 + a",
+                      "  n = 'A'",
+                      "  c = @('a', 'b', x: 123, y: 456)",
+                      "  d = @n('a', 'b', x: 123, y: 456)",
+                      "  e = @('b')",
+                      )
+
+    engine.evaluate_attrs("A", %w{n c d e}).should ==
+      ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, 579]
+  end
+
+  it "should be possible to implement recursive calls" do
+    engine.parse defn("A:",
+                      "  n =?",
+                      "  factorial = if n <= 1 then 1 else n * @('factorial', n: n-1)",
+                      )
+    
+    engine.evaluate("A", "factorial", "n" => 10).should == 3628800
+  end
+
 end

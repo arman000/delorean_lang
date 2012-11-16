@@ -27,9 +27,6 @@ module Delorean
         elsif obj.instance_of?(Hash)
           return obj[attr] if obj.member?(attr)
           return obj[attr.to_sym]
-        elsif obj.instance_of?(Class) && obj < BaseClass
-          # FIXME: do something
-          puts 'X'*30
         end
 
         raise InvalidGetAttribute, "bad attribute lookup '#{attr}' on #{obj}"
@@ -47,6 +44,19 @@ module Delorean
 
       ######################################################################
 
+      def self._script_call(node_name, _e, attrs, params)
+        engine = _e[:_engine]
+        node_name = self.name.split('::')[-1] unless node_name
+
+        res = engine.evaluate_attrs(node_name, attrs, params)
+
+        return res[0] if attrs.length == 1
+
+        # There are more than one attrs, return hash result
+        Hash[* attrs.zip(res).flatten]
+      end
+
+      ######################################################################
     end
   end
 end

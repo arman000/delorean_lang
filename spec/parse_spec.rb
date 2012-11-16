@@ -531,5 +531,16 @@ describe "Delorean" do
     engine.reset
   end
 
+  it "should parse module calls" do
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "  b = 456 + a",
+                      "  n = 'A'",
+                      "  c = @('a', 'b', x: 123, y: 456)",
+                      "  d = @n('a', 'b', x: 123, y: 456)",
+                      )
+
+  end
+
 end
 
