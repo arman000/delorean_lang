@@ -101,12 +101,12 @@ module Delorean
 
     ######################################################################
 
-    def ERR(str)
-      raise "non-string arg to ERR" unless str.is_a?(String)
+    def ERR(*args)
+      str = args.map(&:to_s).join(", ")
       raise str
     end
 
-    ERR_SIG = [ 1, 1 ]
+    ERR_SIG = [ 1, Float::INFINITY ]
 
     ######################################################################
   end

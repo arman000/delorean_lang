@@ -158,9 +158,15 @@ describe "Delorean" do
   it "should handle ERR" do
     engine.parse defn("A:",
                       "  a = ERR('hello')",
+                      "  b = ERR('xx', 1, 2, 3)",
                       )
 
-    expect { engine.evaluate("A", "a") }.to raise_error
+    expect { engine.evaluate("A", "a") }.to raise_error('hello')
+
+    lambda {
+      r = engine.evaluate("A", "b")
+    }.should raise_error("xx, 1, 2, 3")
+
   end
 
 end
