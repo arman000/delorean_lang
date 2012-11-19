@@ -155,4 +155,12 @@ describe "Delorean" do
     engine.evaluate("A", "a").should == [11,22]
   end
 
+  it "should handle ERR" do
+    engine.parse defn("A:",
+                      "  a = ERR('hello')",
+                      )
+
+    expect { engine.evaluate("A", "a") }.to raise_error
+  end
+
 end

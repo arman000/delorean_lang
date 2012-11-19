@@ -100,5 +100,14 @@ module Delorean
     INDEX_SIG = [ 2, 2 ]
 
     ######################################################################
+
+    def ERR(str)
+      raise "non-string arg to ERR" unless str.is_a?(String)
+      raise str
+    end
+
+    ERR_SIG = [ 1, 1 ]
+
+    ######################################################################
   end
 end

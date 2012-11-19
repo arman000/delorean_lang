@@ -122,10 +122,6 @@ describe "Delorean" do
     res[1].should == [["XXX", 2, "b"]]
   end
 
-  it "should properly report error on missing modules" do
-    pending
-  end
-
   it "should handle operator precedence properly" do
     engine.parse defn("A:",
                       "  b = 3+2*4-1",

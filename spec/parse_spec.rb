@@ -161,11 +161,6 @@ describe "Delorean" do
     }.should raise_error(Delorean::RecursionError)
   end
 
-  it "should check for inter-module recusion" do
-    # does this even happen?
-    pending
-  end
-
   it "gives errors for attrs defined more than once in a node" do
     lambda {
       engine.parse defn("B:",
@@ -270,20 +265,6 @@ describe "Delorean" do
                         "  return=a",
                         )
     }.should_not raise_error
-  end
-
-  it "should be able to call other modules with named params" do
-    # what's the syntax
-
-    # probably need a module "require" mechanism.  Should not allow
-    # recursive require.
-
-    # # inter module node/attr call.
-    # n = module_name::node_name(keyword_args)
-    # v = n.attr1
-
-    # in _get_attr: If the operand is a module node, we call it.
-    pending
   end
 
   it "should be able to chain method calls on model functions" do
