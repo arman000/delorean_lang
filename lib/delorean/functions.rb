@@ -101,6 +101,17 @@ module Delorean
 
     ######################################################################
 
+    def FLATTEN(array, *args)
+      raise "non-array arg to FLATTEN" unless array.is_a?(Array)
+      raise "non-integer flatten on call to FLATTEN" unless
+        (args.empty? || args[0].is_a?(Fixnum))
+      array.flatten(*args)
+    end
+
+    FLATTEN_SIG = [ 1, 2 ]
+
+    ######################################################################
+
     def ERR(*args)
       str = args.map(&:to_s).join(", ")
       raise str

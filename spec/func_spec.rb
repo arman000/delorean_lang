@@ -155,6 +155,17 @@ describe "Delorean" do
     engine.evaluate("A", "a").should == [11,22]
   end
 
+  it "should handle FLATTEN" do
+    x = [[1,2,[3]], 4, 5, [6]]
+
+    engine.parse defn("A:",
+                      "  a = #{x}",
+                      "  b = FLATTEN(a) + FLATTEN(a, 1)"
+                      )
+
+    engine.evaluate("A", "b").should == x.flatten + x.flatten(1)
+  end
+
   it "should handle ERR" do
     engine.parse defn("A:",
                       "  a = ERR('hello')",
