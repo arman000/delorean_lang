@@ -388,6 +388,20 @@ eof
       ]
   end
 
+  it "should eval list expressions" do
+    engine.parse defn("A:",
+                      "  b = []+[]",
+                      "  c = [1,2,3]+b",
+                      "  d = c*2",
+                      )
+
+    engine.evaluate_attrs("A", %w{b c d}).should ==
+      [[],
+       [1, 2, 3],
+       [1, 2, 3]*2,
+      ]
+  end
+
   it "should eval list comprehension" do
     engine.parse defn("A:",
                       "  b = [i: [1,2,3] | i*5]",

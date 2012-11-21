@@ -20,8 +20,6 @@ grammar Delorean
   end
 
   rule expression
-    list_expr
-    /
     op:unary_op sp? e:expression <UnOp>
     /
     'if' sp? v:expression sp?
@@ -51,9 +49,16 @@ grammar Delorean
   end
 
   rule value
-    number / string / boolean
-    / script_call / fn / model_fn_getattr / model_fn / node_getattr / getattr
-    /
+    number /
+    string / 
+    boolean / 
+    script_call / 
+    fn / 
+    model_fn_getattr /
+    model_fn / 
+    node_getattr / 
+    getattr /
+    list_expr /
     '(' sp? e:expression sp? ')' <Expr>
   end
 

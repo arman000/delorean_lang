@@ -309,14 +309,6 @@ describe "Delorean" do
     pending
   end
 
-  it "should be possible to list the set of params needed to exec a node attr" do
-    # during the parse process, we need to keep track of params used
-    # by each attr.  Need to make this available at runtime using a
-    # function.  e.g. for each attr "a" have "a_params" which retuns
-    # the set of a's params. This works propely wrt inheritance.
-    pending
-  end
-
   it "should be able to access derived attrs" do
     engine.parse defn("A:",
                       "  b =? 22",
@@ -452,6 +444,12 @@ describe "Delorean" do
                         )
     }.should raise_error(Delorean::ParseError)
 
+  end
+
+  it "should be able to parse list operations " do
+    engine.parse defn("A:",
+                      "  b = [] + []",
+                      )
   end
 
   it "should parse list comprehension" do
