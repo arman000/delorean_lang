@@ -34,7 +34,7 @@ grammar Delorean
   rule list_expr
     '[]' <ListExpr>
     /
-    '[' sp? i:identifier ':' sp? e1:expression sp? '|'
+    '[' sp? i:identifier sp? ':' sp? e1:expression sp? '|'
       sp? e2:expression sp? ']' <ListComprehension>
     /
     '[' sp? args:fn_args sp? ']' <ListExpr>

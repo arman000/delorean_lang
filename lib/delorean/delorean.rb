@@ -633,11 +633,11 @@ module Delorean
     end
 
     def e1
-      elements[5]
+      elements[6]
     end
 
     def e2
-      elements[9]
+      elements[10]
     end
 
   end
@@ -692,70 +692,79 @@ module Delorean
           r6 = _nt_identifier
           s2 << r6
           if r6
-            if has_terminal?(':', false, index)
-              r7 = instantiate_node(SyntaxNode,input, index...(index + 1))
-              @index += 1
+            r8 = _nt_sp
+            if r8
+              r7 = r8
             else
-              terminal_parse_failure(':')
-              r7 = nil
+              r7 = instantiate_node(SyntaxNode,input, index...index)
             end
             s2 << r7
             if r7
-              r9 = _nt_sp
-              if r9
-                r8 = r9
+              if has_terminal?(':', false, index)
+                r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                @index += 1
               else
-                r8 = instantiate_node(SyntaxNode,input, index...index)
+                terminal_parse_failure(':')
+                r9 = nil
               end
-              s2 << r8
-              if r8
-                r10 = _nt_expression
+              s2 << r9
+              if r9
+                r11 = _nt_sp
+                if r11
+                  r10 = r11
+                else
+                  r10 = instantiate_node(SyntaxNode,input, index...index)
+                end
                 s2 << r10
                 if r10
-                  r12 = _nt_sp
+                  r12 = _nt_expression
+                  s2 << r12
                   if r12
-                    r11 = r12
-                  else
-                    r11 = instantiate_node(SyntaxNode,input, index...index)
-                  end
-                  s2 << r11
-                  if r11
-                    if has_terminal?('|', false, index)
-                      r13 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                      @index += 1
+                    r14 = _nt_sp
+                    if r14
+                      r13 = r14
                     else
-                      terminal_parse_failure('|')
-                      r13 = nil
+                      r13 = instantiate_node(SyntaxNode,input, index...index)
                     end
                     s2 << r13
                     if r13
-                      r15 = _nt_sp
-                      if r15
-                        r14 = r15
+                      if has_terminal?('|', false, index)
+                        r15 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                        @index += 1
                       else
-                        r14 = instantiate_node(SyntaxNode,input, index...index)
+                        terminal_parse_failure('|')
+                        r15 = nil
                       end
-                      s2 << r14
-                      if r14
-                        r16 = _nt_expression
+                      s2 << r15
+                      if r15
+                        r17 = _nt_sp
+                        if r17
+                          r16 = r17
+                        else
+                          r16 = instantiate_node(SyntaxNode,input, index...index)
+                        end
                         s2 << r16
                         if r16
-                          r18 = _nt_sp
+                          r18 = _nt_expression
+                          s2 << r18
                           if r18
-                            r17 = r18
-                          else
-                            r17 = instantiate_node(SyntaxNode,input, index...index)
-                          end
-                          s2 << r17
-                          if r17
-                            if has_terminal?(']', false, index)
-                              r19 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                              @index += 1
+                            r20 = _nt_sp
+                            if r20
+                              r19 = r20
                             else
-                              terminal_parse_failure(']')
-                              r19 = nil
+                              r19 = instantiate_node(SyntaxNode,input, index...index)
                             end
                             s2 << r19
+                            if r19
+                              if has_terminal?(']', false, index)
+                                r21 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                                @index += 1
+                              else
+                                terminal_parse_failure(']')
+                                r21 = nil
+                              end
+                              s2 << r21
+                            end
                           end
                         end
                       end
@@ -777,56 +786,56 @@ module Delorean
       if r2
         r0 = r2
       else
-        i20, s20 = index, []
+        i22, s22 = index, []
         if has_terminal?('[', false, index)
-          r21 = instantiate_node(SyntaxNode,input, index...(index + 1))
+          r23 = instantiate_node(SyntaxNode,input, index...(index + 1))
           @index += 1
         else
           terminal_parse_failure('[')
-          r21 = nil
+          r23 = nil
         end
-        s20 << r21
-        if r21
-          r23 = _nt_sp
-          if r23
-            r22 = r23
+        s22 << r23
+        if r23
+          r25 = _nt_sp
+          if r25
+            r24 = r25
           else
-            r22 = instantiate_node(SyntaxNode,input, index...index)
+            r24 = instantiate_node(SyntaxNode,input, index...index)
           end
-          s20 << r22
-          if r22
-            r24 = _nt_fn_args
-            s20 << r24
-            if r24
-              r26 = _nt_sp
-              if r26
-                r25 = r26
+          s22 << r24
+          if r24
+            r26 = _nt_fn_args
+            s22 << r26
+            if r26
+              r28 = _nt_sp
+              if r28
+                r27 = r28
               else
-                r25 = instantiate_node(SyntaxNode,input, index...index)
+                r27 = instantiate_node(SyntaxNode,input, index...index)
               end
-              s20 << r25
-              if r25
+              s22 << r27
+              if r27
                 if has_terminal?(']', false, index)
-                  r27 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                  r29 = instantiate_node(SyntaxNode,input, index...(index + 1))
                   @index += 1
                 else
                   terminal_parse_failure(']')
-                  r27 = nil
+                  r29 = nil
                 end
-                s20 << r27
+                s22 << r29
               end
             end
           end
         end
-        if s20.last
-          r20 = instantiate_node(ListExpr,input, i20...index, s20)
-          r20.extend(ListExpr1)
+        if s22.last
+          r22 = instantiate_node(ListExpr,input, i22...index, s22)
+          r22.extend(ListExpr1)
         else
-          @index = i20
-          r20 = nil
+          @index = i22
+          r22 = nil
         end
-        if r20
-          r0 = r20
+        if r22
+          r0 = r22
         else
           @index = i0
           r0 = nil
