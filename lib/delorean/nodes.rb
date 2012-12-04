@@ -336,6 +336,10 @@ module Delorean
 
   class ScriptCallNode < ScriptCall
     def check(context)
+      # FIXME: for both this and when node_name is nil, should check
+      # to see if attributes exist on the node before allowing the
+      # call.  Also, can check parameters.
+
       context.parse_check_defined_node(c.text_value, true)
       al.check(context) if defined?(al)
       []
