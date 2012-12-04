@@ -455,4 +455,12 @@ eof
     engine.evaluate("A", "factorial", "n" => 10).should == 3628800
   end
 
+  it "should eval module calls by node name" do
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "  b = @A('a')",
+                      )
+    engine.evaluate("A", "b").should == 123
+  end
+
 end

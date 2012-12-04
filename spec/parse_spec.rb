@@ -518,8 +518,13 @@ describe "Delorean" do
                       "  c = @('a', 'b', x: 123, y: 456)",
                       "  d = @n('a', 'b', x: 123, y: 456)",
                       )
-
   end
 
+  it "should parse module calls by node name" do
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "  d = @A('a')",
+                      )
+  end
 end
 

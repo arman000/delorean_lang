@@ -321,12 +321,29 @@ module Delorean
 
     def rewrite(context)
       node_name = i.text_value.empty? ? "nil" : i.rewrite(context)
+      do_rewrite(context, node_name)
+    end
+
+    def do_rewrite(context, node_name)
       args, kw = al.rewrite(context)
 
       args_str = '[' + args.reverse.join(',') + ']'
       kw_str = '{' + kw.map {|k, v| "'#{k}' => #{v}" }.join(',') + '}'
 
       "_script_call(#{node_name}, _e, #{args_str}, #{kw_str})"
+    end
+  end
+
+  class ScriptCallNode < ScriptCall
+    def check(context)
+      context.parse_check_defined_node(c.text_value, true)
+      al.check(context) if defined?(al)
+      []
+    end
+
+    def rewrite(context)
+      node_name = c.text_value.inspect
+      do_rewrite(context, node_name)
     end
   end
 end

@@ -26,12 +26,18 @@ module Delorean
       @param_set = Set.new
     end
 
-    def parse_define_node(name, pname)
-      err(RedefinedError, "#{name} already defined") if
-        @pm.constants.member? name.to_sym
+    def parse_check_defined_node(name, flag)
+      isdef = @pm.constants.member? name.to_sym
 
-      err(UndefinedError, "#{pname} not defined yet") if
-        pname and !@pm.constants.member?(pname.to_sym)
+      if isdef != flag
+        isdef ? err(RedefinedError, "#{name} already defined") :
+          err(UndefinedError, "#{name} not defined yet")
+      end
+    end
+
+    def parse_define_node(name, pname)
+      parse_check_defined_node(name, false)
+      parse_check_defined_node(pname, true) if pname
 
       code = "class #{name} < #{pname || 'Object'}; end"
       @pm.module_eval(code)

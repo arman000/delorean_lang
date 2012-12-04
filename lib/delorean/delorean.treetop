@@ -95,6 +95,8 @@ grammar Delorean
 
   # script calling
   rule script_call
+    '@' c:class_name '(' sp? al:kw_args sp? ')' <ScriptCallNode>
+    /
     '@' i:identifier? '(' sp? al:kw_args sp? ')' <ScriptCall>
   end
 

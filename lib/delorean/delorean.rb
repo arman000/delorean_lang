@@ -1751,6 +1751,17 @@ module Delorean
   end
 
   module ScriptCall0
+    def c
+      elements[1]
+    end
+
+    def al
+      elements[4]
+    end
+
+  end
+
+  module ScriptCall1
     def i
       elements[1]
     end
@@ -1772,24 +1783,20 @@ module Delorean
       return cached
     end
 
-    i0, s0 = index, []
+    i0 = index
+    i1, s1 = index, []
     if has_terminal?('@', false, index)
-      r1 = instantiate_node(SyntaxNode,input, index...(index + 1))
+      r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
       @index += 1
     else
       terminal_parse_failure('@')
-      r1 = nil
+      r2 = nil
     end
-    s0 << r1
-    if r1
-      r3 = _nt_identifier
+    s1 << r2
+    if r2
+      r3 = _nt_class_name
+      s1 << r3
       if r3
-        r2 = r3
-      else
-        r2 = instantiate_node(SyntaxNode,input, index...index)
-      end
-      s0 << r2
-      if r2
         if has_terminal?('(', false, index)
           r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
           @index += 1
@@ -1797,7 +1804,7 @@ module Delorean
           terminal_parse_failure('(')
           r4 = nil
         end
-        s0 << r4
+        s1 << r4
         if r4
           r6 = _nt_sp
           if r6
@@ -1805,10 +1812,10 @@ module Delorean
           else
             r5 = instantiate_node(SyntaxNode,input, index...index)
           end
-          s0 << r5
+          s1 << r5
           if r5
             r7 = _nt_kw_args
-            s0 << r7
+            s1 << r7
             if r7
               r9 = _nt_sp
               if r9
@@ -1816,7 +1823,7 @@ module Delorean
               else
                 r8 = instantiate_node(SyntaxNode,input, index...index)
               end
-              s0 << r8
+              s1 << r8
               if r8
                 if has_terminal?(')', false, index)
                   r10 = instantiate_node(SyntaxNode,input, index...(index + 1))
@@ -1825,19 +1832,96 @@ module Delorean
                   terminal_parse_failure(')')
                   r10 = nil
                 end
-                s0 << r10
+                s1 << r10
               end
             end
           end
         end
       end
     end
-    if s0.last
-      r0 = instantiate_node(ScriptCall,input, i0...index, s0)
-      r0.extend(ScriptCall0)
+    if s1.last
+      r1 = instantiate_node(ScriptCallNode,input, i1...index, s1)
+      r1.extend(ScriptCall0)
     else
-      @index = i0
-      r0 = nil
+      @index = i1
+      r1 = nil
+    end
+    if r1
+      r0 = r1
+    else
+      i11, s11 = index, []
+      if has_terminal?('@', false, index)
+        r12 = instantiate_node(SyntaxNode,input, index...(index + 1))
+        @index += 1
+      else
+        terminal_parse_failure('@')
+        r12 = nil
+      end
+      s11 << r12
+      if r12
+        r14 = _nt_identifier
+        if r14
+          r13 = r14
+        else
+          r13 = instantiate_node(SyntaxNode,input, index...index)
+        end
+        s11 << r13
+        if r13
+          if has_terminal?('(', false, index)
+            r15 = instantiate_node(SyntaxNode,input, index...(index + 1))
+            @index += 1
+          else
+            terminal_parse_failure('(')
+            r15 = nil
+          end
+          s11 << r15
+          if r15
+            r17 = _nt_sp
+            if r17
+              r16 = r17
+            else
+              r16 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s11 << r16
+            if r16
+              r18 = _nt_kw_args
+              s11 << r18
+              if r18
+                r20 = _nt_sp
+                if r20
+                  r19 = r20
+                else
+                  r19 = instantiate_node(SyntaxNode,input, index...index)
+                end
+                s11 << r19
+                if r19
+                  if has_terminal?(')', false, index)
+                    r21 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                    @index += 1
+                  else
+                    terminal_parse_failure(')')
+                    r21 = nil
+                  end
+                  s11 << r21
+                end
+              end
+            end
+          end
+        end
+      end
+      if s11.last
+        r11 = instantiate_node(ScriptCall,input, i11...index, s11)
+        r11.extend(ScriptCall1)
+      else
+        @index = i11
+        r11 = nil
+      end
+      if r11
+        r0 = r11
+      else
+        @index = i0
+        r0 = nil
+      end
     end
 
     node_cache[:script_call][start_index] = r0
