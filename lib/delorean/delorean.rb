@@ -98,29 +98,41 @@ module Delorean
   end
 
   module Formula0
-    def i
+    def sp
       elements[0]
     end
 
+    def i
+      elements[1]
+    end
+
     def e
-      elements[4]
+      elements[5]
     end
   end
 
   module Formula1
-    def i
+    def sp
       elements[0]
+    end
+
+    def i
+      elements[1]
     end
 
   end
 
   module Formula2
-    def i
+    def sp
       elements[0]
     end
 
+    def i
+      elements[1]
+    end
+
     def e
-      elements[4]
+      elements[5]
     end
   end
 
@@ -154,36 +166,40 @@ module Delorean
 
     i0 = index
     i1, s1 = index, []
-    r2 = _nt_identifier
+    r2 = _nt_sp
     s1 << r2
     if r2
-      r4 = _nt_sp
-      if r4
-        r3 = r4
-      else
-        r3 = instantiate_node(SyntaxNode,input, index...index)
-      end
+      r3 = _nt_identifier
       s1 << r3
       if r3
-        if has_terminal?('=?', false, index)
-          r5 = instantiate_node(SyntaxNode,input, index...(index + 2))
-          @index += 2
-        else
-          terminal_parse_failure('=?')
-          r5 = nil
-        end
-        s1 << r5
+        r5 = _nt_sp
         if r5
-          r7 = _nt_sp
-          if r7
-            r6 = r7
+          r4 = r5
+        else
+          r4 = instantiate_node(SyntaxNode,input, index...index)
+        end
+        s1 << r4
+        if r4
+          if has_terminal?('=?', false, index)
+            r6 = instantiate_node(SyntaxNode,input, index...(index + 2))
+            @index += 2
           else
-            r6 = instantiate_node(SyntaxNode,input, index...index)
+            terminal_parse_failure('=?')
+            r6 = nil
           end
           s1 << r6
           if r6
-            r8 = _nt_expression
-            s1 << r8
+            r8 = _nt_sp
+            if r8
+              r7 = r8
+            else
+              r7 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s1 << r7
+            if r7
+              r9 = _nt_expression
+              s1 << r9
+            end
           end
         end
       end
@@ -198,141 +214,149 @@ module Delorean
     if r1
       r0 = r1
     else
-      i9, s9 = index, []
-      r10 = _nt_identifier
-      s9 << r10
-      if r10
-        r12 = _nt_sp
+      i10, s10 = index, []
+      r11 = _nt_sp
+      s10 << r11
+      if r11
+        r12 = _nt_identifier
+        s10 << r12
         if r12
-          r11 = r12
-        else
-          r11 = instantiate_node(SyntaxNode,input, index...index)
-        end
-        s9 << r11
-        if r11
-          if has_terminal?('=?', false, index)
-            r13 = instantiate_node(SyntaxNode,input, index...(index + 2))
-            @index += 2
+          r14 = _nt_sp
+          if r14
+            r13 = r14
           else
-            terminal_parse_failure('=?')
-            r13 = nil
+            r13 = instantiate_node(SyntaxNode,input, index...index)
           end
-          s9 << r13
-        end
-      end
-      if s9.last
-        r9 = instantiate_node(Parameter,input, i9...index, s9)
-        r9.extend(Formula1)
-      else
-        @index = i9
-        r9 = nil
-      end
-      if r9
-        r0 = r9
-      else
-        i14, s14 = index, []
-        r15 = _nt_identifier
-        s14 << r15
-        if r15
-          r17 = _nt_sp
-          if r17
-            r16 = r17
-          else
-            r16 = instantiate_node(SyntaxNode,input, index...index)
-          end
-          s14 << r16
-          if r16
-            if has_terminal?('=', false, index)
-              r18 = instantiate_node(SyntaxNode,input, index...(index + 1))
-              @index += 1
+          s10 << r13
+          if r13
+            if has_terminal?('=?', false, index)
+              r15 = instantiate_node(SyntaxNode,input, index...(index + 2))
+              @index += 2
             else
-              terminal_parse_failure('=')
-              r18 = nil
+              terminal_parse_failure('=?')
+              r15 = nil
             end
-            s14 << r18
-            if r18
-              r20 = _nt_sp
-              if r20
-                r19 = r20
+            s10 << r15
+          end
+        end
+      end
+      if s10.last
+        r10 = instantiate_node(Parameter,input, i10...index, s10)
+        r10.extend(Formula1)
+      else
+        @index = i10
+        r10 = nil
+      end
+      if r10
+        r0 = r10
+      else
+        i16, s16 = index, []
+        r17 = _nt_sp
+        s16 << r17
+        if r17
+          r18 = _nt_identifier
+          s16 << r18
+          if r18
+            r20 = _nt_sp
+            if r20
+              r19 = r20
+            else
+              r19 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s16 << r19
+            if r19
+              if has_terminal?('=', false, index)
+                r21 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                @index += 1
               else
-                r19 = instantiate_node(SyntaxNode,input, index...index)
+                terminal_parse_failure('=')
+                r21 = nil
               end
-              s14 << r19
-              if r19
-                r21 = _nt_expression
-                s14 << r21
+              s16 << r21
+              if r21
+                r23 = _nt_sp
+                if r23
+                  r22 = r23
+                else
+                  r22 = instantiate_node(SyntaxNode,input, index...index)
+                end
+                s16 << r22
+                if r22
+                  r24 = _nt_expression
+                  s16 << r24
+                end
               end
             end
           end
         end
-        if s14.last
-          r14 = instantiate_node(Formula,input, i14...index, s14)
-          r14.extend(Formula2)
+        if s16.last
+          r16 = instantiate_node(Formula,input, i16...index, s16)
+          r16.extend(Formula2)
         else
-          @index = i14
-          r14 = nil
+          @index = i16
+          r16 = nil
         end
-        if r14
-          r0 = r14
+        if r16
+          r0 = r16
         else
-          i22, s22 = index, []
-          r23 = _nt_node_name
-          s22 << r23
-          if r23
+          i25, s25 = index, []
+          r26 = _nt_node_name
+          s25 << r26
+          if r26
             if has_terminal?(':', false, index)
-              r24 = instantiate_node(SyntaxNode,input, index...(index + 1))
+              r27 = instantiate_node(SyntaxNode,input, index...(index + 1))
               @index += 1
             else
               terminal_parse_failure(':')
-              r24 = nil
+              r27 = nil
             end
-            s22 << r24
-            if r24
-              r26 = _nt_sp
-              if r26
-                r25 = r26
+            s25 << r27
+            if r27
+              r29 = _nt_sp
+              if r29
+                r28 = r29
               else
-                r25 = instantiate_node(SyntaxNode,input, index...index)
+                r28 = instantiate_node(SyntaxNode,input, index...index)
               end
-              s22 << r25
-              if r25
-                r27 = _nt_node_name
-                s22 << r27
+              s25 << r28
+              if r28
+                r30 = _nt_node_name
+                s25 << r30
               end
             end
           end
-          if s22.last
-            r22 = instantiate_node(SubNode,input, i22...index, s22)
-            r22.extend(Formula3)
+          if s25.last
+            r25 = instantiate_node(SubNode,input, i25...index, s25)
+            r25.extend(Formula3)
           else
-            @index = i22
-            r22 = nil
+            @index = i25
+            r25 = nil
           end
-          if r22
-            r0 = r22
+          if r25
+            r0 = r25
           else
-            i28, s28 = index, []
-            r29 = _nt_node_name
-            s28 << r29
-            if r29
+            i31, s31 = index, []
+            r32 = _nt_node_name
+            s31 << r32
+            if r32
               if has_terminal?(':', false, index)
-                r30 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                r33 = instantiate_node(SyntaxNode,input, index...(index + 1))
                 @index += 1
               else
                 terminal_parse_failure(':')
-                r30 = nil
+                r33 = nil
               end
-              s28 << r30
+              s31 << r33
             end
-            if s28.last
-              r28 = instantiate_node(BaseNode,input, i28...index, s28)
-              r28.extend(Formula4)
+            if s31.last
+              r31 = instantiate_node(BaseNode,input, i31...index, s31)
+              r31.extend(Formula4)
             else
-              @index = i28
-              r28 = nil
+              @index = i31
+              r31 = nil
             end
-            if r28
-              r0 = r28
+            if r31
+              r0 = r31
             else
               @index = i0
               r0 = nil

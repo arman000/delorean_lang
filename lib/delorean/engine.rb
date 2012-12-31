@@ -17,13 +17,17 @@ module Delorean
     def reset
       @m, @pm = nil, nil
       @last_node, @node_attrs = nil, {}
-      @line_no = 0
+      @line_no, @multi_no = 0, nil
 
       # set of comprehension vars
       @comp_set = Set.new
 
       # set of all params
       @param_set = Set.new
+    end
+
+    def curr_line
+      @multi_no || @line_no
     end
 
     def parse_check_defined_node(name, flag)
@@ -134,7 +138,7 @@ module Delorean
     end
 
     def err(exc, msg)
-      raise exc.new(msg, @module_name, @line_no)
+      raise exc.new(msg, @module_name, curr_line)
     end
 
     def parse_check_call_fn(fn, argcount, model_name=nil)
@@ -162,12 +166,31 @@ module Delorean
       @@parser ||= DeloreanParser.new
     end
 
+    def generate(t)
+      t.check(self)
+
+      # generate ruby code
+      gen = t.rewrite(self)
+
+      # puts gen
+
+      begin
+        # evaluate generated code in @m
+        @m.module_eval(gen, "#{MOD}#{module_name}", curr_line)
+      rescue => exc
+        # bad ruby code generated, shoudn't happen
+        err(ParseError, "codegen error: " + exc.message)
+      end
+    end
+
     def parse(source)
       raise "can't call parse again without reset" if @pm
 
       # @m module is used at runtime for code evaluation.  @pm module
       # is only used during parsing to check for errors.
       @m, @pm = BaseModule.clone, Module.new
+
+      multi_line, @multi_no = nil, nil
 
       source.each_line do |line|
         @line_no += 1
@@ -176,29 +199,39 @@ module Delorean
         next if line.match(/^\s*\#/)
 
         # remove trailing blanks
-        line.strip!
+        line.rstrip!
 
         next if line.length == 0
 
-        t = parser.parse(line)
+        if multi_line
+          # Inside a multiline and next line doesn't look like a
+          # continuation => syntax error.
+          err(ParseError, "syntax error") unless line =~ /^\s+/
+          
+          multi_line += line
+          t = parser.parse(multi_line)
 
-        err(ParseError, "syntax error") if !t
+          if t
+            multi_line, @multi_no = nil, nil
+            generate(t)
+          end
 
-        t.check(self)
+        else
+          t = parser.parse(line)
 
-        # generate ruby code
-        gen = t.rewrite(self)
+          if !t
+            err(ParseError, "syntax error") unless line =~ /^\s+/
 
-        # puts gen
-
-        begin
-          # evaluate generated code in @m
-          @m.module_eval(gen, "#{MOD}#{module_name}", @line_no)
-        rescue => exc
-          # bad ruby code generated, shoudn't happen
-          err(ParseError, "codegen error: " + exc.message)
+            multi_line = line
+            @multi_no = @line_no
+          else
+            generate(t)
+          end
         end
       end
+
+      # left over multi_line
+      err(ParseError, "syntax error") if multi_line
     end
 
     ######################################################################

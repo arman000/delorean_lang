@@ -526,5 +526,42 @@ describe "Delorean" do
                       "  d = @A('a')",
                       )
   end
+
+  it "should parse multiline attr defs" do
+    engine.parse defn("A:",
+                      "  a = [1,",
+                      "       2,",
+                      "       3]",
+                      "  b = 456",
+                      )
+  end
+
+  it "should give proper errors on parse multiline attr defs" do
+    begin
+      engine.parse defn("A:",
+                        "  a = [1,",
+                        "       2,",
+                        "       3];",
+                        "  b = 456",
+                        )
+      raise "fail"
+    rescue Delorean::ParseError => exc
+      exc.line.should == 2
+    end
+  end
+
+  it "should give proper errors when multiline error falls off the end" do
+    begin
+      engine.parse defn("A:",
+                        "  x = 123",
+                        "  a = 1 +",
+                        "       2 +",
+                        )
+      raise "fail"
+    rescue Delorean::ParseError => exc
+      exc.line.should == 3
+    end
+  end
+
 end
 

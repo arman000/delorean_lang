@@ -463,4 +463,36 @@ eof
     engine.evaluate("A", "b").should == 123
   end
 
+  it "should eval multiline expressions" do
+    engine.parse defn("A:",
+                      "  a = 1",
+                      "  b = [a: [1,2,3] | ",
+                      "	         a+1",
+                      "	     ]",
+                      )
+    engine.evaluate("A", "b").should == [2, 3, 4]
+  end
+
+  it "should eval multiline expressions" do
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "  b = 456 + ",
+                      "      a",
+                      "  n = 'A'",
+                      "  c = @('a', ",
+                      "        'b', ",
+                      "        x: 123, ",
+                      "        y: 456)",
+                      "  d = @n('a', ",
+                      "         'b', ",
+                      "         x: 123, y: 456)",
+                      "  e = @(",
+                      "        'b'",
+                      "       )",
+                      )
+
+    engine.evaluate_attrs("A", %w{n c d e}).should ==
+      ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, 579]
+  end
+
 end

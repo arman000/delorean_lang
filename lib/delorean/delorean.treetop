@@ -4,11 +4,11 @@ grammar Delorean
   end
 
   rule formula
-    i:identifier sp? '=?' sp? e:expression <ParameterDefault>
+    sp i:identifier sp? '=?' sp? e:expression <ParameterDefault>
     /
-    i:identifier sp? '=?' <Parameter>
+    sp i:identifier sp? '=?' <Parameter>
     /
-    i:identifier sp? '=' sp? e:expression <Formula>
+    sp i:identifier sp? '=' sp? e:expression <Formula>
     /
     n:node_name ':' sp? p:node_name <SubNode>
     /
