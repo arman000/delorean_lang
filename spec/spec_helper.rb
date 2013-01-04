@@ -73,3 +73,12 @@ module M
 end
 
 ######################################################################
+
+class TestContainer < Delorean::AbstractContainer
+  def get_engine(name, version)
+    raise "shouldn't get here"
+  end
+end
+
+######################################################################
+

@@ -44,9 +44,11 @@ module Delorean
 
       ######################################################################
 
-      def self._script_call(node_name, _e, attrs, params)
-        engine = _e[:_engine]
-        node_name = self.name.split('::')[-1] unless node_name
+      def self._script_call(node_name, mname, _e, attrs, params)
+        context = _e[:_engine]
+        node_name ||= self.name.split('::')[-1]
+
+        engine = mname ? context.get_import_engine(mname) : context
 
         res = engine.evaluate_attrs(node_name, attrs, params)
 

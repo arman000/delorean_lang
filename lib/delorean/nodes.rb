@@ -51,6 +51,17 @@ module Delorean
     end
   end
 
+  class Import < SNode
+    def check(context)
+      context.parse_import(n.text_value, v.text_value)
+    end
+
+    def rewrite(context)
+      context.gen_import(n.text_value, v.text_value)
+      ""
+    end
+  end
+
   class BaseNode < SNode
     # defines a base node
     def check(context)
@@ -65,12 +76,17 @@ module Delorean
 
   class SubNode < SNode
     def check(context)
-      context.parse_define_node(n.text_value, p.text_value)
+      mname = mod.m.text_value if defined?(mod.m)
+        
+      context.parse_define_node(n.text_value, p.text_value, mname)
     end
 
     def rewrite(context)
+      mname = mod.m.text_value if defined?(mod.m)
+      sname = context.super_name(p.text_value, mname)
+
       # A sub-node (derived node) is just a subclass.
-      "class #{n.text_value} < #{p.text_value}; end"
+      "class #{n.text_value} < #{sname}; end"
     end
   end
 
@@ -324,13 +340,13 @@ module Delorean
       do_rewrite(context, node_name)
     end
 
-    def do_rewrite(context, node_name)
+    def do_rewrite(context, node_name, mname="nil")
       args, kw = al.rewrite(context)
 
       args_str = '[' + args.reverse.join(',') + ']'
       kw_str = '{' + kw.map {|k, v| "'#{k}' => #{v}" }.join(',') + '}'
 
-      "_script_call(#{node_name}, _e, #{args_str}, #{kw_str})"
+      "_script_call(#{node_name}, #{mname}, _e, #{args_str}, #{kw_str})"
     end
   end
 
@@ -340,14 +356,17 @@ module Delorean
       # to see if attributes exist on the node before allowing the
       # call.  Also, can check parameters.
 
-      context.parse_check_defined_node(c.text_value, true)
+      mname = mod.m.text_value if defined?(mod.m)
+      context.parse_check_defined_mod_node(c.text_value, mname)
+
       al.check(context) if defined?(al)
       []
     end
 
     def rewrite(context)
       node_name = c.text_value.inspect
-      do_rewrite(context, node_name)
+      mname = defined?(mod.m) ? mod.m.text_value.inspect : "nil"
+      do_rewrite(context, node_name, mname)
     end
   end
 end

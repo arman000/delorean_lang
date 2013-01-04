@@ -3,7 +3,16 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe "Delorean" do
 
   let(:engine) {
-    Delorean::Engine.new "XXX"
+    ze = Delorean::Engine.new("ZZZ")
+    ze.parse defn("X:",
+                  "  a =? 123",
+                  "  b = a*2",
+                  )
+    
+    tco = TestContainer.new
+    tco.add("ZZZ", "0001", ze)
+
+    Delorean::Engine.new "XXX", tco
   }
 
   it "evaluate simple expressions" do
@@ -493,6 +502,17 @@ eof
 
     engine.evaluate_attrs("A", %w{n c d e}).should ==
       ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, 579]
+  end
+
+  it "should parse imports" do
+    engine.parse defn("import ZZZ 0001",
+                      "A:",
+                      "  b = 456",
+                      "B: ZZZ::X",
+                      "  a = 111",
+                      "  c = @ZZZ::X('b', a: 456)",
+                      )
+    engine.evaluate_attrs("B", ["a", "b", "c"]).should == [111, 222, 456*2]
   end
 
 end

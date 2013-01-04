@@ -6,11 +6,12 @@ module Delorean
   POST = "__D"
 
   class Engine
-    attr_reader :last_node, :module_name, :line_no, :comp_set
+    attr_reader :last_node, :module_name, :line_no, :comp_set, :container, :pm, :m
 
-    def initialize(module_name)
+    def initialize(module_name, container = nil)
       # name of current module
       @module_name = module_name
+      @container = container
       reset
     end
 
@@ -24,12 +25,39 @@ module Delorean
 
       # set of all params
       @param_set = Set.new
+
+      @imports = {}
     end
 
     def curr_line
       @multi_no || @line_no
     end
 
+    def parse_import(name, version)
+      err(ParseError, "No container") unless @container
+
+      err(ParseError, "Module #{name} importing itself") if
+        name == module_name
+
+      @imports[name] = @container.import(name, version)
+
+      @pm.const_set("#{MOD}#{name}", @imports[name].pm)
+    end
+
+    def gen_import(name, version)
+      @m.const_set("#{MOD}#{name}", @imports[name].m)
+    end
+
+    def get_import_engine(name)
+      err(ParseError, "#{name} not imported") unless
+        @imports.member? name
+
+      container.get_by_name(name)
+    end
+
+    # Check to see if node with given name is defined.  flag tell the
+    # method about our expectation.  flag=true means that we make sure
+    # that name is defined.  flag=false is the opposite.
     def parse_check_defined_node(name, flag)
       isdef = @pm.constants.member? name.to_sym
 
@@ -39,11 +67,22 @@ module Delorean
       end
     end
 
-    def parse_define_node(name, pname)
-      parse_check_defined_node(name, false)
-      parse_check_defined_node(pname, true) if pname
+    def super_name(pname, mname)
+      mname ? "#{MOD}#{mname}::#{pname}" : pname
+    end
 
-      code = "class #{name} < #{pname || 'Object'}; end"
+    def parse_check_defined_mod_node(pname, mname)
+      engine = mname ? get_import_engine(mname) : self
+      engine.parse_check_defined_node(pname, true)
+    end
+
+    def parse_define_node(name, pname, mname=nil)
+      parse_check_defined_node(name, false)
+      parse_check_defined_mod_node(pname, mname) if pname
+
+      sname = pname ? super_name(pname, mname) : 'Object'
+
+      code = "class #{name} < #{sname}; end"
       @pm.module_eval(code)
 
       # latest defined node

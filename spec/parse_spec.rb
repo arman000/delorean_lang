@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe "Delorean" do
 
   let(:engine) {
-    Delorean::Engine.new("YYY")
+    Delorean::Engine.new("YYY", TestContainer.new)
   }
 
   it "can parse very simple calls" do
@@ -563,5 +563,22 @@ describe "Delorean" do
     end
   end
 
+  it "should parse imports" do
+    zname = "ZZZ"
+
+    ze = Delorean::Engine.new(zname, engine.container)
+    ze.parse defn("X:",
+                  "  a = 123",
+                  "  b = a",
+                  )
+    
+    engine.container.add(zname, "0001", ze)
+
+    engine.parse defn("import #{zname} 0001",
+                      "A:",
+                      "  b = 456",
+                      "B: ZZZ::X",
+                      )
+  end
 end
 

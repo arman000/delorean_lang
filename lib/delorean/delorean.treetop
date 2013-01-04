@@ -10,9 +10,11 @@ grammar Delorean
     /
     sp i:identifier sp? '=' sp? e:expression <Formula>
     /
-    n:node_name ':' sp? p:node_name <SubNode>
+    n:node_name ':' sp? mod:(m:node_name '::')? p:node_name <SubNode>
     /
     n:node_name ':' <BaseNode>
+    /
+    'import' sp n:node_name sp v:integer <Import>
   end
 
   rule node_name
@@ -49,16 +51,16 @@ grammar Delorean
   end
 
   rule value
-    number /
-    string / 
-    boolean / 
-    script_call / 
-    fn / 
-    model_fn_getattr /
-    model_fn / 
-    node_getattr / 
-    getattr /
-    list_expr /
+    number 		/
+    string 		/ 
+    boolean 		/ 
+    script_call 	/ 
+    fn 			/ 
+    model_fn_getattr 	/
+    model_fn 		/ 
+    node_getattr 	/ 
+    getattr 		/
+    list_expr 		/
     '(' sp? e:expression sp? ')' <Expr>
   end
 
@@ -95,7 +97,7 @@ grammar Delorean
 
   # script calling
   rule script_call
-    '@' c:class_name '(' sp? al:kw_args sp? ')' <ScriptCallNode>
+    '@' mod:(m:node_name '::')? c:class_name '(' sp? al:kw_args sp? ')' <ScriptCallNode>
     /
     '@' i:identifier? '(' sp? al:kw_args sp? ')' <ScriptCall>
   end

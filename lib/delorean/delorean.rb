@@ -137,13 +137,10 @@ module Delorean
   end
 
   module Formula3
-    def n
+    def m
       elements[0]
     end
 
-    def p
-      elements[3]
-    end
   end
 
   module Formula4
@@ -151,6 +148,38 @@ module Delorean
       elements[0]
     end
 
+    def mod
+      elements[3]
+    end
+
+    def p
+      elements[4]
+    end
+  end
+
+  module Formula5
+    def n
+      elements[0]
+    end
+
+  end
+
+  module Formula6
+    def sp1
+      elements[1]
+    end
+
+    def n
+      elements[2]
+    end
+
+    def sp2
+      elements[3]
+    end
+
+    def v
+      elements[4]
+    end
   end
 
   def _nt_formula
@@ -320,14 +349,42 @@ module Delorean
               end
               s25 << r28
               if r28
-                r30 = _nt_node_name
+                i31, s31 = index, []
+                r32 = _nt_node_name
+                s31 << r32
+                if r32
+                  if has_terminal?('::', false, index)
+                    r33 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                    @index += 2
+                  else
+                    terminal_parse_failure('::')
+                    r33 = nil
+                  end
+                  s31 << r33
+                end
+                if s31.last
+                  r31 = instantiate_node(SyntaxNode,input, i31...index, s31)
+                  r31.extend(Formula3)
+                else
+                  @index = i31
+                  r31 = nil
+                end
+                if r31
+                  r30 = r31
+                else
+                  r30 = instantiate_node(SyntaxNode,input, index...index)
+                end
                 s25 << r30
+                if r30
+                  r34 = _nt_node_name
+                  s25 << r34
+                end
               end
             end
           end
           if s25.last
             r25 = instantiate_node(SubNode,input, i25...index, s25)
-            r25.extend(Formula3)
+            r25.extend(Formula4)
           else
             @index = i25
             r25 = nil
@@ -335,31 +392,67 @@ module Delorean
           if r25
             r0 = r25
           else
-            i31, s31 = index, []
-            r32 = _nt_node_name
-            s31 << r32
-            if r32
+            i35, s35 = index, []
+            r36 = _nt_node_name
+            s35 << r36
+            if r36
               if has_terminal?(':', false, index)
-                r33 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                r37 = instantiate_node(SyntaxNode,input, index...(index + 1))
                 @index += 1
               else
                 terminal_parse_failure(':')
-                r33 = nil
+                r37 = nil
               end
-              s31 << r33
+              s35 << r37
             end
-            if s31.last
-              r31 = instantiate_node(BaseNode,input, i31...index, s31)
-              r31.extend(Formula4)
+            if s35.last
+              r35 = instantiate_node(BaseNode,input, i35...index, s35)
+              r35.extend(Formula5)
             else
-              @index = i31
-              r31 = nil
+              @index = i35
+              r35 = nil
             end
-            if r31
-              r0 = r31
+            if r35
+              r0 = r35
             else
-              @index = i0
-              r0 = nil
+              i38, s38 = index, []
+              if has_terminal?('import', false, index)
+                r39 = instantiate_node(SyntaxNode,input, index...(index + 6))
+                @index += 6
+              else
+                terminal_parse_failure('import')
+                r39 = nil
+              end
+              s38 << r39
+              if r39
+                r40 = _nt_sp
+                s38 << r40
+                if r40
+                  r41 = _nt_node_name
+                  s38 << r41
+                  if r41
+                    r42 = _nt_sp
+                    s38 << r42
+                    if r42
+                      r43 = _nt_integer
+                      s38 << r43
+                    end
+                  end
+                end
+              end
+              if s38.last
+                r38 = instantiate_node(Import,input, i38...index, s38)
+                r38.extend(Formula6)
+              else
+                @index = i38
+                r38 = nil
+              end
+              if r38
+                r0 = r38
+              else
+                @index = i0
+                r0 = nil
+              end
             end
           end
         end
@@ -1775,17 +1868,28 @@ module Delorean
   end
 
   module ScriptCall0
-    def c
-      elements[1]
-    end
-
-    def al
-      elements[4]
+    def m
+      elements[0]
     end
 
   end
 
   module ScriptCall1
+    def mod
+      elements[1]
+    end
+
+    def c
+      elements[2]
+    end
+
+    def al
+      elements[5]
+    end
+
+  end
+
+  module ScriptCall2
     def i
       elements[1]
     end
@@ -1818,45 +1922,73 @@ module Delorean
     end
     s1 << r2
     if r2
-      r3 = _nt_class_name
+      i4, s4 = index, []
+      r5 = _nt_node_name
+      s4 << r5
+      if r5
+        if has_terminal?('::', false, index)
+          r6 = instantiate_node(SyntaxNode,input, index...(index + 2))
+          @index += 2
+        else
+          terminal_parse_failure('::')
+          r6 = nil
+        end
+        s4 << r6
+      end
+      if s4.last
+        r4 = instantiate_node(SyntaxNode,input, i4...index, s4)
+        r4.extend(ScriptCall0)
+      else
+        @index = i4
+        r4 = nil
+      end
+      if r4
+        r3 = r4
+      else
+        r3 = instantiate_node(SyntaxNode,input, index...index)
+      end
       s1 << r3
       if r3
-        if has_terminal?('(', false, index)
-          r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
-        else
-          terminal_parse_failure('(')
-          r4 = nil
-        end
-        s1 << r4
-        if r4
-          r6 = _nt_sp
-          if r6
-            r5 = r6
+        r7 = _nt_class_name
+        s1 << r7
+        if r7
+          if has_terminal?('(', false, index)
+            r8 = instantiate_node(SyntaxNode,input, index...(index + 1))
+            @index += 1
           else
-            r5 = instantiate_node(SyntaxNode,input, index...index)
+            terminal_parse_failure('(')
+            r8 = nil
           end
-          s1 << r5
-          if r5
-            r7 = _nt_kw_args
-            s1 << r7
-            if r7
-              r9 = _nt_sp
-              if r9
-                r8 = r9
-              else
-                r8 = instantiate_node(SyntaxNode,input, index...index)
-              end
-              s1 << r8
-              if r8
-                if has_terminal?(')', false, index)
-                  r10 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                  @index += 1
+          s1 << r8
+          if r8
+            r10 = _nt_sp
+            if r10
+              r9 = r10
+            else
+              r9 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s1 << r9
+            if r9
+              r11 = _nt_kw_args
+              s1 << r11
+              if r11
+                r13 = _nt_sp
+                if r13
+                  r12 = r13
                 else
-                  terminal_parse_failure(')')
-                  r10 = nil
+                  r12 = instantiate_node(SyntaxNode,input, index...index)
                 end
-                s1 << r10
+                s1 << r12
+                if r12
+                  if has_terminal?(')', false, index)
+                    r14 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                    @index += 1
+                  else
+                    terminal_parse_failure(')')
+                    r14 = nil
+                  end
+                  s1 << r14
+                end
               end
             end
           end
@@ -1865,7 +1997,7 @@ module Delorean
     end
     if s1.last
       r1 = instantiate_node(ScriptCallNode,input, i1...index, s1)
-      r1.extend(ScriptCall0)
+      r1.extend(ScriptCall1)
     else
       @index = i1
       r1 = nil
@@ -1873,75 +2005,75 @@ module Delorean
     if r1
       r0 = r1
     else
-      i11, s11 = index, []
+      i15, s15 = index, []
       if has_terminal?('@', false, index)
-        r12 = instantiate_node(SyntaxNode,input, index...(index + 1))
+        r16 = instantiate_node(SyntaxNode,input, index...(index + 1))
         @index += 1
       else
         terminal_parse_failure('@')
-        r12 = nil
+        r16 = nil
       end
-      s11 << r12
-      if r12
-        r14 = _nt_identifier
-        if r14
-          r13 = r14
+      s15 << r16
+      if r16
+        r18 = _nt_identifier
+        if r18
+          r17 = r18
         else
-          r13 = instantiate_node(SyntaxNode,input, index...index)
+          r17 = instantiate_node(SyntaxNode,input, index...index)
         end
-        s11 << r13
-        if r13
+        s15 << r17
+        if r17
           if has_terminal?('(', false, index)
-            r15 = instantiate_node(SyntaxNode,input, index...(index + 1))
+            r19 = instantiate_node(SyntaxNode,input, index...(index + 1))
             @index += 1
           else
             terminal_parse_failure('(')
-            r15 = nil
+            r19 = nil
           end
-          s11 << r15
-          if r15
-            r17 = _nt_sp
-            if r17
-              r16 = r17
+          s15 << r19
+          if r19
+            r21 = _nt_sp
+            if r21
+              r20 = r21
             else
-              r16 = instantiate_node(SyntaxNode,input, index...index)
+              r20 = instantiate_node(SyntaxNode,input, index...index)
             end
-            s11 << r16
-            if r16
-              r18 = _nt_kw_args
-              s11 << r18
-              if r18
-                r20 = _nt_sp
-                if r20
-                  r19 = r20
+            s15 << r20
+            if r20
+              r22 = _nt_kw_args
+              s15 << r22
+              if r22
+                r24 = _nt_sp
+                if r24
+                  r23 = r24
                 else
-                  r19 = instantiate_node(SyntaxNode,input, index...index)
+                  r23 = instantiate_node(SyntaxNode,input, index...index)
                 end
-                s11 << r19
-                if r19
+                s15 << r23
+                if r23
                   if has_terminal?(')', false, index)
-                    r21 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                    r25 = instantiate_node(SyntaxNode,input, index...(index + 1))
                     @index += 1
                   else
                     terminal_parse_failure(')')
-                    r21 = nil
+                    r25 = nil
                   end
-                  s11 << r21
+                  s15 << r25
                 end
               end
             end
           end
         end
       end
-      if s11.last
-        r11 = instantiate_node(ScriptCall,input, i11...index, s11)
-        r11.extend(ScriptCall1)
+      if s15.last
+        r15 = instantiate_node(ScriptCall,input, i15...index, s15)
+        r15.extend(ScriptCall2)
       else
-        @index = i11
-        r11 = nil
+        @index = i15
+        r15 = nil
       end
-      if r11
-        r0 = r11
+      if r15
+        r0 = r15
       else
         @index = i0
         r0 = nil
