@@ -3,16 +3,19 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe "Delorean" do
 
   let(:engine) {
-    ze = Delorean::Engine.new("ZZZ")
+    Delorean::Engine.new "XXX"
+  }
+
+  let (:sset) {
+    ze = Delorean::Engine.new "AAA"
     ze.parse defn("X:",
                   "  a =? 123",
                   "  b = a*2",
                   )
     
-    tco = TestContainer.new
-    tco.add("ZZZ", "0001", ze)
-
-    Delorean::Engine.new "XXX", tco
+    tc = TestContainer.new
+    tc.add("AAA", "0001", ze)
+    tc
   }
 
   it "evaluate simple expressions" do
@@ -504,15 +507,48 @@ eof
       ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, 579]
   end
 
-  it "should parse imports" do
-    engine.parse defn("import ZZZ 0001",
+  it "should eval imports" do
+    engine.parse defn("import AAA 0001",
                       "A:",
                       "  b = 456",
-                      "B: ZZZ::X",
+                      "B: AAA::X",
                       "  a = 111",
-                      "  c = @ZZZ::X('b', a: 456)",
-                      )
-    engine.evaluate_attrs("B", ["a", "b", "c"]).should == [111, 222, 456*2]
+                      "  c = @AAA::X('b', a: 456)",
+                      ), sset
+    engine.evaluate_attrs("B", ["a", "b", "c"], {}).should == [111, 222, 456*2]
+  end
+
+  it "should eval imports (2)" do
+    e2 = Delorean::Engine.new "BBB"
+    sset.add("BBB", "0002", e2)
+
+    e2.parse defn("import AAA 0001",
+                  "B: AAA::X",
+                  "  a = 111",
+                  "  c = @AAA::X('b', a: -1)",
+                  "  d = a * 2",
+                  ), sset
+
+    e2.evaluate_attrs("B", ["a", "b", "c", "d"]).should == [111, 222, -2, 222]
+
+    engine.parse defn("import BBB 0002",
+                      "B: BBB::B",
+                      "  e = d + 3",
+                      ), sset
+
+    engine.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should == [111, 222, -2, 222, 225]
+
+    e4 = Delorean::Engine.new "CCC"
+    e4.parse defn("import BBB 0002",
+                  "import AAA 0001",
+                  "B: BBB::B",
+                  "  e = d * 3",
+                  "C: AAA::X",
+                  "  d = b * 3",
+                  ), sset
+
+    e4.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should == [111, 222, -2, 222, 666]
+    e4.evaluate_attrs("C", ["a", "b", "d"]).should == [123, 123*2, 123*3*2]
   end
 
 end

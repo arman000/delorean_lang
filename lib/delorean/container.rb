@@ -31,16 +31,15 @@ module Delorean
       if names.member? name
         n, v = @engines.keys.detect {|n, v| n == name}
 
-        err(ParseError,
-            "Can't import #{name} version #{version}. " +
-            "Collides with imported version #{v}.")
+        raise "Can't import #{name} version #{version}. " +
+          "Collides with imported version #{v}."
       end
 
       add(name, version, get_engine(name, version))
     end
 
     def get_engine(name, version)
-      err(ParseError, "get_engine needs to be overriden")
+      raise "get_engine needs to be overriden"
     end
   end
 end

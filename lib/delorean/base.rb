@@ -25,8 +25,7 @@ module Delorean
 
           raise InvalidGetAttribute, "ActiveRecord lookup '#{attr}' on #{obj}"
         elsif obj.instance_of?(Hash)
-          return obj[attr] if obj.member?(attr)
-          return obj[attr.to_sym]
+          return obj.member?(attr) ? obj[attr] : obj[attr.to_sym]
         end
 
         raise InvalidGetAttribute, "bad attribute lookup '#{attr}' on #{obj}"

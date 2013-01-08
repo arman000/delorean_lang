@@ -5,8 +5,8 @@ module Delorean
   end
 
   class Line < SNode
-    def check(context)
-      f.check(context)
+    def check(context, *a)
+      f.check(context, *a)
     end
     def rewrite(context)
       f.rewrite(context)
@@ -14,7 +14,7 @@ module Delorean
   end
 
   class Parameter < SNode
-    def check(context)
+    def check(context, *)
       context.parse_define_param(i.text_value, [])
     end
 
@@ -30,7 +30,7 @@ module Delorean
   end
 
   class ParameterDefault < Parameter
-    def check(context)
+    def check(context, *)
       # The check function returns the list of attrs used in the
       # default expression.  This is then used to make check if the
       # attrs are available in the param's context.  NOTE: in a
@@ -52,8 +52,8 @@ module Delorean
   end
 
   class Import < SNode
-    def check(context)
-      context.parse_import(n.text_value, v.text_value)
+    def check(context, sset)
+      context.parse_import(sset, n.text_value, v.text_value)
     end
 
     def rewrite(context)
@@ -64,7 +64,7 @@ module Delorean
 
   class BaseNode < SNode
     # defines a base node
-    def check(context)
+    def check(context, *)
       context.parse_define_node(n.text_value, nil)
     end
 
@@ -75,7 +75,7 @@ module Delorean
   end
 
   class SubNode < SNode
-    def check(context)
+    def check(context, *)
       mname = mod.m.text_value if defined?(mod.m)
         
       context.parse_define_node(n.text_value, p.text_value, mname)
@@ -91,7 +91,7 @@ module Delorean
   end
 
   class Formula < SNode
-    def check(context)
+    def check(context, *)
       context.parse_define_attr(i.text_value, e.check(context))
     end
 
@@ -105,7 +105,7 @@ module Delorean
   end
 
   class Expr < SNode
-    def check(context)
+    def check(context, *)
       e.check(context)
     end
 
@@ -116,7 +116,7 @@ module Delorean
 
   # unary operator
   class UnOp < SNode
-    def check(context)
+    def check(context, *)
       e.check(context)
     end
 
@@ -126,7 +126,7 @@ module Delorean
   end
 
   class BinOp < SNode
-    def check(context)
+    def check(context, *)
       vc, ec = v.check(context), e.check(context)
       # returns list of attrs used in RHS and LHS
       ec + vc
@@ -138,7 +138,7 @@ module Delorean
   end
 
   class Literal < SNode
-    def check(context)
+    def check(context, *)
       []
     end
 
@@ -166,7 +166,7 @@ module Delorean
   end
 
   class Identifier < SNode
-    def check(context)
+    def check(context, *)
       context.parse_call_last_node_attr(text_value)
       [text_value]
     end
@@ -182,7 +182,7 @@ module Delorean
   end
 
   class NodeGetAttr < SNode
-    def check(context)
+    def check(context, *)
       context.parse_call_attr(n.text_value, i.text_value)
       [text_value]
     end
@@ -193,7 +193,7 @@ module Delorean
   end
 
   class GetAttr < SNode
-    def check(context)
+    def check(context, *)
       i.check(context)
     end
 
@@ -204,7 +204,7 @@ module Delorean
   end
 
   class ModelFnGetAttr < SNode
-    def check(context)
+    def check(context, *)
       mfn.check(context)
     end
 
@@ -215,7 +215,7 @@ module Delorean
   end
 
   class Fn < SNode
-    def check(context)
+    def check(context, *)
       acount, res =
         defined?(args) ? [args.arg_count, args.check(context)] : [0, []]
 
@@ -229,7 +229,7 @@ module Delorean
   end
 
   class FnArgs < SNode
-    def check(context)
+    def check(context, *)
       arg0.check(context) + (defined?(args_rest.args) ?
                              args_rest.args.check(context) : [])
     end
@@ -245,7 +245,7 @@ module Delorean
   end
 
   class ModelFn < SNode
-    def check(context)
+    def check(context, *)
       acount, res =
         defined?(args) ? [args.arg_count, args.check(context)] : [0, []]
 
@@ -260,7 +260,7 @@ module Delorean
   end
 
   class IfElse < SNode
-    def check(context)
+    def check(context, *)
       vc, e1c, e2c =
         v.check(context), e1.check(context), e2.check(context)
       vc + e1c + e2c
@@ -273,7 +273,7 @@ module Delorean
   end
 
   class ListExpr < SNode
-    def check(context)
+    def check(context, *)
       defined?(args) ? args.check(context) : []
     end
 
@@ -283,7 +283,7 @@ module Delorean
   end
 
   class ListComprehension < SNode
-    def check(context)
+    def check(context, *)
       e1c = e1.check(context)
       context.parse_define_var(i.text_value)
       # need to check e2 in a context where the comprehension var is
@@ -304,7 +304,7 @@ module Delorean
   end
 
   class KwArgs < SNode
-    def check(context)
+    def check(context, *)
       arg0.check(context) + (defined?(args_rest.args) ?
                              args_rest.args.check(context) : [])
     end
@@ -329,7 +329,7 @@ module Delorean
   end
 
   class ScriptCall < SNode
-    def check(context)
+    def check(context, *)
       i.check(context) unless i.text_value.empty?
       al.check(context) if defined?(al)
       []
@@ -351,7 +351,7 @@ module Delorean
   end
 
   class ScriptCallNode < ScriptCall
-    def check(context)
+    def check(context, *)
       # FIXME: for both this and when node_name is nil, should check
       # to see if attributes exist on the node before allowing the
       # call.  Also, can check parameters.

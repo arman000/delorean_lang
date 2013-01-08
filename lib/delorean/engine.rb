@@ -6,12 +6,11 @@ module Delorean
   POST = "__D"
 
   class Engine
-    attr_reader :last_node, :module_name, :line_no, :comp_set, :container, :pm, :m
+    attr_reader :last_node, :module_name, :line_no, :comp_set, :pm, :m, :imports
 
-    def initialize(module_name, container = nil)
+    def initialize(module_name)
       # name of current module
       @module_name = module_name
-      @container = container
       reset
     end
 
@@ -33,26 +32,25 @@ module Delorean
       @multi_no || @line_no
     end
 
-    def parse_import(name, version)
-      err(ParseError, "No container") unless @container
+    def parse_import(sset, name, version)
+      err(ParseError, "No script set") unless sset
 
       err(ParseError, "Module #{name} importing itself") if
         name == module_name
 
-      @imports[name] = @container.import(name, version)
+      @imports[name] = sset.import(name, version)
 
       @pm.const_set("#{MOD}#{name}", @imports[name].pm)
     end
 
     def gen_import(name, version)
+      @imports.merge!(@imports[name].imports)
+
       @m.const_set("#{MOD}#{name}", @imports[name].m)
     end
 
     def get_import_engine(name)
-      err(ParseError, "#{name} not imported") unless
-        @imports.member? name
-
-      container.get_by_name(name)
+      @imports[name] || err(ParseError, "#{name} not imported")
     end
 
     # Check to see if node with given name is defined.  flag tell the
@@ -205,8 +203,8 @@ module Delorean
       @@parser ||= DeloreanParser.new
     end
 
-    def generate(t)
-      t.check(self)
+    def generate(t, sset=nil)
+      t.check(self, sset)
 
       # generate ruby code
       gen = t.rewrite(self)
@@ -222,7 +220,7 @@ module Delorean
       end
     end
 
-    def parse(source)
+    def parse(source, sset=nil)
       raise "can't call parse again without reset" if @pm
 
       # @m module is used at runtime for code evaluation.  @pm module
@@ -252,7 +250,7 @@ module Delorean
 
           if t
             multi_line, @multi_no = nil, nil
-            generate(t)
+            generate(t, sset)
           end
 
         else
@@ -264,7 +262,7 @@ module Delorean
             multi_line = line
             @multi_no = @line_no
           else
-            generate(t)
+            generate(t, sset)
           end
         end
       end
