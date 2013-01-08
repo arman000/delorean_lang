@@ -38,7 +38,11 @@ module Delorean
       err(ParseError, "Module #{name} importing itself") if
         name == module_name
 
-      @imports[name] = sset.import(name, version)
+      begin
+        @imports[name] = sset.import(name, version)
+      rescue => exc
+        err(ImportError, exc.to_s)
+      end
 
       @pm.const_set("#{MOD}#{name}", @imports[name].pm)
     end

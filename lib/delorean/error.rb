@@ -30,6 +30,9 @@ module Delorean
   class BadCallError < ParseError
   end
 
+  class ImportError < ParseError
+  end
+
   ######################################################################
   # Runtime Errors
 

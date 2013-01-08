@@ -14,11 +14,6 @@ module Delorean
       @engines[ [name, version] ]
     end
 
-    def get_by_name(name)
-      k, engine = @engines.detect { |k, engine| k[0]==name }
-      engine
-    end
-
     def add(name, version, engine)
       @engines[ [name, version] ] = engine
     end
