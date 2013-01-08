@@ -75,8 +75,23 @@ end
 ######################################################################
 
 class TestContainer < Delorean::AbstractContainer
+  def initialize(scripts={})
+    super()
+    @scripts = scripts
+  end
+
+  def merge(scripts)
+    @scripts.merge!(scripts)
+  end
+
   def get_engine(name, version)
-    raise "shouldn't get here"
+    script = @scripts[ [name, version] ]
+
+    raise "can't find #{name} #{version}" unless script
+
+    engine = Delorean::Engine.new name
+    engine.parse script, self
+    engine
   end
 end
 

@@ -6,16 +6,14 @@ describe "Delorean" do
     Delorean::Engine.new "XXX"
   }
 
-  let (:sset) {
-    ze = Delorean::Engine.new "AAA"
-    ze.parse defn("X:",
-                  "  a =? 123",
-                  "  b = a*2",
-                  )
-    
-    tc = TestContainer.new
-    tc.add("AAA", "0001", ze)
-    tc
+  let(:sset) {
+    TestContainer.new({
+                        ["AAA", "0001"] =>
+                        defn("X:",
+                             "  a =? 123",
+                             "  b = a*2",
+                             )
+                      })
   }
 
   it "evaluate simple expressions" do
@@ -519,15 +517,25 @@ eof
   end
 
   it "should eval imports (2)" do
-    e2 = Delorean::Engine.new "BBB"
-    sset.add("BBB", "0002", e2)
+    sset.merge({
+                 ["BBB", "0002"] =>
+                 defn("import AAA 0001",
+                      "B: AAA::X",
+                      "  a = 111",
+                      "  c = @AAA::X('b', a: -1)",
+                      "  d = a * 2",
+                      ),
+                 ["CCC", "0003"] =>
+                 defn("import BBB 0002",
+                      "import AAA 0001",
+                      "B: BBB::B",
+                      "  e = d * 3",
+                      "C: AAA::X",
+                      "  d = b * 3",
+                      ),
+               })
 
-    e2.parse defn("import AAA 0001",
-                  "B: AAA::X",
-                  "  a = 111",
-                  "  c = @AAA::X('b', a: -1)",
-                  "  d = a * 2",
-                  ), sset
+    e2 = sset.get_engine("BBB", "0002")
 
     e2.evaluate_attrs("B", ["a", "b", "c", "d"]).should == [111, 222, -2, 222]
 
@@ -538,14 +546,7 @@ eof
 
     engine.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should == [111, 222, -2, 222, 225]
 
-    e4 = Delorean::Engine.new "CCC"
-    e4.parse defn("import BBB 0002",
-                  "import AAA 0001",
-                  "B: BBB::B",
-                  "  e = d * 3",
-                  "C: AAA::X",
-                  "  d = b * 3",
-                  ), sset
+    e4 = sset.get_engine("CCC", "0003")
 
     e4.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should == [111, 222, -2, 222, 666]
     e4.evaluate_attrs("C", ["a", "b", "d"]).should == [123, 123*2, 123*3*2]

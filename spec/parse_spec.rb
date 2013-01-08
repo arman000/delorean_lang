@@ -6,16 +6,14 @@ describe "Delorean" do
     Delorean::Engine.new "YYY"
   }
 
-  let (:sset) {
-    ze = Delorean::Engine.new "ZZZ"
-    ze.parse defn("X:",
-                  "  a = 123",
-                  "  b = a",
-                  )
-    
-    tc = TestContainer.new
-    tc.add("ZZZ", "0001", ze)
-    tc
+  let(:sset) {
+    TestContainer.new({
+                        ["AAA", "0001"] =>
+                        defn("X:",
+                             "  a = 123",
+                             "  b = a",
+                             )
+                      })
   }
 
   it "can parse very simple calls" do
@@ -576,12 +574,26 @@ describe "Delorean" do
   end
 
   it "should parse imports" do
-    engine.parse defn("import ZZZ 0001",
+    engine.parse defn("import AAA 0001",
                       "A:",
                       "  b = 456",
-                      "B: ZZZ::X",
+                      "B: AAA::X",
                       ), sset
     
+  end
+
+  it "should disallow import loops" do
+    pending
+    sset.merge({
+                 ["BBB", "0001"] =>
+                 defn("import AAA 0001",
+                      "import CCC 0001",
+                      ),
+                 ["CCC", "0001"] =>
+                 defn("import BBB 0001",
+                      ),
+               })
+    sset.get_engine("CCC", "0001")
   end
 
 end
