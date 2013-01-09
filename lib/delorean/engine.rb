@@ -324,7 +324,7 @@ module Delorean
     end
 
     def evaluate_attrs(node, attrs, params={})
-      raise "bad node '#{node}'" unless node.match(/^[A-Z][A-Za-z0-9]*$/)
+      raise "bad node '#{node}'" unless node =~ /^[A-Z][a-zA-Z0-9_]*$/
 
       begin
         klass = @m.module_eval(node)
@@ -335,7 +335,7 @@ module Delorean
       params[:_engine] = self
 
       attrs.map {|attr|
-        raise "bad attribute '#{attr}'" unless attr.match(/^[a-z][A-Za-z0-9_]*$/)
+        raise "bad attribute '#{attr}'" unless attr =~ /^[a-z][A-Za-z0-9_]*$/
         klass.send("#{attr}#{POST}".to_sym, params)
       }
     end
