@@ -163,17 +163,17 @@ module Delorean
       @param_set.add(name)
     end
 
-    def parse_model_class(model_name)
+    def parse_class(class_name)
       begin
         # need the runtime module here (@m) since we need to
         # introspect methods/attrs.
-        klass = @m.module_eval(model_name)
+        klass = @m.module_eval(class_name)
       rescue NoMethodError, NameError
-        err(UndefinedError, "Can't find model: #{model_name}")
+        err(UndefinedError, "Can't find class: #{class_name}")
       end
 
-      err(UndefinedError, "Access to non-model: #{model_name}") unless
-        klass.instance_of?(Class) && klass < ActiveRecord::Base 
+      err(UndefinedError, "Access to non-class: #{class_name}") unless
+        klass.instance_of?(Class)
 
       klass
     end
@@ -182,8 +182,8 @@ module Delorean
       raise exc.new(msg, @module_name, curr_line)
     end
 
-    def parse_check_call_fn(fn, argcount, model_name=nil)
-      klass = model_name ? parse_model_class(model_name) : (@m::BaseClass)
+    def parse_check_call_fn(fn, argcount, class_name=nil)
+      klass = class_name ? parse_class(class_name) : (@m::BaseClass)
 
       err(UndefinedFunctionError, "Function #{fn} not found") unless
         klass.methods.member? fn.to_sym

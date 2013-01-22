@@ -63,7 +63,7 @@ class Dummy < ActiveRecord::Base
 end
 
 module M
-  class LittleDummy < ActiveRecord::Base
+  class LittleDummy
     def self.heres_my_number(*a)
       a.inject(0, :+)
     end

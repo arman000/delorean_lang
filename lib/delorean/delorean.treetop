@@ -140,13 +140,13 @@ grammar Delorean
     'true' <Boolean> / 'false' <Boolean>
   end
 
+  rule sp
+    [\s]+
+  end
+
   rule string
     '"' ('\"' / !'"' .)* '"' <String>
     /
     "'" [^']* "'" <String>
-  end
-
-  rule sp
-    [\s]+
   end
 end
