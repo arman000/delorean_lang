@@ -1,7 +1,7 @@
 require 'delorean/base'
 
 module Delorean
-  SIG = "_sig"
+  SIG = "_SIG"
   MOD = "DELOREAN__"
   POST = "__D"
 

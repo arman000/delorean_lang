@@ -64,11 +64,12 @@ end
 
 module M
   class LittleDummy
-    def self.heres_my_number(*a)
+    include Delorean::Model
+
+    delorean_fn('heres_my_number', sig: [0, Float::INFINITY]) do
+      |*a|
       a.inject(0, :+)
     end
-
-    HERES_MY_NUMBER_SIG = [0, Float::INFINITY]
   end
 end
 

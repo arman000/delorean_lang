@@ -8,3 +8,5 @@ require 'delorean/functions'
 require 'delorean/base'
 require 'delorean/error'
 require 'delorean/container'
+require 'delorean/model'
+
