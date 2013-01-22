@@ -66,7 +66,7 @@ module M
   class LittleDummy
     include Delorean::Model
 
-    delorean_fn('heres_my_number', sig: [0, Float::INFINITY]) do
+    delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do
       |*a|
       a.inject(0, :+)
     end
