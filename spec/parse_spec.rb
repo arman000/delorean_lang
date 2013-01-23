@@ -456,6 +456,30 @@ describe "Delorean" do
 
   end
 
+  it "should be able to parse hashes" do
+    engine.parse defn("A:",
+                      "  b = {}",
+                      "  c = {a:1, b: 2, c:-3}",
+                      "  d = [{a:1}, {b: 2}]",
+                      )
+
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "  a = {",
+                        )
+    }.should raise_error(Delorean::ParseError)
+
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "  a = {}+",
+                        )
+    }.should raise_error(Delorean::ParseError)
+  end
+
   it "should be able to parse list operations " do
     engine.parse defn("A:",
                       "  b = [] + []",

@@ -442,6 +442,24 @@ eof
     engine.evaluate("A", "b").should == [2, 3, 4]
   end
 
+  it "should eval hashes" do
+    engine.parse defn("A:",
+                      "  b = {}",
+                      "  c = {a:1, b: 2,c:3}",
+                      "  d = {a_b: -123, b_b: 1+1}",
+                      "  e = {x: 1, y: 1+1, z: 1+1+1, zz: 1*2*4}",
+                      "  f = {a: nil, b: [1, nil, 2]}",
+                      )
+
+    engine.evaluate_attrs("A", %w{b c d e f}).should ==
+      [{},
+       {"a"=>1, "b"=>2, "c"=>3},
+       {"a_b"=>-123, "b_b"=>2},
+       {"x"=>1, "y"=>2, "z"=>3, "zz"=>8},
+       {"a"=>nil, "b"=>[1, nil, 2]},
+      ]
+  end
+
   it "should eval module calls" do
     engine.parse defn("A:",
                       "  a = 123",

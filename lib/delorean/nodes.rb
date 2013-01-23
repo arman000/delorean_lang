@@ -148,15 +148,6 @@ module Delorean
     end
   end
 
-  class Integer < Literal
-  end
-
-  class Decimal < Literal
-  end
-
-  class Boolean < Literal
-  end
-
   class String < Literal
     def rewrite(context)
       # remove the quotes and requote.  We don't want the likes of #{}
@@ -303,6 +294,16 @@ module Delorean
     end
   end
 
+  class HashExpr < SNode
+    def check(context, *)
+      defined?(args) ? args.check(context) : {}
+    end
+
+    def rewrite(context)
+      "{" + (defined?(args) ? args.rewrite(context) : "") + "}"
+    end
+  end
+
   class KwArgs < SNode
     def check(context, *)
       arg0.check(context) + (defined?(args_rest.args) ?
@@ -325,6 +326,13 @@ module Delorean
       end
 
       [args, kw]
+    end
+  end
+
+  class HashArgs < KwArgs
+    def rewrite(context)
+      "'#{i.text_value}' => " + arg0.rewrite(context) +
+        (defined?(args_rest.al) ? ", " + args_rest.al.rewrite(context) : "")
     end
   end
 

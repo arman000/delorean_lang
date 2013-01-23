@@ -42,6 +42,12 @@ grammar Delorean
     '[' sp? args:fn_args sp? ']' <ListExpr>
   end
 
+  rule hash_expr
+    '{}' <HashExpr>
+    /
+    '{' sp? args:hash_args sp? '}' <HashExpr>
+  end
+
   rule binary_op
     '+' / '-' / '*' / '/' / '%' / '==' / '!=' / '>=' / '<=' / '>' / '<' / '&&' / '||'
   end
@@ -54,6 +60,7 @@ grammar Delorean
     number 		/
     string 		/ 
     boolean 		/ 
+    nil_val		/
     script_call 	/ 
     fn 			/ 
     model_fn_getattr 	/
@@ -61,6 +68,7 @@ grammar Delorean
     node_getattr 	/ 
     getattr 		/
     list_expr 		/
+    hash_expr 		/
     '(' sp? e:expression sp? ')' <Expr>
   end
 
@@ -102,6 +110,10 @@ grammar Delorean
     '@' i:identifier? '(' sp? al:kw_args sp? ')' <ScriptCall>
   end
 
+  rule hash_args
+    i:identifier ':' sp? arg0:expression args_rest:(sp? ',' sp? al:hash_args)? <HashArgs>
+  end
+
   rule kw_args
     k:(i:identifier ':' sp?)? arg0:expression args_rest:(sp? ',' sp? al:kw_args)? <KwArgs>
   end
@@ -125,11 +137,11 @@ grammar Delorean
   end
 
   rule decimal
-    [0-9]+ '.' [0-9]+ <Decimal>
+    [0-9]+ '.' [0-9]+ <Literal>
   end
 
   rule integer
-    [0-9]+ <Integer>
+    [0-9]+ <Literal>
   end
 
   rule identifier
@@ -137,7 +149,11 @@ grammar Delorean
   end
 
   rule boolean
-    'true' <Boolean> / 'false' <Boolean>
+    'true' <Literal> / 'false' <Literal>
+  end
+
+  rule nil_val
+    'nil' <Literal>
   end
 
   rule sp
