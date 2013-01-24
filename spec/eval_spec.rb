@@ -414,14 +414,14 @@ eof
 
   it "should eval list comprehension" do
     engine.parse defn("A:",
-                      "  b = [i: [1,2,3] | i*5]",
+                      "  b = [i*5 for i in [1,2,3]]",
                       )
     engine.evaluate("A", "b").should == [5, 10, 15]
   end
 
   it "should eval nested list comprehension" do
     engine.parse defn("A:",
-                      "  b = [a: [1,2,3] | [c: [4,5] | a+c]]",
+                      "  b = [[a+c for c in [4,5]] for a in [1,2,3]]",
                       )
     engine.evaluate("A", "b").should == [[5, 6], [6, 7], [7, 8]]
 
@@ -429,7 +429,7 @@ eof
 
   it "should eval list comprehension variable override" do
     engine.parse defn("A:",
-                      "  b = [b: [1,2,3] | b/2.0]",
+                      "  b = [b/2.0 for b in [1,2,3]]",
                       )
     engine.evaluate("A", "b").should == [0.5, 1.0, 1.5]
   end
@@ -437,7 +437,7 @@ eof
   it "should eval list comprehension variable override (2)" do
     engine.parse defn("A:",
                       "  a = 1",
-                      "  b = [a: [1,2,3] | a+1]",
+                      "  b = [a+1 for a in [1,2,3]]",
                       )
     engine.evaluate("A", "b").should == [2, 3, 4]
   end
@@ -494,8 +494,8 @@ eof
   it "should eval multiline expressions" do
     engine.parse defn("A:",
                       "  a = 1",
-                      "  b = [a: [1,2,3] | ",
-                      "	         a+1",
+                      "  b = [a+1",
+                      "       for a in [1,2,3]",
                       "	     ]",
                       )
     engine.evaluate("A", "b").should == [2, 3, 4]

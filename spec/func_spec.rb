@@ -149,7 +149,7 @@ describe "Delorean" do
 
   it "should handle INDEX" do
     engine.parse defn("A:",
-                      "  a = [i: [1,2] | INDEX([0, 11, 22, 33], i)]",
+                      "  a = [INDEX([0, 11, 22, 33], i) for i in [1,2]]",
                       )
 
     engine.evaluate("A", "a").should == [11,22]

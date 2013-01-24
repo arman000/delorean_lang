@@ -488,49 +488,49 @@ describe "Delorean" do
 
   it "should parse list comprehension" do
     engine.parse defn("A:",
-                      "  b = [i: [] | 123]",
+                      "  b = [123 for i in 123]",
                       )
 
   end
 
   it "should parse list comprehension (2)" do
     engine.parse defn("A:",
-                      "  b = [i: [1,2,3] | i+1]",
+                      "  b = [i+1 for i in [1,2,3]]",
                       )
 
   end
 
   it "should parse nested list comprehension" do
     engine.parse defn("A:",
-                      "  b = [a: [1,2,3] | [c: [4,5] | a+c]]",
+                      "  b = [[a+c for c in [4,5]] for a in [1,2,3]]",
                       )
 
   end
 
   it "should accept list comprehension variable override" do
     engine.parse defn("A:",
-                      "  b = [b: [1,2,3] | b+1]",
+                      "  b = [b+1 for b in [1,2,3]]",
                       )
   end
 
   it "should accept list comprehension variable override (2)" do
     engine.parse defn("A:",
                       "  a = 1",
-                      "  b = [a: [1,2,3] | a+1]",
+                      "  b = [a+1 for a in [1,2,3]]",
                       )
   end
 
   it "errors out on bad list comprehension" do
     lambda {
       engine.parse defn("A:",
-                        "  b = [x: [1,2,3] | i+1]",
+                        "  b = [i+1 for x in [1,2,3]]",
                         )
     }.should raise_error(Delorean::UndefinedError)
     engine.reset
 
     lambda {
       engine.parse defn("A:",
-                        "  a = [b: b | 123]",
+                        "  a = [123 for b in b]",
                         )
     }.should raise_error(Delorean::UndefinedError)
     engine.reset
@@ -538,7 +538,7 @@ describe "Delorean" do
     # disallow nested comprehension var reuse
     lambda {
       engine.parse defn("A:",
-                        "  b = [a: [1,2,3] | [a: [4,5] | a+1]]",
+                        "  b = [[a+1 for a in [4,5]] for a in [1,2,3]]",
                         )
     }.should raise_error(Delorean::RedefinedError)
     engine.reset
