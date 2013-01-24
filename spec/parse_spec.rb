@@ -481,8 +481,8 @@ describe "Delorean" do
   it "should be able to parse hashes" do
     engine.parse defn("A:",
                       "  b = {}",
-                      "  c = {a:1, b: 2, c:-3}",
-                      "  d = [{a:1}, {b: 2}]",
+                      "  c = {'a':1, 'b': 2, 'c':-3}",
+                      "  d = [{1:11}, {2: 22}]",
                       )
 
     engine.reset
@@ -504,7 +504,7 @@ describe "Delorean" do
 
   it "should handle trailing ',' with hashes" do
     engine.parse defn("A:",
-                      "  b = {a:1,}",
+                      "  b = {-1:1,}",
                       )
 
     engine.reset
@@ -519,7 +519,7 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("A:",
-                        "  a = {a:1,,}",
+                        "  a = {-1:1,,}",
                         )
     }.should raise_error(Delorean::ParseError)
   end

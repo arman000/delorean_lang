@@ -331,9 +331,14 @@ module Delorean
     end
   end
 
-  class HashArgs < KwArgs
+  class HashArgs < SNode
+    def check(context, *)
+      e0.check(context) + e1.check(context) +
+        (defined?(args_rest.args) ? args_rest.args.check(context) : [])
+    end
+
     def rewrite(context)
-      "'#{i.text_value}' => " + arg0.rewrite(context) +
+      e0.rewrite(context) + " => " + e1.rewrite(context) +
         (defined?(args_rest.al) && !args_rest.al.text_value.empty? ?
          ", " + args_rest.al.rewrite(context) : "")
     end

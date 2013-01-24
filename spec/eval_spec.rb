@@ -445,18 +445,20 @@ eof
   it "should eval hashes" do
     engine.parse defn("A:",
                       "  b = {}",
-                      "  c = {a:1, b: 2,c:3}",
-                      "  d = {a_b: -123, b_b: 1+1}",
-                      "  e = {x: 1, y: 1+1, z: 1+1+1, zz: 1*2*4}",
-                      "  f = {a: nil, b: [1, nil, 2]}",
+                      "  c = {'a':1, 'b': 2,'c':3}",
+                      "  d = {123*2: -123, 'b_b': 1+1}",
+                      "  e = {'x': 1, 'y': 1+1, 'z': 1+1+1, 'zz': 1*2*4}",
+                      "  f = {'a': nil, 'b': [1, nil, 2]}",
+                      "  g = {b:b, [b]:[1,23], []:345}",
                       )
 
-    engine.evaluate_attrs("A", %w{b c d e f}).should ==
+    engine.evaluate_attrs("A", %w{b c d e f g}).should ==
       [{},
        {"a"=>1, "b"=>2, "c"=>3},
-       {"a_b"=>-123, "b_b"=>2},
+       {123*2=>-123, "b_b"=>2},
        {"x"=>1, "y"=>2, "z"=>3, "zz"=>8},
        {"a"=>nil, "b"=>[1, nil, 2]},
+       {{}=>{}, [{}]=>[1, 23], []=>345},
       ]
   end
 

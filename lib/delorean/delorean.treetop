@@ -111,7 +111,7 @@ grammar Delorean
   end
 
   rule hash_args
-    i:identifier ':' sp? arg0:expression args_rest:(sp? ',' sp? al:hash_args?)? <HashArgs>
+    e0:expression sp? ':' sp? e1:expression args_rest:(sp? ',' sp? al:hash_args?)? <HashArgs>
   end
 
   rule kw_args
