@@ -120,5 +120,15 @@ module Delorean
     ERR_SIG = [ 1, Float::INFINITY ]
 
     ######################################################################
+
+    def TOSYM(s)
+      # raise "non-String arg to SYM" unless s.is_a?(String)
+      s.to_sym
+    end
+
+    TOSYM_SIG = [ 1, 1 ]
+
+    ######################################################################
+
   end
 end

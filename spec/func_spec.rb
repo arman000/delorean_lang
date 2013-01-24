@@ -180,4 +180,13 @@ describe "Delorean" do
 
   end
 
+  it "should handle SYM" do
+    engine.parse defn("S:",
+                      '  a = TOSYM("hello")',
+                      )
+
+    r = engine.evaluate("S", "a")
+    r.should == :hello
+  end
+
 end
