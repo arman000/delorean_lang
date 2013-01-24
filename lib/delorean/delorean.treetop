@@ -80,7 +80,7 @@ grammar Delorean
   end
 
   rule fn_args
-    arg0:expression args_rest:(sp? ',' sp? args:fn_args)? <FnArgs>
+    arg0:expression args_rest:(sp? ',' sp? args:fn_args?)? <FnArgs>
   end
 
   rule model_fn
@@ -111,7 +111,7 @@ grammar Delorean
   end
 
   rule hash_args
-    i:identifier ':' sp? arg0:expression args_rest:(sp? ',' sp? al:hash_args)? <HashArgs>
+    i:identifier ':' sp? arg0:expression args_rest:(sp? ',' sp? al:hash_args?)? <HashArgs>
   end
 
   rule kw_args

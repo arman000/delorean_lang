@@ -1589,7 +1589,12 @@ module Delorean
           end
           s3 << r7
           if r7
-            r9 = _nt_fn_args
+            r10 = _nt_fn_args
+            if r10
+              r9 = r10
+            else
+              r9 = instantiate_node(SyntaxNode,input, index...index)
+            end
             s3 << r9
           end
         end
@@ -2262,7 +2267,12 @@ module Delorean
                 end
                 s7 << r11
                 if r11
-                  r13 = _nt_hash_args
+                  r14 = _nt_hash_args
+                  if r14
+                    r13 = r14
+                  else
+                    r13 = instantiate_node(SyntaxNode,input, index...index)
+                  end
                   s7 << r13
                 end
               end

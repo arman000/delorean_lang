@@ -430,7 +430,7 @@ describe "Delorean" do
     }.should raise_error(Delorean::UndefinedError)
   end
 
-  it "should be able to parse lists " do
+  it "should be able to parse lists" do
     engine.parse defn("A:",
                       "  b = []",
                       "  c = [1,2,3]",
@@ -456,6 +456,28 @@ describe "Delorean" do
 
   end
 
+  it "should handle trailing ',' with lists" do
+    engine.parse defn("A:",
+                      "  b = [1,2,3,]",
+                      )
+
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "  a = [,]",
+                        )
+    }.should raise_error(Delorean::ParseError)
+
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "  a = [1,2,,]",
+                        )
+    }.should raise_error(Delorean::ParseError)
+  end
+
   it "should be able to parse hashes" do
     engine.parse defn("A:",
                       "  b = {}",
@@ -476,6 +498,28 @@ describe "Delorean" do
     lambda {
       engine.parse defn("A:",
                         "  a = {}+",
+                        )
+    }.should raise_error(Delorean::ParseError)
+  end
+
+  it "should handle trailing ',' with hashes" do
+    engine.parse defn("A:",
+                      "  b = {a:1,}",
+                      )
+
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "  a = {,}",
+                        )
+    }.should raise_error(Delorean::ParseError)
+
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "  a = {a:1,,}",
                         )
     }.should raise_error(Delorean::ParseError)
   end

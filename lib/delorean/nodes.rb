@@ -221,13 +221,15 @@ module Delorean
 
   class FnArgs < SNode
     def check(context, *)
-      arg0.check(context) + (defined?(args_rest.args) ?
-                             args_rest.args.check(context) : [])
+      arg0.check(context) +
+        (defined?(args_rest.args) && !args_rest.args.text_value.empty? ?
+         args_rest.args.check(context) : [])
     end
 
     def rewrite(context)
       arg0.rewrite(context) +
-        (defined?(args_rest.args) ? ", " + args_rest.args.rewrite(context) : "")
+        (defined?(args_rest.args) && !args_rest.args.text_value.empty? ?
+         ", " + args_rest.args.rewrite(context) : "")
     end
 
     def arg_count
@@ -332,7 +334,8 @@ module Delorean
   class HashArgs < KwArgs
     def rewrite(context)
       "'#{i.text_value}' => " + arg0.rewrite(context) +
-        (defined?(args_rest.al) ? ", " + args_rest.al.rewrite(context) : "")
+        (defined?(args_rest.al) && !args_rest.al.text_value.empty? ?
+         ", " + args_rest.al.rewrite(context) : "")
     end
   end
 
