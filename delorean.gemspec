@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["arman.bostani@pnmac.com"]
   gem.description   = %q{A "compiler" for the Delorean programming language}
   gem.summary       = %q{Delorean compiler}
-  gem.homepage      = ""
+  gem.homepage      = "http://rubygems.org/gems/delorean_lang"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
