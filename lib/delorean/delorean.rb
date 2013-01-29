@@ -745,6 +745,17 @@ module Delorean
   end
 
   module ListExpr0
+    def sp
+      elements[1]
+    end
+
+    def e3
+      elements[2]
+    end
+
+  end
+
+  module ListExpr1
     def e2
       elements[2]
     end
@@ -773,9 +784,13 @@ module Delorean
       elements[10]
     end
 
+    def ifexp
+      elements[12]
+    end
+
   end
 
-  module ListExpr1
+  module ListExpr2
     def args
       elements[2]
     end
@@ -869,14 +884,55 @@ module Delorean
                             end
                             s2 << r15
                             if r15
-                              if has_terminal?(']', false, index)
-                                r17 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                                @index += 1
+                              i18, s18 = index, []
+                              if has_terminal?('if', false, index)
+                                r19 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                                @index += 2
                               else
-                                terminal_parse_failure(']')
-                                r17 = nil
+                                terminal_parse_failure('if')
+                                r19 = nil
+                              end
+                              s18 << r19
+                              if r19
+                                r20 = _nt_sp
+                                s18 << r20
+                                if r20
+                                  r21 = _nt_expression
+                                  s18 << r21
+                                  if r21
+                                    r23 = _nt_sp
+                                    if r23
+                                      r22 = r23
+                                    else
+                                      r22 = instantiate_node(SyntaxNode,input, index...index)
+                                    end
+                                    s18 << r22
+                                  end
+                                end
+                              end
+                              if s18.last
+                                r18 = instantiate_node(SyntaxNode,input, i18...index, s18)
+                                r18.extend(ListExpr0)
+                              else
+                                @index = i18
+                                r18 = nil
+                              end
+                              if r18
+                                r17 = r18
+                              else
+                                r17 = instantiate_node(SyntaxNode,input, index...index)
                               end
                               s2 << r17
+                              if r17
+                                if has_terminal?(']', false, index)
+                                  r24 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                                  @index += 1
+                                else
+                                  terminal_parse_failure(']')
+                                  r24 = nil
+                                end
+                                s2 << r24
+                              end
                             end
                           end
                         end
@@ -891,7 +947,7 @@ module Delorean
       end
       if s2.last
         r2 = instantiate_node(ListComprehension,input, i2...index, s2)
-        r2.extend(ListExpr0)
+        r2.extend(ListExpr1)
       else
         @index = i2
         r2 = nil
@@ -899,56 +955,56 @@ module Delorean
       if r2
         r0 = r2
       else
-        i18, s18 = index, []
+        i25, s25 = index, []
         if has_terminal?('[', false, index)
-          r19 = instantiate_node(SyntaxNode,input, index...(index + 1))
+          r26 = instantiate_node(SyntaxNode,input, index...(index + 1))
           @index += 1
         else
           terminal_parse_failure('[')
-          r19 = nil
+          r26 = nil
         end
-        s18 << r19
-        if r19
-          r21 = _nt_sp
-          if r21
-            r20 = r21
+        s25 << r26
+        if r26
+          r28 = _nt_sp
+          if r28
+            r27 = r28
           else
-            r20 = instantiate_node(SyntaxNode,input, index...index)
+            r27 = instantiate_node(SyntaxNode,input, index...index)
           end
-          s18 << r20
-          if r20
-            r22 = _nt_fn_args
-            s18 << r22
-            if r22
-              r24 = _nt_sp
-              if r24
-                r23 = r24
+          s25 << r27
+          if r27
+            r29 = _nt_fn_args
+            s25 << r29
+            if r29
+              r31 = _nt_sp
+              if r31
+                r30 = r31
               else
-                r23 = instantiate_node(SyntaxNode,input, index...index)
+                r30 = instantiate_node(SyntaxNode,input, index...index)
               end
-              s18 << r23
-              if r23
+              s25 << r30
+              if r30
                 if has_terminal?(']', false, index)
-                  r25 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                  r32 = instantiate_node(SyntaxNode,input, index...(index + 1))
                   @index += 1
                 else
                   terminal_parse_failure(']')
-                  r25 = nil
+                  r32 = nil
                 end
-                s18 << r25
+                s25 << r32
               end
             end
           end
         end
-        if s18.last
-          r18 = instantiate_node(ListExpr,input, i18...index, s18)
-          r18.extend(ListExpr1)
+        if s25.last
+          r25 = instantiate_node(ListExpr,input, i25...index, s25)
+          r25.extend(ListExpr2)
         else
-          @index = i18
-          r18 = nil
+          @index = i25
+          r25 = nil
         end
-        if r18
-          r0 = r18
+        if r25
+          r0 = r25
         else
           @index = i0
           r0 = nil

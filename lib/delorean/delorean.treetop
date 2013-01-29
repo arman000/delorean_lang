@@ -37,7 +37,9 @@ grammar Delorean
     '[]' <ListExpr>
     /
     '[' sp? e2:expression sp
-        'for' sp i:identifier sp 'in' sp e1:expression sp? ']' <ListComprehension>
+        'for' sp i:identifier sp 'in' sp e1:expression sp?
+        ifexp:('if' sp e3:expression sp?)?
+    ']' <ListComprehension>
     /
     '[' sp? args:fn_args sp? ']' <ListExpr>
   end
@@ -48,6 +50,8 @@ grammar Delorean
     '{' sp? args:hash_args sp? '}' <HashExpr>
   end
 
+  # NOTE: some operations such as << have side-effects (e.g. on
+  # Arrays).  So, be cautious about which opertaions are added.
   rule binary_op
     '+' / '-' / '*' / '/' / '%' / '==' / '!=' / '>=' / '<=' / '>' / '<' / '&&' / '||'
   end

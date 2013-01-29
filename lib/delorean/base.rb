@@ -33,16 +33,6 @@ module Delorean
 
       ######################################################################
 
-      def self._fetch_param(_e, name)
-        begin
-          _e.fetch(name)
-        rescue KeyError
-          raise UndefinedParamError, "undefined parameter #{name}"
-        end
-      end
-
-      ######################################################################
-
       def self._script_call(node_name, mname, _e, attrs, params)
         context = _e[:_engine]
         node_name ||= self.name.split('::')[-1]

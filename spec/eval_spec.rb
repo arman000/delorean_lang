@@ -47,7 +47,8 @@ describe "Delorean" do
                       "  c = a / 4.0",
                       )
 
-    r = engine.evaluate_attrs("A", ["c", "b"], {"a" => 16})
+    h = {"a" => 16}
+    r = engine.evaluate_attrs("A", ["c", "b"], h)
     r.should == [4, 5]
   end
 
@@ -70,6 +71,32 @@ describe "Delorean" do
 
     r = engine.evaluate("A", "c")
     r.should == 1
+  end
+
+  it "order of attr evaluation should not matter" do
+    engine.parse defn("A:",
+                      "	a =? 1",
+                      "B:",
+                      "	a =? 2",
+                      "	c = A.a",
+                      )
+    engine.evaluate_attrs("B", %w{c a}).should == [1, 2]
+    engine.evaluate_attrs("B", %w{a c}).should == [2, 1]
+  end
+
+  it "params should behave properly with inheritance" do
+    engine.parse defn("A:",
+                      "	a =? 1",
+                      "B: A",
+                      "	a =? 2",
+                      "C: B",
+                      " a =? 3",
+                      " b = B.a",
+                      " c = A.a",
+                      )
+    engine.evaluate_attrs("C", %w{a b c}).should == [3, 2, 1]
+    engine.evaluate_attrs("C", %w{a b c}, {"a" => 4}).should == [4, 4, 4]
+    engine.evaluate_attrs("C", %w{c b a}).should == [1, 2, 3]
   end
 
   it "should give error when param is undefined for eval" do
@@ -440,6 +467,13 @@ eof
                       "  b = [a+1 for a in [1,2,3]]",
                       )
     engine.evaluate("A", "b").should == [2, 3, 4]
+  end
+
+  it "should eval conditional list comprehension" do
+    engine.parse defn("A:",
+                      "  b = [i*5 for i in [1,2,3,4,5] if i%2 == 1]",
+                      )
+    engine.evaluate("A", "b").should == [5, 15, 25]
   end
 
   it "should eval hashes" do

@@ -1,5 +1,3 @@
-require 'pp'
-
 module Delorean
   class SNode < Treetop::Runtime::SyntaxNode
   end
@@ -21,11 +19,25 @@ module Delorean
     def rewrite(context)
       # Adds a parameter to the current node.  Parameters are
       # implemented as functions (just like attrs).  The environment
-      # arg (_e) is a Hash.  _fetch_param() simply looks up the param
-      # in _e and raises an error it not found.
-      "class #{context.last_node}; " +
-        "def self.#{i.text_value}#{POST}(_e); _e['#{i.text_value}'] ||= " +
-        "self._fetch_param(_e, '#{i.text_value}'); end; end;"
+      # arg (_e) is a Hash.  To find a param (aname) in node (cname),
+      # we first check to see if cname.aname has already been computed
+      # in _e.  If not, to compute it we check for the value in _e
+      # (i.e. check for aname).  Otherwise, we use the default value
+      # if any.
+      aname, cname = i.text_value, context.last_node
+      exc = "raise UndefinedParamError, 'undefined parameter #{aname}'"
+<<eos
+      class #{cname}
+        def self.#{aname}#{POST}(_e)
+            _e['#{cname}.#{aname}'] ||=
+            begin
+              _e.fetch('#{aname}')
+            rescue KeyError
+              #{defined?(e) ? e.rewrite(context) : exc}
+            end
+        end
+      end
+eos
     end
   end
 
@@ -39,15 +51,6 @@ module Delorean
       # This mechanism has been removed.
       spec = e.check(context)
       context.parse_define_param(i.text_value, spec)
-    end
-
-    def rewrite(context)
-      # Implements default parameters.  It returns the param if it's
-      # already defined in the environment (_e).  Otherwise returns
-      # the eval of default value expression.
-      "class #{context.last_node}; " +
-        "def self.#{i.text_value}#{POST}(_e); _e[:#{i.text_value}] ||= " +
-        "_e['#{i.text_value}'] || (" + e.rewrite(context) + "); end; end;"
     end
   end
 
@@ -277,20 +280,30 @@ module Delorean
 
   class ListComprehension < SNode
     def check(context, *)
+      vname = i.text_value
+
       e1c = e1.check(context)
-      context.parse_define_var(i.text_value)
-      # need to check e2 in a context where the comprehension var is
-      # defined.
+      context.parse_define_var(vname)
+      # need to check e2/e3 in a context where the comprehension var
+      # is defined.
       e2c = e2.check(context)
-      context.parse_undef_var(i.text_value)
-      e2c.delete(i.text_value)
-      e1c + e2c
+      e3c = defined?(ifexp.e3) ? ifexp.e3.check(context) : []
+
+      context.parse_undef_var(vname)
+      e2c.delete(vname)
+      e3c.delete(vname)
+
+      e1c + e2c + e3c
     end
 
     def rewrite(context)
       res = "(#{e1.rewrite(context)}).map{"
       context.parse_define_var(i.text_value)
       res += "|#{i.rewrite(context)}| (#{e2.rewrite(context)}) }"
+
+      res += ".select{|#{i.rewrite(context)}| (#{ifexp.e3.rewrite(context)}) }" if
+        defined?(ifexp.e3)
+
       context.parse_undef_var(i.text_value)
       res
     end
