@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["arman.bostani@pnmac.com"]
   gem.description   = %q{A "compiler" for the Delorean programming language}
   gem.summary       = %q{Delorean compiler}
-  gem.homepage      = "http://rubygems.org/gems/delorean_lang"
+  gem.homepage      = "https://github.com/arman000/delorean_lang"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
@@ -14,7 +14,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Delorean::VERSION
 
-  gem.add_dependency "treetop"
+  gem.add_dependency "treetop", ">= 1.4.12"
   gem.add_dependency "activerecord", "3.2.11"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "sqlite3"
