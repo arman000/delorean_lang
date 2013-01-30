@@ -41,7 +41,7 @@ Or add it to your `Gemfile`, etc.
   deemed too complex for our users. Also, sand-boxing Ruby to prevent
   unauthorized data access did not seem practical.
 
-* Many of the financial models created at [PENNYMAC][] simple
+* Many of the financial models created at [PENNYMAC][] are simple
   modifications of earlier models. It was important for the scripting
   language to provide a simple inheritance model such that major
   parts of these models could be shared.
@@ -58,7 +58,7 @@ definition:
 
     NodeA:
 	    attr1 = 123
-		attr2 = attr1*2
+	    attr2 = attr1*2
 
 In the above example, `NodeA` is a new node definition. This node
 includes two attributes: `attr1` and `attr2`. `attr1` is defined to be
@@ -84,12 +84,12 @@ parameter:
 
     NodeB:
 	    param =? "hello"
-		attr = param + " world"
+	    attr = param + " world"
 
 In this example, `param` is defined as a parameter whose default value
 is `"hello"`, which is a string literal.  If we evaluate `NodeB.attr`
 without providing `param`, the result will be the string `"hello
-word"`.  If the `param` is sent in with the value `"look out"`, then
+world"`.  If the `param` is sent in with the value `"look out"`, then
 `NodeB.attr` will evaluate to `"look out world"`.
 
 The parameter default value is optional.  If no default value if
@@ -112,7 +112,7 @@ nodes.  The following example shows the usage of inheritance:
 		
 In this example, node `USInfo` provides a definition of a
 `is_teenager` when provided with an `age` parameter. Node `IndiaInfo`
-is derived from `USInfo` an so it shares all of its attribute
+is derived from `USInfo` and so it shares all of its attribute
 definitions.  However, the `teen_min` attribute has been overridden.
 This specifies that the computation of `is_teenager` will use the
 newly defined `teen_min`.  Therefore, `IndiaInfo.is_teenager` with
