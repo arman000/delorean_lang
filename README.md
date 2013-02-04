@@ -3,6 +3,8 @@
 Delorean is a simple functional scripting language.  It is used at
 [PENNYMAC][] as a scripting language for a financial modeling system.
 
+![](http://i.imgur.com/qiG7Av6.jpg)
+
 ## Installation
 
     $ gem install delorean_lang
@@ -41,7 +43,7 @@ Or add it to your `Gemfile`, etc.
   deemed too complex for our users. Also, sand-boxing Ruby to prevent
   unauthorized data access did not seem practical.
 
-* Many of the financial models created at [PENNYMAC][] simple
+* Many of the financial models created at [PENNYMAC][] are simple
   modifications of earlier models. It was important for the scripting
   language to provide a simple inheritance model such that major
   parts of these models could be shared.
@@ -75,7 +77,7 @@ Delorean attribute definitions have the following form:
 Where `attr` is an attribute name. Attribute names are required to
 match the following regular expression: `[a-z][a-zA-Z0-9_]*`. An
 attribute can only be specified once in a node.  Also, any attributes
-it refers to in its expression must have been defined.
+it refers to in its expression must have been previously defined.
 
 Delorean also provides a mechanism to provide "input" to a
 computation.  This is performed thorough a special kind of attribute
