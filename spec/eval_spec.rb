@@ -270,6 +270,15 @@ describe "Delorean" do
     r.name.should == "hello"
   end
 
+  it "should be able to get attr on node" do
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "  b = A",
+                      "  c = b.a * 2",
+                      )
+    engine.evaluate_attrs("A", %w{a c}).should == [123, 123*2]
+  end
+
   it "should be able to call class methods on ActiveRecord classes in modules" do
     engine.parse defn("A:",
                       "  b = M::LittleDummy.heres_my_number(867, 5309)",
@@ -496,7 +505,17 @@ eof
       ]
   end
 
-  it "should eval module calls" do
+  it "should eval module calls 1" do
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "  n = A",
+                      "  d = @n('a') * 2",
+                      )
+
+    engine.evaluate_attrs("A", %w{d}).should == [123*2]
+  end
+
+  it "should eval module calls 2" do
     engine.parse defn("A:",
                       "  a = 123",
                       "  b = 456 + a",

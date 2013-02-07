@@ -324,17 +324,21 @@ module Delorean
     end
 
     def evaluate_attrs(node, attrs, params={})
-      raise "bad node '#{node}'" unless node =~ /^[A-Z][a-zA-Z0-9_]*$/
+      if node.is_a?(Class)
+        klass = node
+      else
+        raise "bad node '#{node}'" unless node =~ /^[A-Z][a-zA-Z0-9_]*$/
 
-      begin
-        klass = @m.module_eval(node)
-      rescue NameError
-        err(UndefinedNodeError, "node #{node} is undefined")
+        begin
+          klass = @m.module_eval(node)
+        rescue NameError
+          err(UndefinedNodeError, "node #{node} is undefined")
+        end
       end
 
       params[:_engine] = self
 
-      attrs.map {|attr|
+      attrs.map { |attr|
         raise "bad attribute '#{attr}'" unless attr =~ /^[a-z][A-Za-z0-9_]*$/
         klass.send("#{attr}#{POST}".to_sym, params)
       }
@@ -355,5 +359,4 @@ module Delorean
     ######################################################################
 
   end
-
 end

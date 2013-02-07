@@ -588,6 +588,14 @@ describe "Delorean" do
     engine.reset
   end
 
+  it "should allow nodes as values" do
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "B:",
+                      "  a = A",
+                      )
+  end
+
   it "should parse module calls" do
     engine.parse defn("A:",
                       "  a = 123",

@@ -11,7 +11,7 @@ module Delorean
 
       ######################################################################
 
-      def self._get_attr(obj, attr)
+      def self._get_attr(obj, attr, _e)
         return nil if obj.nil?
 
         if obj.kind_of? ActiveRecord::Base
@@ -26,6 +26,8 @@ module Delorean
           raise InvalidGetAttribute, "ActiveRecord lookup '#{attr}' on #{obj}"
         elsif obj.instance_of?(Hash)
           return obj.member?(attr) ? obj[attr] : obj[attr.to_sym]
+        elsif obj.instance_of?(Class) && (obj < BaseClass)
+          return obj.send((attr + POST).to_sym, _e)
         end
 
         raise InvalidGetAttribute, "bad attribute lookup '#{attr}' on #{obj}"
@@ -33,13 +35,13 @@ module Delorean
 
       ######################################################################
 
-      def self._script_call(node_name, mname, _e, attrs, params)
+      def self._script_call(node, mname, _e, attrs, params)
         context = _e[:_engine]
-        node_name ||= self.name.split('::')[-1]
+        node ||= self
 
         engine = mname ? context.get_import_engine(mname) : context
 
-        res = engine.evaluate_attrs(node_name, attrs, params)
+        res = engine.evaluate_attrs(node, attrs, params)
 
         return res[0] if attrs.length == 1
 

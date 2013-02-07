@@ -117,6 +117,24 @@ eos
     end
   end
 
+  class NodeAsValue < SNode
+    def check(context, *)
+      mname = mod.m.text_value if defined?(mod.m)
+
+      raise "Module node as value - NOT IMPLEMENTED YET" if mname
+
+      context.parse_check_defined_mod_node(c.text_value, mname)
+      []
+    end
+
+    def rewrite(context)
+      node_name = c.text_value
+      mname = mod.m.text_value if defined?(mod.m)
+
+      node_name
+    end
+  end
+
   # unary operator
   class UnOp < SNode
     def check(context, *)
@@ -193,7 +211,7 @@ eos
 
     def rewrite(context)
       attr_list = ga.text_value.split('.')
-      attr_list.inject(i.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}')"}
+      attr_list.inject(i.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}', _e)"}
     end
   end
 
@@ -204,7 +222,7 @@ eos
 
     def rewrite(context)
       x = mfn.rewrite(context)
-      "_get_attr(#{x}, '#{i.text_value}')"
+      "_get_attr(#{x}, '#{i.text_value}', _e)"
     end
   end
 

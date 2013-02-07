@@ -73,7 +73,8 @@ grammar Delorean
     getattr 		/
     list_expr 		/
     hash_expr 		/
-    '(' sp? e:expression sp? ')' <Expr>
+    mod:(m:node_name '::')? c:class_name 	<NodeAsValue> /
+    '(' sp? e:expression sp? ')' 		<Expr>
   end
 
   # built-in functions
