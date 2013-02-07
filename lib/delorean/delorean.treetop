@@ -24,13 +24,17 @@ grammar Delorean
   rule expression
     op:unary_op sp? e:expression <UnOp>
     /
-    'if' sp? v:expression sp?
-    'then' sp? e1:expression sp?
-    'else' sp? e2:expression <IfElse>
+    'if' 	sp? v:expression sp?
+    'then' 	sp? e1:expression sp?
+    'else' 	sp? e2:expression <IfElse>
     /
-    v:value sp? op:binary_op sp? e:expression <BinOp>
+    v:getattr_exp sp? op:binary_op sp? e:expression <BinOp>
     /
-    value
+    getattr_exp
+  end
+
+  rule getattr_exp
+    v:value ga:(('.' identifier)*) <ExpGetAttr>
   end
 
   rule list_expr
@@ -61,27 +65,23 @@ grammar Delorean
   end
 
   rule value
-    number 		/
-    string 		/ 
-    boolean 		/ 
-    nil_val		/
-    script_call 	/ 
-    fn 			/ 
-    model_fn_getattr 	/
-    model_fn 		/ 
-    node_getattr 	/ 
-    getattr 		/
-    list_expr 		/
-    hash_expr 		/
-    mod:(m:node_name '::')? c:class_name 	<NodeAsValue> /
-    '(' sp? e:expression sp? ')' 		<Expr>
+    number 						/
+    string 						/ 
+    boolean 						/ 
+    nil_val						/
+    script_call 					/ 
+    fn 							/ 
+    model_fn 						/ 
+    identifier						/
+    list_expr 						/
+    hash_expr 						/
+    mod:(m:node_name '::')? c:class_name <NodeAsValue> 	/
+    '(' sp? e:expression sp? ')' 	 <Expr>
   end
 
   # built-in functions
   rule fn
-    fn:fn_name '(' sp? ')' <Fn>
-    /
-    fn:fn_name '(' sp? args:fn_args sp? ')' <Fn>
+    fn:fn_name '(' sp? args:fn_args? sp? ')' <Fn>
   end
 
   rule fn_args
@@ -95,9 +95,7 @@ grammar Delorean
   end
 
   rule model_name
-    class_name '::' model_name
-    /
-    class_name
+    class_name ('::' model_name)?
   end
 
   rule fn_name
@@ -121,20 +119,6 @@ grammar Delorean
 
   rule kw_args
     k:(i:identifier ':' sp?)? arg0:expression args_rest:(sp? ',' sp? al:kw_args)? <KwArgs>
-  end
-
-  rule node_getattr
-    n:node_name '.' i:identifier <NodeGetAttr>
-  end
-
-  rule model_fn_getattr
-    mfn:model_fn '.' i:identifier <ModelFnGetAttr>
-  end
-
-  rule getattr
-    i:identifier '.' ga:getattr <GetAttr>
-    /
-    identifier
   end
 
   rule number

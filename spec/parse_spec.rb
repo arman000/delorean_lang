@@ -122,6 +122,13 @@ describe "Delorean" do
 
   end
 
+  it "should allow getattr in expressions" do
+    engine.parse defn("A:",
+                      "  a = 1",
+                      "  b = A.a * A.a - A.a",
+                      )
+  end
+
   it "should allow non-recursive code 1" do
     # this is not a recursion error
     engine.parse defn("A:",

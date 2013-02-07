@@ -43,8 +43,6 @@ module Delorean
 
         res = engine.evaluate_attrs(node, attrs, params)
 
-        return res[0] if attrs.length == 1
-
         # There are more than one attrs, return hash result
         Hash[* attrs.zip(res).flatten]
       end

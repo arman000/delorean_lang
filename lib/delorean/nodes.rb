@@ -193,36 +193,19 @@ eos
     end
   end
 
-  class NodeGetAttr < SNode
+  class ExpGetAttr < SNode
     def check(context, *)
-      context.parse_call_attr(n.text_value, i.text_value)
-      [text_value]
-    end
-
-    def rewrite(context)
-      text_value + POST + '(_e)'
-    end
-  end
-
-  class GetAttr < SNode
-    def check(context, *)
-      i.check(context)
+      v.check(context)
     end
 
     def rewrite(context)
       attr_list = ga.text_value.split('.')
-      attr_list.inject(i.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}', _e)"}
-    end
-  end
 
-  class ModelFnGetAttr < SNode
-    def check(context, *)
-      mfn.check(context)
-    end
+      # If ga.text_value is not "", then we need to drop the 1st
+      # element since it'll be "".
+      attr_list.shift
 
-    def rewrite(context)
-      x = mfn.rewrite(context)
-      "_get_attr(#{x}, '#{i.text_value}', _e)"
+      attr_list.inject(v.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}', _e)"}
     end
   end
 

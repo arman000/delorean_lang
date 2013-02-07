@@ -40,6 +40,14 @@ describe "Delorean" do
     r.should == -122
   end
 
+  it "should handle getattr in expressions" do
+    engine.parse defn("A:",
+                      "  a = {'x':123, 'y':456, 'z':789}",
+                      "  b = A.a.x * A.a.y - A.a.z",
+                      )
+    engine.evaluate_attrs("A", ["b"]).should == [123*456-789]
+  end
+
   it "should be able to evaluate multiple node attrs" do
     engine.parse defn("A:",
                       "  a =? 123",
@@ -509,10 +517,10 @@ eof
     engine.parse defn("A:",
                       "  a = 123",
                       "  n = A",
-                      "  d = @n('a') * 2",
+                      "  d = @n('a')",
                       )
 
-    engine.evaluate_attrs("A", %w{d}).should == [123*2]
+    engine.evaluate_attrs("A", %w{d}).should == [{"a" => 123}]
   end
 
   it "should eval module calls 2" do
@@ -526,16 +534,16 @@ eof
                       )
 
     engine.evaluate_attrs("A", %w{n c d e}).should ==
-      ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, 579]
+      ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, {"b"=>579}]
   end
 
   it "should be possible to implement recursive calls" do
     engine.parse defn("A:",
                       "  n =?",
-                      "  factorial = if n <= 1 then 1 else n * @('factorial', n: n-1)",
+                      "  fact = if n <= 1 then 1 else n * @('fact', n: n-1).fact",
                       )
     
-    engine.evaluate("A", "factorial", "n" => 10).should == 3628800
+    engine.evaluate("A", "fact", "n" => 10).should == 3628800
   end
 
   it "should eval module calls by node name" do
@@ -543,7 +551,7 @@ eof
                       "  a = 123",
                       "  b = @A('a')",
                       )
-    engine.evaluate("A", "b").should == 123
+    engine.evaluate("A", "b").should == {"a"=>123}
   end
 
   it "should eval multiline expressions" do
@@ -575,7 +583,7 @@ eof
                       )
 
     engine.evaluate_attrs("A", %w{n c d e}).should ==
-      ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, 579]
+      ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, {"b"=>579}]
   end
 
   it "should eval imports" do
@@ -586,7 +594,8 @@ eof
                       "  a = 111",
                       "  c = @AAA::X('b', a: 456)",
                       ), sset
-    engine.evaluate_attrs("B", ["a", "b", "c"], {}).should == [111, 222, 456*2]
+    engine.evaluate_attrs("B", ["a", "b", "c"], {}).should ==
+      [111, 222, {"b"=>456*2}]
   end
 
   it "should eval imports (2)" do
@@ -610,18 +619,22 @@ eof
 
     e2 = sset.get_engine("BBB", "0002")
 
-    e2.evaluate_attrs("B", ["a", "b", "c", "d"]).should == [111, 222, -2, 222]
+    e2.evaluate_attrs("B", ["a", "b", "c", "d"]).should ==
+      [111, 222, {"b"=>-2}, 222]
 
     engine.parse defn("import BBB 0002",
                       "B: BBB::B",
                       "  e = d + 3",
                       ), sset
 
-    engine.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should == [111, 222, -2, 222, 225]
+    engine.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should ==
+      [111, 222, {"b"=>-2}, 222, 225]
 
     e4 = sset.get_engine("CCC", "0003")
 
-    e4.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should == [111, 222, -2, 222, 666]
+    e4.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should ==
+      [111, 222, {"b"=>-2}, 222, 666]
+
     e4.evaluate_attrs("C", ["a", "b", "d"]).should == [123, 123*2, 123*3*2]
   end
 
