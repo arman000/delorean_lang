@@ -44,6 +44,12 @@ describe "Delorean" do
                       )
   end
 
+  it "can parse indexing" do
+    engine.parse defn("A:",
+                      "  b = [1,2,3][1]",
+                      )
+  end
+
   it "should accept default param definitions" do
     lambda {
       engine.parse defn("A:",

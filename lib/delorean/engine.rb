@@ -1,10 +1,7 @@
+require 'delorean/const'
 require 'delorean/base'
 
 module Delorean
-  SIG = "_SIG"
-  MOD = "DELOREAN__"
-  POST = "__D"
-
   class Engine
     attr_reader :last_node, :module_name, :line_no, :comp_set, :pm, :m, :imports
 
@@ -323,7 +320,14 @@ module Delorean
       evaluate_attrs(node, [attr], params)[0]
     end
 
+    def evaluate_attrs_hash(node, attrs, params={})
+      res = evaluate_attrs(node, attrs, params)
+      Hash[* attrs.zip(res).flatten(1)]
+    end
+
     def evaluate_attrs(node, attrs, params={})
+      raise "bad params" unless params.is_a?(Hash)
+
       if node.is_a?(Class)
         klass = node
       else

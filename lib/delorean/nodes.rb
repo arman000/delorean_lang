@@ -80,7 +80,6 @@ eos
   class SubNode < SNode
     def check(context, *)
       mname = mod.m.text_value if defined?(mod.m)
-        
       context.parse_define_node(n.text_value, p.text_value, mname)
     end
 
@@ -120,9 +119,6 @@ eos
   class NodeAsValue < SNode
     def check(context, *)
       mname = mod.m.text_value if defined?(mod.m)
-
-      raise "Module node as value - NOT IMPLEMENTED YET" if mname
-
       context.parse_check_defined_mod_node(c.text_value, mname)
       []
     end
@@ -130,8 +126,7 @@ eos
     def rewrite(context)
       node_name = c.text_value
       mname = mod.m.text_value if defined?(mod.m)
-
-      node_name
+      context.super_name(node_name, mname)
     end
   end
 
@@ -155,6 +150,17 @@ eos
 
     def rewrite(context)
       v.rewrite(context) + " " + op.text_value + " " + e.rewrite(context)
+    end
+  end
+
+  class IndexOp < SNode
+    def check(context, *)
+      vc, ac = v.check(context), args.check(context)
+      ac + vc
+    end
+
+    def rewrite(context)
+      "_index(#{v.rewrite(context)}, [#{args.rewrite(context)}], _e)"
     end
   end
 
@@ -219,7 +225,7 @@ eos
     end
 
     def rewrite(context)
-      fn.text_value + "(" + (defined?(args) ? args.rewrite(context) : "") + ")"
+      fn.text_value + "(_e, " + (defined?(args) ? args.rewrite(context) : "") + ")"
     end
   end
 
@@ -298,13 +304,46 @@ eos
     end
 
     def rewrite(context)
-      res = "(#{e1.rewrite(context)}).map{"
+      res = "(#{e1.rewrite(context)})"
       context.parse_define_var(i.text_value)
-      res += "|#{i.rewrite(context)}| (#{e2.rewrite(context)}) }"
-
       res += ".select{|#{i.rewrite(context)}| (#{ifexp.e3.rewrite(context)}) }" if
         defined?(ifexp.e3)
+      res += ".map{"
+      res += "|#{i.rewrite(context)}| (#{e2.rewrite(context)}) }"
+      context.parse_undef_var(i.text_value)
+      res
+    end
+  end
 
+  class HashComprehension < SNode
+    def check(context, *)
+      vname = i.text_value
+
+      e1c = e1.check(context)
+      context.parse_define_var(vname)
+      # need to check el/er/ei in a context where the comprehension var
+      # is defined.
+      elc = el.check(context)
+      erc = er.check(context)
+      eic = defined?(ifexp.ei) ? ifexp.ei.check(context) : []
+
+      context.parse_undef_var(vname)
+      elc.delete(vname)
+      erc.delete(vname)
+      eic.delete(vname)
+
+      e1c + elc + erc + eic
+    end
+
+    def rewrite(context)
+      res = "(#{e1.rewrite(context)})"
+      context.parse_define_var(i.text_value)
+      iw = i.rewrite(context)
+      res += ".select{|#{iw}| (#{ifexp.ei.rewrite(context)}) }" if
+        defined?(ifexp.ei)
+      res += ".inject({}){"
+      res += "|_h#{iw}, #{iw}| "+
+        "_h#{iw}[#{el.rewrite(context)}]=(#{er.rewrite(context)}); _h#{iw}}"
       context.parse_undef_var(i.text_value)
       res
     end

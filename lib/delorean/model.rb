@@ -1,3 +1,5 @@
+require 'delorean/const'
+
 module Delorean
   module Model
     def self.included(base)
@@ -17,7 +19,7 @@ module Delorean
         if sig
           sig = [sig, sig] if sig.is_a? Fixnum
           raise "Bad signature" unless (sig.is_a? Array and sig.length==2)
-          self.const_set(name.to_s.upcase+SIG, sig)
+          self.const_set(name.to_s.upcase+Delorean::SIG, sig)
         end
       end
     end

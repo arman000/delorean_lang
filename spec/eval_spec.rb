@@ -287,6 +287,24 @@ describe "Delorean" do
     engine.evaluate_attrs("A", %w{a c}).should == [123, 123*2]
   end
 
+  getattr_code = <<eoc
+A:
+	x = 1
+B:
+	x = 2
+C:
+	x = 3
+D:
+	xs = [A, B, C]
+E:
+	xx = [n.x for n in D.xs]
+eoc
+
+  it "should be able to get attr on node 2" do
+    engine.parse getattr_code
+    engine.evaluate("E", "xx").should == [1,2,3]
+  end
+
   it "should be able to call class methods on ActiveRecord classes in modules" do
     engine.parse defn("A:",
                       "  b = M::LittleDummy.heres_my_number(867, 5309)",
@@ -489,8 +507,10 @@ eof
   it "should eval conditional list comprehension" do
     engine.parse defn("A:",
                       "  b = [i*5 for i in [1,2,3,4,5] if i%2 == 1]",
+                      "  c = [i/10.0 for i in [1,2,3,4,5] if i>4]",
                       )
     engine.evaluate("A", "b").should == [5, 15, 25]
+    engine.evaluate("A", "c").should == [0.5]
   end
 
   it "should eval hashes" do
@@ -511,6 +531,30 @@ eof
        {"a"=>nil, "b"=>[1, nil, 2]},
        {{}=>{}, [{}]=>[1, 23], []=>345},
       ]
+  end
+
+  it "should eval hash comprehension" do
+    engine.parse defn("A:",
+                      "  b = {i*5 :i for i in [1,2,3]}",
+                      )
+    engine.evaluate("A", "b").should == {5=>1, 10=>2, 15=>3}
+  end
+
+  it "should eval nested hash comprehension" do
+    engine.parse defn("A:",
+                      "  b = { a:{a+c:a-c for c in [4,5]} for a in [1,2,3]}",
+                      )
+    engine.evaluate("A", "b").should ==
+      {1=>{5=>-3, 6=>-4}, 2=>{6=>-2, 7=>-3}, 3=>{7=>-1, 8=>-2}}
+  end
+
+  it "should eval conditional hash comprehension" do
+    engine.parse defn("A:",
+                      "  b = {i*5:i+5 for i in [1,2,3,4,5] if i%2 == 1}",
+                      "  c = {i/10.0:i*10 for i in [1,2,3,4,5] if i>4}",
+                      )
+    engine.evaluate("A", "b").should == {5=>6, 15=>8, 25=>10}
+    engine.evaluate("A", "c").should == {0.5=>50}
   end
 
   it "should eval module calls 1" do
@@ -636,6 +680,34 @@ eof
       [111, 222, {"b"=>-2}, 222, 666]
 
     e4.evaluate_attrs("C", ["a", "b", "d"]).should == [123, 123*2, 123*3*2]
+  end
+
+  it "should eval imports (3)" do
+    sset.merge({
+                 ["BBB", "0002"] => getattr_code,
+                 ["CCC", "0003"] =>
+                 defn("import BBB 0002",
+                      "X:",
+                      "  xx = [n.x for n in @BBB::D('xs').xs]",
+                      "  yy = [n.x for n in BBB::D.xs]",
+                      ),
+               })
+
+    e4 = sset.get_engine("CCC", "0003")
+    e4.evaluate("X", "xx").should == [1,2,3]
+    e4.evaluate("X", "yy").should == [1,2,3]
+  end
+
+  it "can eval indexing" do
+    engine.parse defn("A:",
+                      "  a = [1,2,3]",
+                      "  b = a[1]",
+                      "  c = a[-1]",
+                      "  d = {'a' : 123, 'b': 456}",
+                      "  e = d['b']",
+                      )
+    r = engine.evaluate_attrs("A", ["b", "c", "e"])
+    r.should == [2, 3, 456]
   end
 
 end

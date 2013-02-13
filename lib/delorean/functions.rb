@@ -1,8 +1,9 @@
 module Delorean
   module Functions
+
     ######################################################################
 
-    def MAX(*args)
+    def MAX(_e, *args)
       args.max
     end
 
@@ -10,7 +11,7 @@ module Delorean
 
     ######################################################################
 
-    def MIN(*args)
+    def MIN(_e, *args)
       args.min
     end
 
@@ -18,14 +19,14 @@ module Delorean
 
     ######################################################################
 
-    def MAXLIST(arg)
+    def MAXLIST(_e, arg)
       raise "argument must be list" unless arg.is_a? Array
       arg.max
     end
 
     MAXLIST_SIG = [ 1, 1 ]
 
-    def MINLIST(arg)
+    def MINLIST(_e, arg)
       raise "argument must be list" unless arg.is_a? Array
       arg.min
     end
@@ -34,7 +35,7 @@ module Delorean
 
     ######################################################################
 
-    def ROUND(number, *args)
+    def ROUND(_e, number, *args)
       number.round(*args)
     end
 
@@ -42,7 +43,7 @@ module Delorean
 
     ######################################################################
 
-    def TIMEPART(time, part)
+    def TIMEPART(_e, time, part)
       if time == Float::INFINITY
         return time if part == "d"
         raise "Can only access date part of Infinity"
@@ -50,48 +51,54 @@ module Delorean
 
       raise "non-time arg to TIMEPART" unless time.is_a?(Time)
       
-      return time.hour if part == "h"
-      return time.min if part == "m"
-      return time.sec if part == "s"
-      return time.to_date if part == "d"
-
-      raise "unknown part arg to TIMEPART"
+      case part
+      when "h" then time.hour
+      when "m" then time.min
+      when "s" then time.sec
+      when "d" then time.to_date
+      else
+        raise "unknown part arg to TIMEPART"
+      end
     end
 
     TIMEPART_SIG = [ 2, 2 ]
 
     ######################################################################
 
-    def DATEPART(date, part)
+    def DATEPART(_e, date, part)
       raise "non-date arg to DATEPART" unless date.is_a?(Date)
 
-      return date.month if part == "m"
-      return date.day if part == "d"
-      return date.year if part == "y"
-
-      raise "unknown part arg to DATEPART"
+      case part
+      when "m" then date.month
+      when "d" then date.day
+      when "y" then date.year
+      else
+        raise "unknown part arg to DATEPART"
+      end
     end
 
     DATEPART_SIG = [ 2, 2 ]
 
     ######################################################################
 
-    def DATEADD(date, interval, part)
+    def DATEADD(_e, date, interval, part)
       raise "non-date arg to DATEADD" unless date.is_a?(Date)
       raise "non-integer interval arg to DATEADD" unless interval.is_a?(Fixnum)
 
-      return date >> interval if part == "m"
-      return date + interval if part == "d"
-      return date >> (interval * 12) if part == "y"
-
-      raise "unknown part arg to DATEADD"
+      case part
+      when "m" then date >> interval
+      when "d" then date + interval
+      when "y" then date >> (interval * 12)
+      else
+        raise "unknown part arg to DATEADD"
+      end
     end
 
     DATEADD_SIG = [ 3, 3 ]
 
     ######################################################################
 
-    def INDEX(array, i)
+    def INDEX(_e, array, i)
       raise "non-array arg to INDEX" unless array.is_a?(Array)
       raise "non-integer index on call to INDEX" unless i.is_a?(Fixnum)
       array.at(i)
@@ -101,7 +108,7 @@ module Delorean
 
     ######################################################################
 
-    def FLATTEN(array, *args)
+    def FLATTEN(_e, array, *args)
       raise "non-array arg to FLATTEN" unless array.is_a?(Array)
       raise "non-integer flatten on call to FLATTEN" unless
         (args.empty? || args[0].is_a?(Fixnum))
@@ -112,21 +119,12 @@ module Delorean
 
     ######################################################################
 
-    def ERR(*args)
+    def ERR(_e, *args)
       str = args.map(&:to_s).join(", ")
       raise str
     end
 
     ERR_SIG = [ 1, Float::INFINITY ]
-
-    ######################################################################
-
-    def TOSYM(s)
-      # raise "non-String arg to SYM" unless s.is_a?(String)
-      s.to_sym
-    end
-
-    TOSYM_SIG = [ 1, 1 ]
 
     ######################################################################
 

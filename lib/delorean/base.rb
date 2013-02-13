@@ -35,16 +35,28 @@ module Delorean
 
       ######################################################################
 
+      def self._index(obj, args, _e)
+        if obj.instance_of?(Hash)
+          raise InvalidIndex unless args.length == 1
+          obj[args[0]]
+        elsif obj.instance_of?(Array)
+          raise InvalidIndex unless args.length < 2
+          raise InvalidIndex unless
+            args[0].is_a?(Fixnum) && (!args[1] || args[1].is_a?(Fixnum))
+          obj[*args]
+        else
+          raise InvalidIndex
+        end
+      end
+
+      ######################################################################
+
       def self._script_call(node, mname, _e, attrs, params)
         context = _e[:_engine]
         node ||= self
 
         engine = mname ? context.get_import_engine(mname) : context
-
-        res = engine.evaluate_attrs(node, attrs, params)
-
-        # There are more than one attrs, return hash result
-        Hash[* attrs.zip(res).flatten]
+        engine.evaluate_attrs_hash(node, attrs, params)
       end
 
       ######################################################################

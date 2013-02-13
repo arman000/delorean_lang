@@ -10,14 +10,14 @@ grammar Delorean
     /
     sp i:identifier sp? '=' sp? e:expression <Formula>
     /
-    n:node_name ':' sp? mod:(m:node_name '::')? p:node_name <SubNode>
+    n:class_name ':' sp? mod:(m:class_name '::')? p:class_name <SubNode>
     /
-    n:node_name ':' <BaseNode>
+    n:class_name ':' <BaseNode>
     /
-    'import' sp n:node_name sp v:integer <Import>
+    'import' sp n:class_name sp v:integer <Import>
   end
 
-  rule node_name
+  rule class_name
     [A-Z] [a-zA-Z0-9_]*
   end
 
@@ -29,6 +29,8 @@ grammar Delorean
     'else' 	sp? e2:expression <IfElse>
     /
     v:getattr_exp sp? op:binary_op sp? e:expression <BinOp>
+    /
+    v:getattr_exp sp? '[' sp? args:fn_args sp? ']' <IndexOp>
     /
     getattr_exp
   end
@@ -50,6 +52,11 @@ grammar Delorean
 
   rule hash_expr
     '{}' <HashExpr>
+    /
+    '{' sp? el:expression sp? ':' sp? er:expression sp
+        'for' sp i:identifier sp 'in' sp e1:expression sp?
+        ifexp:('if' sp ei:expression sp?)?
+    '}' <HashComprehension>
     /
     '{' sp? args:hash_args sp? '}' <HashExpr>
   end
@@ -75,7 +82,7 @@ grammar Delorean
     identifier						/
     list_expr 						/
     hash_expr 						/
-    mod:(m:node_name '::')? c:class_name <NodeAsValue> 	/
+    mod:(m:class_name '::')? c:class_name <NodeAsValue> 	/
     '(' sp? e:expression sp? ')' 	 <Expr>
   end
 
@@ -102,13 +109,9 @@ grammar Delorean
     [A-Z] [A-Z0-9]*
   end
 
-  rule class_name
-    [A-Z] [a-zA-Z0-9]*
-  end
-
   # script calling
   rule script_call
-    '@' mod:(m:node_name '::')? c:class_name '(' sp? al:kw_args sp? ')' <ScriptCallNode>
+    '@' mod:(m:class_name '::')? c:class_name '(' sp? al:kw_args sp? ')' <ScriptCallNode>
     /
     '@' i:identifier? '(' sp? al:kw_args sp? ')' <ScriptCall>
   end
