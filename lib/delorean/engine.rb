@@ -278,24 +278,36 @@ module Delorean
 
     # enumerate all nodes
     def enumerate_nodes
-      n = SortedSet.new
-      @node_attrs.keys.each {|k| n.add(k) }
-      n
+      SortedSet[* @node_attrs.keys]
     end
 
     # enumerate qualified list of all attrs
     def enumerate_attrs
-      enumerate_attrs_by_node(nil)
+      @node_attrs.keys.inject({}) { |h, node|
+        h[node] = enumerate_attrs_by_node(node)
+        h
+      }
     end
 
-    # enumerate qualified list of attrs by node (or all if nil is passed in)
+    # enumerate qualified list of attrs by node
     def enumerate_attrs_by_node(node)
-      @node_attrs.keys.inject({}) { |h, n|
-        klass = @m.module_eval(n)
-        h[n] = klass.methods.map(&:to_s).select {|x| x.end_with?(POST)}.map {|x|
-          x.sub(/#{POST}$/, '')
-        } if node == n || node.nil?
-        h
+      raise "bad node" unless node
+
+      # FIXME: for some reason, in rspec we get nodes which are String
+      # but .is_a?(String) fails.
+      begin
+        klass = node.class.name=="String" ? @m.module_eval(node) : node
+      rescue NameError
+        # FIXME: a little hacky.  Should raise an exception.
+        return []
+      end
+
+      raise "bad node class #{klass}" unless klass.is_a?(Class)
+
+      klass.methods.map(&:to_s).select { |x|
+        x.end_with?(POST)
+      }.map { |x|
+        x.sub(/#{POST}$/, '')
       }
     end
 
@@ -307,9 +319,7 @@ module Delorean
     # enumerate params by a single node
     def enumerate_params_by_node(node)
       attrs = enumerate_attrs_by_node(node)
-      ps = Set.new
-      attrs.each_value {|v| v.map {|p| ps.add(p) if @param_set.include?(p.to_s)}}
-      ps
+      Set.new( attrs.select {|a| @param_set.include?(a)} )
     end
 
     ######################################################################

@@ -68,6 +68,28 @@ describe "Delorean" do
     r.should == [12.35, 12.3, 12]
   end
 
+  it "should handle NUMBER" do
+    engine.parse defn("A:",
+                      "  a = NUMBER(12.3456)",
+                      "  b = NUMBER('12.3456')",
+                      "  c = NUMBER('12')",
+                      )
+
+    r = engine.evaluate_attrs("A", ["a", "b", "c"])
+    r.should == [12.3456, 12.3456, 12]
+  end
+
+  it "should handle STRING" do
+    engine.parse defn("A:",
+                      "  a = STRING('hello')",
+                      "  b = STRING(12.3456)",
+                      "  c = STRING([1,2,3])",
+                      )
+
+    r = engine.evaluate_attrs("A", ["a", "b", "c"])
+    r.should == ["hello", '12.3456', [1,2,3].to_s]
+  end
+
   it "should handle TIMEPART" do
     engine.parse defn("A:",
                       "  p =?",

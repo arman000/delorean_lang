@@ -43,6 +43,26 @@ module Delorean
 
     ######################################################################
 
+    def NUMBER(_e, s)
+      return s if s.is_a?(Float) || s.is_a?(Fixnum)
+      raise "Can't convert #{s} to number" unless
+        s =~ /^\d+(\.\d+)?$/
+      
+      s.to_f
+    end
+
+    NUMBER_SIG = [ 1, 1 ]
+
+    ######################################################################
+
+    def STRING(_e, obj)
+      obj.to_s
+    end
+
+    STRING_SIG = [ 1, 1 ]
+
+    ######################################################################
+
     def TIMEPART(_e, time, part)
       if time == Float::INFINITY
         return time if part == "d"

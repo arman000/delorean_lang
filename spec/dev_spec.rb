@@ -50,11 +50,10 @@ describe "Delorean" do
                       "  c =?",
                       "  d = 456",
                       )
-    engine.enumerate_attrs_by_node("X").should == { "X"=>["a", "b"] }
-    engine.enumerate_attrs_by_node("Y").should == { "Y"=>["a", "b"] }
-    engine.enumerate_attrs_by_node("Z").should == { "Z"=>[] }
-    engine.enumerate_attrs_by_node("XX").should == { "XX"=>["a", "c", "d", "b"] }
-    engine.enumerate_attrs_by_node("UNK").should == { }
+    engine.enumerate_attrs_by_node("X").should == ["a", "b"]
+    engine.enumerate_attrs_by_node("Y").should == ["a", "b"]
+    engine.enumerate_attrs_by_node("Z").should == []
+    engine.enumerate_attrs_by_node("XX").should == ["a", "c", "d", "b"]
   end
 
   it "can enumerate params" do
@@ -93,6 +92,5 @@ describe "Delorean" do
     engine.enumerate_params_by_node("XX").should == Set.new(["a", "c"])
     engine.enumerate_params_by_node("YY").should == Set.new(["a", "c", "e"])
     engine.enumerate_params_by_node("Z").should == Set.new([])
-    engine.enumerate_params_by_node("UNK").should == Set.new([])
   end
 end
