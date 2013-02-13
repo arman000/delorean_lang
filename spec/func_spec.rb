@@ -147,14 +147,6 @@ describe "Delorean" do
     expect { engine.evaluate_attrs("A", ["x"], {"p" => p}) }.to raise_error
   end
 
-  it "should handle INDEX" do
-    engine.parse defn("A:",
-                      "  a = [INDEX([0, 11, 22, 33], i) for i in [1,2]]",
-                      )
-
-    engine.evaluate("A", "a").should == [11,22]
-  end
-
   it "should handle FLATTEN" do
     x = [[1,2,[3]], 4, 5, [6]]
 
@@ -179,5 +171,4 @@ describe "Delorean" do
     }.should raise_error("xx, 1, 2, 3")
 
   end
-
 end
