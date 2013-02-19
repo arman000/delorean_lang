@@ -79,6 +79,18 @@ describe "Delorean" do
     r.should == [12.3456, 12.3456, 12]
   end
 
+  it "should handle ABS" do
+    engine.parse defn("A:",
+                      "  a = ABS(-123)",
+                      "  b = ABS(-1.1)",
+                      "  c = ABS(2.3)",
+                      "  d = ABS(0)",
+                      )
+
+    r = engine.evaluate_attrs("A", ["a", "b", "c", "d"])
+    r.should == [123, 1.1, 2.3, 0]
+  end
+
   it "should handle STRING" do
     engine.parse defn("A:",
                       "  a = STRING('hello')",
@@ -191,6 +203,28 @@ describe "Delorean" do
     lambda {
       r = engine.evaluate("A", "b")
     }.should raise_error("xx, 1, 2, 3")
-
   end
+
+  it "should handle RUBY" do
+    x = [[1, 2, [-3]], 4, 5, [6], -3, 4, 5, 0]
+
+    engine.parse defn("A:",
+                      "  a = #{x}",
+                      "  b = RUBY('flatten', a)",
+                      "  c = RUBY('flatten', a, 1)",
+                      "  d = b+c",
+                      "  dd = RUBY('flatten', d)",
+                      "  e = RUBY('sort', dd)",
+                      "  f = RUBY('uniq', e)",
+                      "  g = RUBY('length', e)",
+                      )
+
+    engine.evaluate("A", "c").should == x.flatten(1)
+    d = engine.evaluate("A", "d").should == x.flatten + x.flatten(1)
+    dd = engine.evaluate("A", "dd")
+    engine.evaluate("A", "e").should == dd.sort
+    engine.evaluate("A", "f").should == dd.sort.uniq
+    engine.evaluate("A", "g").should == dd.length
+  end
+
 end

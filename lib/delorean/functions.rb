@@ -26,6 +26,8 @@ module Delorean
 
     MAXLIST_SIG = [ 1, 1 ]
 
+    ######################################################################
+
     def MINLIST(_e, arg)
       raise "argument must be list" unless arg.is_a? Array
       arg.min
@@ -43,8 +45,19 @@ module Delorean
 
     ######################################################################
 
+    def ABS(_e, n)
+      raise "#{n} is not a number" unless
+        n.is_a?(Float) || n.is_a?(Fixnum) || n.is_a?(BigDecimal)
+      n.abs
+    end
+
+    ABS_SIG = [ 1, 1 ]
+
+    ######################################################################
+
     def NUMBER(_e, s)
-      return s if s.is_a?(Float) || s.is_a?(Fixnum)
+      # FIXME: handle BigDecimal
+      return s if s.is_a?(Float) || s.is_a?(Fixnum) || s.is_a?(BigDecimal)
       raise "Can't convert #{s} to number" unless
         s =~ /^\d+(\.\d+)?$/
       
@@ -135,6 +148,46 @@ module Delorean
     end
 
     ERR_SIG = [ 1, Float::INFINITY ]
+
+    ######################################################################
+
+    RUBY_METHODS = {
+      sort: 	[Array],
+      reverse: 	[Array],
+      min: 	[Array],
+      max: 	[Array],
+      uniq: 	[Array],
+      length: 	[[Array, String]],
+      flatten:	[Array, [Fixnum, nil]],
+    }
+
+    def RUBY(_e, method, *args)
+      raise "method must be a string" unless method.class.name=="String"
+      msg = method.to_sym
+
+      raise "no such method #{method}" unless RUBY_METHODS.member? msg
+
+      sig = RUBY_METHODS[msg]
+      raise "too many args to #{method}" if args.length>sig.length
+
+      sig.each_with_index { |s, i|
+        s = [s] unless s.is_a?(Array)
+
+        ok = false
+        s.each { |sc|
+          if (sc.nil? && i>=args.length) || (sc && args[i].class <= sc)
+            ok = true
+            break
+          end
+        }
+
+        raise "bad argument #{args[i]} at position #{i} to method #{method}" unless ok
+      }
+
+      args[0].send(msg, *args[1, args.length])
+    end
+
+    RUBY_SIG = [ 1, Float::INFINITY ]
 
     ######################################################################
 

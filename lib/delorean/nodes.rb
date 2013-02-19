@@ -351,7 +351,7 @@ eos
 
   class HashExpr < SNode
     def check(context, *)
-      defined?(args) ? args.check(context) : {}
+      defined?(args) ? args.check(context) : []
     end
 
     def rewrite(context)
