@@ -159,6 +159,7 @@ module Delorean
       uniq: 	[Array],
       length: 	[[Array, String]],
       flatten:	[Array, [Fixnum, nil]],
+      slice:    [Array, Fixnum, Fixnum],
     }
 
     def RUBY(_e, method, *args)
@@ -186,7 +187,7 @@ module Delorean
 
       args[0].send(msg, *args[1, args.length])
     end
-
+   
     RUBY_SIG = [ 1, Float::INFINITY ]
 
     ######################################################################

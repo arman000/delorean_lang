@@ -217,6 +217,7 @@ describe "Delorean" do
                       "  e = RUBY('sort', dd)",
                       "  f = RUBY('uniq', e)",
                       "  g = RUBY('length', e)",
+                      "  gg = RUBY('length', a)",
                       )
 
     engine.evaluate("A", "c").should == x.flatten(1)
@@ -225,6 +226,16 @@ describe "Delorean" do
     engine.evaluate("A", "e").should == dd.sort
     engine.evaluate("A", "f").should == dd.sort.uniq
     engine.evaluate("A", "g").should == dd.length
+    engine.evaluate("A", "gg").should == x.length
   end
 
+  it "should handle RUBY slice function" do
+    x = [[1, 2, [-3]], 4, [5, 6], -3, 4, 5, 0]
+
+    engine.parse defn("A:",
+                      "  a = #{x}",
+                      "  b = RUBY('slice',a,0,4)",
+                      )
+    engine.evaluate("A", "b").should == x.slice(0,4)
+  end
 end
