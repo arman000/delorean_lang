@@ -42,4 +42,7 @@ module Delorean
   class UndefinedParamError < StandardError
   end
 
+  class InvalidIndex < StandardError
+  end
+
 end

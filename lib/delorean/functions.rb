@@ -82,7 +82,8 @@ module Delorean
         raise "Can only access date part of Infinity"
       end
 
-      raise "non-time arg to TIMEPART" unless time.is_a?(Time)
+      raise "non-time arg to TIMEPART" unless
+        time.is_a?(DateTime) || time.is_a?(Time)
       
       case part
       when "h" then time.hour

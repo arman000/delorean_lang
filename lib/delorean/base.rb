@@ -36,6 +36,8 @@ module Delorean
       ######################################################################
 
       def self._index(obj, args, _e)
+        return nil if obj.nil?
+
         if obj.instance_of?(Hash)
           raise InvalidIndex unless args.length == 1
           obj[args[0]]
