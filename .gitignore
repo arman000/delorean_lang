@@ -18,3 +18,5 @@ tmp
 *~
 *.komodoproject
 .rvmrc
+.ruby-version
+.ruby-gemset
