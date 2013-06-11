@@ -161,6 +161,9 @@ module Delorean
       length: 	[[Array, String]],
       flatten:	[Array, [Fixnum, nil]],
       slice:    [Array, Fixnum, Fixnum],
+      member?:	[Array, [Fixnum, String]],
+      compact:	[Array],
+      split:	[String, String],
     }
 
     def RUBY(_e, method, *args)
@@ -183,7 +186,7 @@ module Delorean
           end
         }
 
-        raise "bad argument #{args[i]} at position #{i} to method #{method}" unless ok
+        raise "bad arg #{i} to method #{method}: #{args[i]}/#{args[i].class}" unless ok
       }
 
       args[0].send(msg, *args[1, args.length])
