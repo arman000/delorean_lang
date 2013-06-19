@@ -440,7 +440,7 @@ eof
 
   it "should handle invalid expression evaluation" do
     # Should handle errors on expression such as -[] or -"xxx" or ("x"
-    # + []) better. Currently, it raised NoMethodError.
+    # + []) better. Currently, it raises NoMethodError.
     pending
   end
 
@@ -557,14 +557,25 @@ eof
     engine.evaluate("A", "c").should == {0.5=>50}
   end
 
+  it "should eval node calls as intermediate results" do
+    engine.parse defn("A:",
+                      "  a =?",
+                      "  e = A(a: 13)",
+                      "  d = e.a * 2",
+                      "  f = e.d / e.a",
+                      )
+
+    engine.evaluate_attrs("A", ["d", "f"]).should == [26, 2]
+  end
+
   it "should eval module calls 1" do
     engine.parse defn("A:",
                       "  a = 123",
                       "  n = A",
-                      "  d = @n('a')",
+                      "  d = n().a",
                       )
 
-    engine.evaluate_attrs("A", %w{d}).should == [{"a" => 123}]
+    engine.evaluate_attrs("A", %w{d}).should == [123]
   end
 
   it "should eval module calls 2" do
@@ -572,19 +583,30 @@ eof
                       "  a = 123",
                       "  b = 456 + a",
                       "  n = 'A'",
-                      "  c = @('a', 'b', x: 123, y: 456)",
-                      "  d = @n('a', 'b', x: 123, y: 456)",
-                      "  e = @('b')",
+                      "  c = nil(x: 123, y: 456) % ['a', 'b']",
+                      "  d = n(x: 123, y: 456) % ['a', 'b']",
+                      "  e = nil() % ['b']",
                       )
 
     engine.evaluate_attrs("A", %w{n c d e}).should ==
       ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, {"b"=>579}]
   end
 
+  it "should eval module calls 3" do
+    engine.parse defn("A:",
+                      "  a = 123",
+                      "B:",
+                      "  n = 'A'",
+                      "  d = n().a",
+                      )
+
+    engine.evaluate_attrs("B", %w{d}).should == [123]
+  end
+
   it "should be possible to implement recursive calls" do
     engine.parse defn("A:",
                       "  n =?",
-                      "  fact = if n <= 1 then 1 else n * @('fact', n: n-1).fact",
+                      "  fact = if n <= 1 then 1 else n * A(n: n-1).fact",
                       )
     
     engine.evaluate("A", "fact", "n" => 10).should == 3628800
@@ -593,9 +615,9 @@ eof
   it "should eval module calls by node name" do
     engine.parse defn("A:",
                       "  a = 123",
-                      "  b = @A('a')",
+                      "  b = A().a",
                       )
-    engine.evaluate("A", "b").should == {"a"=>123}
+    engine.evaluate("A", "b").should == 123
   end
 
   it "should eval multiline expressions" do
@@ -614,16 +636,12 @@ eof
                       "  b = 456 + ",
                       "      a",
                       "  n = 'A'",
-                      "  c = @('a', ",
-                      "        'b', ",
-                      "        x: 123, ",
-                      "        y: 456)",
-                      "  d = @n('a', ",
-                      "         'b', ",
-                      "         x: 123, y: 456)",
-                      "  e = @(",
-                      "        'b'",
-                      "       )",
+                      "  c = nil(x: 123,",
+                      "        y: 456) % ['a', 'b']",
+                      "  d = n(",
+                      "         x: 123, y: 456) % ['a', 'b']",
+                      "  e = nil(",
+                      "       ) % ['b']",
                       )
 
     engine.evaluate_attrs("A", %w{n c d e}).should ==
@@ -636,10 +654,10 @@ eof
                       "  b = 456",
                       "B: AAA::X",
                       "  a = 111",
-                      "  c = @AAA::X('b', a: 456)",
+                      "  c = AAA::X(a: 456).b",
                       ), sset
     engine.evaluate_attrs("B", ["a", "b", "c"], {}).should ==
-      [111, 222, {"b"=>456*2}]
+      [111, 222, 456*2]
   end
 
   it "should eval imports (2)" do
@@ -648,7 +666,7 @@ eof
                  defn("import AAA 0001",
                       "B: AAA::X",
                       "  a = 111",
-                      "  c = @AAA::X('b', a: -1)",
+                      "  c = AAA::X(a: -1).b",
                       "  d = a * 2",
                       ),
                  ["CCC", "0003"] =>
@@ -664,7 +682,7 @@ eof
     e2 = sset.get_engine("BBB", "0002")
 
     e2.evaluate_attrs("B", ["a", "b", "c", "d"]).should ==
-      [111, 222, {"b"=>-2}, 222]
+      [111, 222, -2, 222]
 
     engine.parse defn("import BBB 0002",
                       "B: BBB::B",
@@ -672,12 +690,12 @@ eof
                       ), sset
 
     engine.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should ==
-      [111, 222, {"b"=>-2}, 222, 225]
+      [111, 222, -2, 222, 225]
 
     e4 = sset.get_engine("CCC", "0003")
 
     e4.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should ==
-      [111, 222, {"b"=>-2}, 222, 666]
+      [111, 222, -2, 222, 666]
 
     e4.evaluate_attrs("C", ["a", "b", "d"]).should == [123, 123*2, 123*3*2]
   end
@@ -688,7 +706,7 @@ eof
                  ["CCC", "0003"] =>
                  defn("import BBB 0002",
                       "X:",
-                      "  xx = [n.x for n in @BBB::D('xs').xs]",
+                      "  xx = [n.x for n in BBB::D().xs]",
                       "  yy = [n.x for n in BBB::D.xs]",
                       ),
                })
@@ -710,4 +728,14 @@ eof
     r.should == [2, 3, 456]
   end
 
+  it "can eval indexing 2" do
+    engine.parse defn("A:",
+                      "  a = 1",
+                      "  b = {'x' : 123, 'y': 456}",
+                      "  c = A() % ['a', 'b']",
+                      "  d = c['b'].x * c['a'] - c['b'].y",
+                      )
+    r = engine.evaluate_attrs("A", ["a", "b", "c", "d"])
+    r.should == [1, {"x"=>123, "y"=>456}, {"a"=>1, "b"=>{"x"=>123, "y"=>456}}, -333]
+  end
 end

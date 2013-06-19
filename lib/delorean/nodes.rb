@@ -118,15 +118,28 @@ eos
 
   class NodeAsValue < SNode
     def check(context, *)
+      node_name = c.text_value
       mname = mod.m.text_value if defined?(mod.m)
-      context.parse_check_defined_mod_node(c.text_value, mname)
+      begin
+        context.parse_check_defined_mod_node(node_name, mname)
+      rescue UndefinedError, ParseError
+        # Node is a non-Delorean ruby class
+        context.parse_class(text_value)
+      end
       []
     end
 
     def rewrite(context)
       node_name = c.text_value
       mname = mod.m.text_value if defined?(mod.m)
-      context.super_name(node_name, mname)
+      begin
+        context.parse_check_defined_mod_node(node_name, mname)
+        context.super_name(node_name, mname)
+      rescue UndefinedError, ParseError
+        # kind of hacky, we wrap the class name in a list so Call will
+        # be able to tell it apart from a regular value.
+        [text_value]
+      end
     end
   end
 
@@ -153,14 +166,24 @@ eos
     end
   end
 
-  class IndexOp < SNode
+  # hacky, for backwards compatibility
+  class ErrorOp < SNode
     def check(context, *)
-      vc, ac = v.check(context), args.check(context)
-      ac + vc
+      args.check(context)
     end
 
-    def rewrite(context)
-      "_index(#{v.rewrite(context)}, [#{args.rewrite(context)}], _e)"
+    def rewrite(context, *)
+      "_err(#{args.rewrite(context)})"
+    end
+  end
+
+  class IndexOp < SNode
+    def check(context, *)
+      args.check(context)
+    end
+
+    def rewrite(context, vcode)
+      "_index(#{vcode}, [#{args.rewrite(context)}], _e)"
     end
   end
 
@@ -175,7 +198,7 @@ eos
     end
   end
 
-  class String < Literal
+  class DString < Literal
     def rewrite(context)
       # remove the quotes and requote.  We don't want the likes of #{}
       # evals to just pass through.
@@ -199,6 +222,98 @@ eos
     end
   end
 
+  ######################################################################
+
+  class GetattrExp < SNode
+    def check(context, *)
+      v.check(context)
+      dotted.check(context)
+    end
+
+    def rewrite(context)
+      vcode = v.rewrite(context)
+      dotted.rewrite(context, vcode)
+    end
+  end
+
+  class Dotted < SNode
+    def check(context, *)
+      d.check(context)
+      d_rest.check(context) unless d_rest.text_value.empty?
+      []
+    end
+
+    def rewrite(context, vcode)
+      dcode = d.rewrite(context, vcode)
+
+      if d_rest.text_value.empty?
+        dcode
+      else
+        d_rest.rewrite(context, dcode)
+      end
+    end
+  end
+
+  class GetAttr < SNode
+    def check(context, *)
+      []
+    end
+
+    def rewrite(context, vcode)
+      "_get_attr(#{vcode}, '#{i.text_value}', _e)"
+    end
+  end
+
+  class Call < SNode
+    def check(context, *)
+      al.check(context) unless al.text_value.empty?
+      []
+    end
+
+    def rewrite(context, vcode)
+      args, kw = al.text_value.empty? ? [[], {}] : al.rewrite(context)
+
+      raise "Keyword arguments not supported" unless
+        kw.empty?
+
+      args_str = args.reverse.join(',')
+
+      if vcode.is_a? Array
+        # ruby class call
+        class_name = vcode[0]
+        context.parse_check_call_fn(i.text_value, args.count, class_name)
+        "#{class_name}.#{i.text_value}(#{args_str})"
+      else
+        "_instance_call(#{vcode}, '#{i.text_value}', [#{args_str}])"
+      end
+
+    end
+  end
+
+  class NodeCall < SNode
+    def check(context, *)
+      al.check(context) unless al.text_value.empty?
+      []
+    end
+
+    def rewrite(context, node_name)
+      do_rewrite(context, node_name)
+    end
+
+    def do_rewrite(context, node_name, mname="nil")
+      args, kw = al.text_value.empty? ? [[], {}] : al.rewrite(context)
+
+      raise "No positional arguments to node call" unless
+        args.empty?
+
+      kw_str = '{' + kw.map {|k, v| "'#{k}' => #{v}" }.join(',') + '}'
+
+      "_node_call(#{node_name}, #{mname}, _e, #{kw_str})"
+    end
+  end
+
+  ######################################################################
+
   class ExpGetAttr < SNode
     def check(context, *)
       v.check(context)
@@ -212,20 +327,6 @@ eos
       attr_list.shift
 
       attr_list.inject(v.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}', _e)"}
-    end
-  end
-
-  class Fn < SNode
-    def check(context, *)
-      acount, res =
-        defined?(args) ? [args.arg_count, args.check(context)] : [0, []]
-
-      context.parse_check_call_fn(fn.text_value, acount)
-      res
-    end
-
-    def rewrite(context)
-      fn.text_value + "(_e, " + (defined?(args) ? args.rewrite(context) : "") + ")"
     end
   end
 
@@ -244,21 +345,6 @@ eos
 
     def arg_count
       defined?(args_rest.args) ? 1 + args_rest.args.arg_count : 1
-    end
-  end
-
-  class ModelFn < SNode
-    def check(context, *)
-      acount, res =
-        defined?(args) ? [args.arg_count, args.check(context)] : [0, []]
-
-      context.parse_check_call_fn(fn.text_value, acount, m.text_value)
-      res
-    end
-
-    def rewrite(context)
-      m.text_value + "." + fn.text_value +
-        "(" + (defined?(args) ? args.rewrite(context) : "") + ")"
     end
   end
 
@@ -397,45 +483,4 @@ eos
     end
   end
 
-  class ScriptCall < SNode
-    def check(context, *)
-      i.check(context) unless i.text_value.empty?
-      al.check(context) if defined?(al)
-      []
-    end
-
-    def rewrite(context)
-      node_name = i.text_value.empty? ? "nil" : i.rewrite(context)
-      do_rewrite(context, node_name)
-    end
-
-    def do_rewrite(context, node_name, mname="nil")
-      args, kw = al.rewrite(context)
-
-      args_str = '[' + args.reverse.join(',') + ']'
-      kw_str = '{' + kw.map {|k, v| "'#{k}' => #{v}" }.join(',') + '}'
-
-      "_script_call(#{node_name}, #{mname}, _e, #{args_str}, #{kw_str})"
-    end
-  end
-
-  class ScriptCallNode < ScriptCall
-    def check(context, *)
-      # FIXME: for both this and when node_name is nil, should check
-      # to see if attributes exist on the node before allowing the
-      # call.  Also, can check parameters.
-
-      mname = mod.m.text_value if defined?(mod.m)
-      context.parse_check_defined_mod_node(c.text_value, mname)
-
-      al.check(context) if defined?(al)
-      []
-    end
-
-    def rewrite(context)
-      node_name = c.text_value.inspect
-      mname = defined?(mod.m) ? mod.m.text_value.inspect : "nil"
-      do_rewrite(context, node_name, mname)
-    end
-  end
 end

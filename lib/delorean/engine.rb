@@ -54,11 +54,15 @@ module Delorean
       @imports[name] || err(ParseError, "#{name} not imported")
     end
 
-    # Check to see if node with given name is defined.  flag tell the
+    def is_node_defined(name)
+      @pm.constants.member? name.to_sym
+    end
+
+    # Check to see if node with given name is defined.  flag tells the
     # method about our expectation.  flag=true means that we make sure
     # that name is defined.  flag=false is the opposite.
     def parse_check_defined_node(name, flag)
-      isdef = @pm.constants.member? name.to_sym
+      isdef = is_node_defined(name)
 
       if isdef != flag
         isdef ? err(RedefinedError, "#{name} already defined") :
@@ -81,8 +85,7 @@ module Delorean
 
       sname = pname ? super_name(pname, mname) : 'Object'
 
-      code = "class #{name} < #{sname}; end"
-      @pm.module_eval(code)
+      @pm.module_eval("class #{name} < #{sname}; end")
 
       # latest defined node
       @last_node = name

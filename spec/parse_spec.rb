@@ -50,6 +50,13 @@ describe "Delorean" do
                       )
   end
 
+  it "can parse indexing with getattr" do
+    engine.parse defn("A:",
+                      "  a = {'x': [1,2,3]}",
+                      "  b = a.x[1]",
+                      )
+  end
+
   it "should accept default param definitions" do
     lambda {
       engine.parse defn("A:",
@@ -290,6 +297,15 @@ describe "Delorean" do
     }.should_not raise_error
   end
 
+  it "should parse calls followed by getattr" do
+    lambda {
+      engine.parse defn("A:",
+                        "  a = -1",
+                        "  b = A().a",
+                        )
+    }.should_not raise_error
+  end
+
   it "should be able to chain method calls on model functions" do
     lambda {
       engine.parse defn("A:",
@@ -302,6 +318,14 @@ describe "Delorean" do
     engine.parse defn("A:",
                       "  b = Dummy.call_me_maybe()",
                       )
+  end
+
+  it "should get exception on arg count to class method call" do
+    lambda {
+      engine.parse defn("A:",
+                        '  b = Dummy.i_just_met_you("CRJ")',
+                        )
+    }.should raise_error(Delorean::BadCallError)
   end
 
   it "shouldn't be able to call ActiveRecord methods without signature" do
@@ -326,10 +350,6 @@ describe "Delorean" do
                       "C: B",
                       "  b =? 11",
                       )
-  end
-
-  it "should raise error on node attr access without all needed params" do
-    pending
   end
 
   it "should be able to access derived attrs" do
@@ -614,15 +634,21 @@ describe "Delorean" do
                       "  a = 123",
                       "  b = 456 + a",
                       "  n = 'A'",
-                      "  c = @('a', 'b', x: 123, y: 456)",
-                      "  d = @n('a', 'b', x: 123, y: 456)",
+                      "  c = nil(x: 123, y: 456)",
+                      "  d = n(x: 123, y: 456)",
                       )
   end
 
   it "should parse module calls by node name" do
     engine.parse defn("A:",
                       "  a = 123",
-                      "  d = @A('a')",
+                      "  d = A()",
+                      )
+  end
+
+  it "should parse instance calls" do
+    engine.parse defn("A:",
+                      "  a = [1,2,[4]].flatten(1)",
                       )
   end
 

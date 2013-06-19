@@ -22,6 +22,8 @@ grammar Delorean
   end
 
   rule expression
+    'ERR(' sp? args:fn_args sp? ')' <ErrorOp>
+    /
     op:unary_op sp? e:expression <UnOp>
     /
     'if' 	sp? v:expression sp?
@@ -30,13 +32,27 @@ grammar Delorean
     /
     v:getattr_exp sp? op:binary_op sp? e:expression <BinOp>
     /
-    v:getattr_exp sp? '[' sp? args:fn_args sp? ']' <IndexOp>
-    /
     getattr_exp
   end
 
   rule getattr_exp
-    v:value ga:(('.' identifier)*) <ExpGetAttr>
+    v:value dotted:dotted <GetattrExp>
+    /
+    value
+  end
+
+  rule dotted
+    d:dot_exp d_rest:dotted? <Dotted>
+  end
+
+  rule dot_exp
+    '[' sp? args:fn_args sp? ']' <IndexOp>
+    /
+    '(' sp? al:kw_args? sp? ')' <NodeCall>
+    /
+    '.' sp? i:identifier '(' sp? al:kw_args? sp? ')' <Call>
+    /
+    '.' sp? i:identifier <GetAttr>
   end
 
   rule list_expr
@@ -73,47 +89,18 @@ grammar Delorean
 
   rule value
     number 						/
-    string 						/ 
-    boolean 						/ 
+    string 						/
+    boolean 						/
     nil_val						/
-    script_call 					/ 
-    fn 							/ 
-    model_fn 						/ 
     identifier						/
     list_expr 						/
     hash_expr 						/
-    mod:(m:class_name '::')? c:class_name <NodeAsValue> 	/
+    mod:(m:class_name '::')? c:class_name <NodeAsValue> /
     '(' sp? e:expression sp? ')' 	 <Expr>
-  end
-
-  # built-in functions
-  rule fn
-    fn:fn_name '(' sp? args:fn_args? sp? ')' <Fn>
   end
 
   rule fn_args
     arg0:expression args_rest:(sp? ',' sp? args:fn_args?)? <FnArgs>
-  end
-
-  rule model_fn
-    m:model_name '.' fn:identifier '(' sp? ')' <ModelFn>
-    /
-    m:model_name '.' fn:identifier '(' sp? args:fn_args sp? ')' <ModelFn>
-  end
-
-  rule model_name
-    class_name ('::' model_name)?
-  end
-
-  rule fn_name
-    [A-Z] [A-Z0-9]*
-  end
-
-  # script calling
-  rule script_call
-    '@' mod:(m:class_name '::')? c:class_name '(' sp? al:kw_args sp? ')' <ScriptCallNode>
-    /
-    '@' i:identifier? '(' sp? al:kw_args sp? ')' <ScriptCall>
   end
 
   rule hash_args
@@ -153,8 +140,8 @@ grammar Delorean
   end
 
   rule string
-    '"' ('\"' / !'"' .)* '"' <String>
+    '"' ('\"' / !'"' .)* '"' <DString>
     /
-    "'" [^']* "'" <String>
+    "'" [^']* "'" <DString>
   end
 end
