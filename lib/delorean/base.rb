@@ -96,7 +96,7 @@ module Delorean
           raise InvalidIndex unless args.length == 1
           _get_attr(obj, args[0], _e)
         elsif obj.instance_of?(Array)
-          raise InvalidIndex unless args.length < 2
+          raise InvalidIndex unless args.length <= 2
           raise InvalidIndex unless
             args[0].is_a?(Fixnum) && (!args[1] || args[1].is_a?(Fixnum))
           obj[*args]

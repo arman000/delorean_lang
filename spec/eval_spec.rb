@@ -723,9 +723,10 @@ eof
                       "  c = a[-1]",
                       "  d = {'a' : 123, 'b': 456}",
                       "  e = d['b']",
+                      "  f = a[1,2]",
                       )
-    r = engine.evaluate_attrs("A", ["b", "c", "e"])
-    r.should == [2, 3, 456]
+    r = engine.evaluate_attrs("A", ["b", "c", "e", "f"])
+    r.should == [2, 3, 456, [2,3]]
   end
 
   it "can eval indexing 2" do
