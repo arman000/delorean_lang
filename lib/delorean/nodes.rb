@@ -297,10 +297,6 @@ eos
     end
 
     def rewrite(context, node_name)
-      do_rewrite(context, node_name)
-    end
-
-    def do_rewrite(context, node_name, mname="nil")
       args, kw = al.text_value.empty? ? [[], {}] : al.rewrite(context)
 
       raise "No positional arguments to node call" unless
@@ -308,7 +304,7 @@ eos
 
       kw_str = '{' + kw.map {|k, v| "'#{k}' => #{v}" }.join(',') + '}'
 
-      "_node_call(#{node_name}, #{mname}, _e, #{kw_str})"
+      "_node_call(#{node_name}, nil, _e, #{kw_str})"
     end
   end
 
@@ -394,8 +390,7 @@ eos
       context.parse_define_var(i.text_value)
       res += ".select{|#{i.rewrite(context)}| (#{ifexp.e3.rewrite(context)}) }" if
         defined?(ifexp.e3)
-      res += ".map{"
-      res += "|#{i.rewrite(context)}| (#{e2.rewrite(context)}) }"
+      res += ".map{|#{i.rewrite(context)}| (#{e2.rewrite(context)}) }"
       context.parse_undef_var(i.text_value)
       res
     end
@@ -427,8 +422,7 @@ eos
       iw = i.rewrite(context)
       res += ".select{|#{iw}| (#{ifexp.ei.rewrite(context)}) }" if
         defined?(ifexp.ei)
-      res += ".inject({}){"
-      res += "|_h#{iw}, #{iw}| "+
+      res += ".inject({}){|_h#{iw}, #{iw}| " +
         "_h#{iw}[#{el.rewrite(context)}]=(#{er.rewrite(context)}); _h#{iw}}"
       context.parse_undef_var(i.text_value)
       res
@@ -454,7 +448,7 @@ eos
     def rewrite(context)
       arg0_rw = arg0.rewrite(context)
 
-      if defined?(args_rest.al)
+      if defined?(args_rest.al) && !args_rest.al.text_value.empty?
         args, kw = args_rest.al.rewrite(context)
       else
         args, kw = [], {}

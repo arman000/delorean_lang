@@ -2463,7 +2463,12 @@ module Delorean
             end
             s9 << r13
             if r13
-              r15 = _nt_kw_args
+              r16 = _nt_kw_args
+              if r16
+                r15 = r16
+              else
+                r15 = instantiate_node(SyntaxNode,input, index...index)
+              end
               s9 << r15
             end
           end

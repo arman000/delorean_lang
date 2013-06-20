@@ -108,7 +108,7 @@ grammar Delorean
   end
 
   rule kw_args
-    k:(i:identifier ':' sp?)? arg0:expression args_rest:(sp? ',' sp? al:kw_args)? <KwArgs>
+    k:(i:identifier ':' sp?)? arg0:expression args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
   end
 
   rule number

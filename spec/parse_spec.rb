@@ -635,7 +635,9 @@ describe "Delorean" do
                       "  b = 456 + a",
                       "  n = 'A'",
                       "  c = nil(x: 123, y: 456)",
-                      "  d = n(x: 123, y: 456)",
+                      "  d = n(x: 123,",
+                      "        y: 456,",
+                      "       )",
                       )
   end
 
