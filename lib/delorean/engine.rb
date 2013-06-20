@@ -296,10 +296,8 @@ module Delorean
     def enumerate_attrs_by_node(node)
       raise "bad node" unless node
 
-      # FIXME: for some reason, in rspec we get nodes which are String
-      # but .is_a?(String) fails.
       begin
-        klass = node.class.name=="String" ? @m.module_eval(node) : node
+        klass = node.is_a?(String) ? @m.module_eval(node) : node
       rescue NameError
         # FIXME: a little hacky.  Should raise an exception.
         return []

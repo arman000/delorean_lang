@@ -1,3 +1,5 @@
+require 'active_support/time'
+
 module Delorean
 
   # FIXME: the whitelist is quite hacky.  It's currently difficult to
@@ -132,7 +134,7 @@ module Delorean
         raise "no such method #{method}" unless sig
 
         # if sig is a string, then method mapped to another name
-        return _instance_call(obj, sig, args) if sig.respond_to?(:to_sym)
+        return _instance_call(obj, sig, args) if sig.is_a? String
 
         raise "too many args to #{method}" if args.length>(sig.length-1)
 
