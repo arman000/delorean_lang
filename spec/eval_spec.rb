@@ -474,6 +474,16 @@ eof
       ]
   end
 
+  it "should eval sets and set comprehension" do
+    engine.parse defn("A:",
+                      "  a = {-}",
+                      "  b = {i*5 for i in {1,2,3}}",
+                      "  c = {1,2,3} | {4,5}",
+                      )
+    engine.evaluate_attrs("A", ["a", "b", "c"]).should ==
+      [Set[], Set[5,10,15], Set[1,2,3,4,5]]
+  end
+
   it "should eval list comprehension" do
     engine.parse defn("A:",
                       "  b = [i*5 for i in [1,2,3]]",
@@ -739,4 +749,25 @@ eof
     r = engine.evaluate_attrs("A", ["a", "b", "c", "d"])
     r.should == [1, {"x"=>123, "y"=>456}, {"a"=>1, "b"=>{"x"=>123, "y"=>456}}, -333]
   end
+
+  it "should properly eval overridden attrs" do
+    engine.parse defn("A:",
+                      "  a = 5",
+                      "  b = a",
+                      "B: A",
+                      "  a = 2",
+                      "  x = A.b - B.b",
+                      "  k = [A.b, B.b]",
+                      "  l = [x.b for x in [A, B]]",
+                      "  m = [x().b for x in [A, B]]",
+                      )
+
+    engine.evaluate("A", "b").should == 5
+    engine.evaluate("B", "b").should == 2
+    engine.evaluate("B", "x").should == 3
+    engine.evaluate("B", "k").should == [5, 2]
+    engine.evaluate("B", "l").should == [5, 2]
+    engine.evaluate("B", "m").should == [5, 2]
+  end
+
 end

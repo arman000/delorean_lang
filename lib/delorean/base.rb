@@ -114,10 +114,8 @@ module Delorean
 
       def self._node_call(node, mname, _e, params)
         context = _e[:_engine]
-        node ||= self
-
         engine = mname ? context.get_import_engine(mname) : context
-        NodeCall.new(engine, node, params)
+        NodeCall.new(engine, node || self, params)
       end
 
       ######################################################################

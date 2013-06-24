@@ -29,7 +29,7 @@ module Delorean
 <<eos
       class #{cname}
         def self.#{aname}#{POST}(_e)
-            _e['#{cname}.#{aname}'] ||=
+            _e[self.name+'.#{aname}'] ||=
             begin
               _e.fetch('#{aname}')
             rescue KeyError
@@ -101,7 +101,7 @@ eos
       # an attr is defined as a class function on the node class.
       "class #{context.last_node}; " +
         "def self.#{i.text_value}#{POST}(_e); " +
-        "_e['#{context.last_node}.#{i.text_value}'] ||= " +
+        "_e[self.name+'.#{i.text_value}'] ||= " +
         e.rewrite(context) + "; end; end;"
     end
   end
@@ -393,6 +393,18 @@ eos
       res += ".map{|#{i.rewrite(context)}| (#{e2.rewrite(context)}) }"
       context.parse_undef_var(i.text_value)
       res
+    end
+  end
+
+  class SetExpr < ListExpr
+    def rewrite(context)
+      "Set#{super}"
+    end
+  end
+
+  class SetComprehension < ListComprehension
+    def rewrite(context)
+      "Set[*#{super}]"
     end
   end
 

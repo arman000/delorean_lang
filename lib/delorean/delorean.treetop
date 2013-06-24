@@ -66,6 +66,17 @@ grammar Delorean
     '[' sp? args:fn_args sp? ']' <ListExpr>
   end
 
+  rule set_expr
+    '{-}' <SetExpr>
+    /
+    '{' sp? e2:expression sp
+        'for' sp i:identifier sp 'in' sp e1:expression sp?
+        ifexp:('if' sp e3:expression sp?)?
+    '}' <SetComprehension>
+    /
+    '{' sp? args:fn_args sp? '}' <SetExpr>
+  end
+
   rule hash_expr
     '{}' <HashExpr>
     /
@@ -80,7 +91,8 @@ grammar Delorean
   # NOTE: some operations such as << have side-effects (e.g. on
   # Arrays).  So, be cautious about which opertaions are added.
   rule binary_op
-    '+' / '-' / '*' / '/' / '%' / '==' / '!=' / '>=' / '<=' / '>' / '<' / '&&' / '||'
+    '==' / '!=' / '>=' / '<=' / '&&' / '||' /
+    '>' / '<' / '+' / '-' / '*' / '/' / '%' / '&' / '^' / '|'
   end
 
   rule unary_op
@@ -94,6 +106,7 @@ grammar Delorean
     nil_val						/
     identifier						/
     list_expr 						/
+    set_expr 						/
     hash_expr 						/
     mod:(m:class_name '::')? c:class_name <NodeAsValue> /
     '(' sp? e:expression sp? ')' 	 <Expr>
