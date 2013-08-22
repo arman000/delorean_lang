@@ -15,14 +15,6 @@ module Delorean
     end
 
     def add(name, version, engine)
-      @engines[ [name, version] ] = engine
-    end
-
-    def import(name, version)
-      engine = get(name, version)
-
-      return engine if engine
-
       if names.member? name
         n, v = @engines.keys.detect {|n, v| n == name}
 
@@ -30,7 +22,21 @@ module Delorean
           "Collides with imported version #{v}."
       end
 
-      add(name, version, get_engine(name, version))
+      @engines[ [name, version] ] = engine
+    end
+
+    def add_imports(engine)
+      # Given an engine, make sure that all of its imports are added
+      # to the script container.  This makes sure we don't have
+      # version conflict among different scripts.
+      engine.imports.each { |name, ev|
+        get(name, ev[1]) || add(name, ev[1], ev[0])
+      }
+    end
+
+    def import(name, version)
+      get(name, version) ||
+        add(name, version, get_engine(name, version))
     end
 
     def get_engine(name, version)

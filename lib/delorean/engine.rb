@@ -36,22 +36,23 @@ module Delorean
         name == module_name
 
       begin
-        @imports[name] = sset.import(name, version)
+        @imports[name] = [sset.import(name, version), version]
       rescue => exc
         err(ImportError, exc.to_s)
       end
 
-      @pm.const_set("#{MOD}#{name}", @imports[name].pm)
+      @pm.const_set("#{MOD}#{name}", @imports[name][0].pm)
     end
 
     def gen_import(name, version)
-      @imports.merge!(@imports[name].imports)
+      @imports.merge!(@imports[name][0].imports)
 
-      @m.const_set("#{MOD}#{name}", @imports[name].m)
+      @m.const_set("#{MOD}#{name}", @imports[name][0].m)
     end
 
     def get_import_engine(name)
-      @imports[name] || err(ParseError, "#{name} not imported")
+      err(ParseError, "#{name} not imported") unless @imports[name]
+      @imports[name][0]
     end
 
     def is_node_defined(name)

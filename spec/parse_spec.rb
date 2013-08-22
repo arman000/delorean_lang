@@ -733,5 +733,29 @@ describe "Delorean" do
     end
   end
 
+  it "should disallow multiple versions of same script (2)" do
+    sset.merge({
+                 ["BBB", "0001"] =>
+                 defn("import AAA 0001",
+                      ),
+                 ["CCC", "0001"] =>
+                 defn("import AAA 0001",
+                      "import BBB 0001",
+                      ),
+                 ["AAA", "0002"] =>
+                 defn("A:",
+                      ),
+                 ["CCC", "0002"] =>
+                 defn("import AAA 0002",
+                      "import BBB 0001",
+                      ),
+               })
+    begin
+      sset.get_engine("CCC", "0002")
+    rescue Delorean::ImportError => exc
+      exc.line.should == 2
+    end
+  end
+
 end
 
