@@ -76,12 +76,14 @@ module Delorean
         elsif obj.instance_of?(NodeCall)
           return obj.evaluate(attr)
         elsif obj.instance_of?(Hash)
-          return obj.member?(attr) ? obj[attr] : obj[attr.to_sym]
+          return obj[attr] if obj.member?(attr)
+          return attr.is_a?(String) ? obj[attr.to_sym] : nil
         elsif obj.instance_of?(Class) && (obj < BaseClass)
           return obj.send((attr + POST).to_sym, _e)
         end
 
-        raise InvalidGetAttribute, "bad attribute lookup '#{attr}' on #{obj}"
+        raise InvalidGetAttribute,
+        "bad attribute lookup '#{attr}' on <#{obj.class}> #{obj}"
       end
 
       ######################################################################
