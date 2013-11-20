@@ -25,16 +25,13 @@ module Delorean
       # (i.e. check for aname).  Otherwise, we use the default value
       # if any.
       aname, cname = i.text_value, context.last_node
-      exc = "raise UndefinedParamError, 'undefined parameter #{aname}'"
+      not_found = defined?(e) ? e.rewrite(context) :
+        "raise UndefinedParamError, 'undefined parameter #{aname}'"
+
 <<eos
       class #{cname}
         def self.#{aname}#{POST}(_e)
-            _e[self.name+'.#{aname}'] ||=
-            begin
-              _e.fetch('#{aname}')
-            rescue KeyError
-              #{defined?(e) ? e.rewrite(context) : exc}
-            end
+            _e[self.name+'.#{aname}'] ||= _e.fetch('#{aname}') { #{not_found} }
         end
       end
 eos
@@ -72,8 +69,10 @@ eos
     end
 
     def rewrite(context)
-      # Nodes are simply translated to classes.
-      "class #{n.text_value} < BaseClass; end"
+      # Nodes are simply translated to classes.  Define our own
+      # self.name() since it's extremely slow in MRI 2.0.
+      "class #{n.text_value} < BaseClass; " +
+        "def self.name; '#{n.text_value}'; end; end"
     end
   end
 
@@ -88,7 +87,8 @@ eos
       sname = context.super_name(p.text_value, mname)
 
       # A sub-node (derived node) is just a subclass.
-      "class #{n.text_value} < #{sname}; end"
+      "class #{n.text_value} < #{sname}; " +
+        "def self.name; '#{n.text_value}'; end; end"
     end
   end
 
@@ -388,7 +388,7 @@ eos
     def rewrite(context)
       res = "(#{e1.rewrite(context)})"
       context.parse_define_var(i.text_value)
-      res += ".select{|#{i.rewrite(context)}| (#{ifexp.e3.rewrite(context)}) }" if
+      res += ".select{|#{i.rewrite(context)}| (#{ifexp.e3.rewrite(context)})}" if
         defined?(ifexp.e3)
       res += ".map{|#{i.rewrite(context)}| (#{e2.rewrite(context)}) }"
       context.parse_undef_var(i.text_value)

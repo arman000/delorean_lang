@@ -1,5 +1,7 @@
 require 'delorean/const'
 require 'delorean/base'
+require 'set'
+require 'pp'
 
 module Delorean
   class Engine
