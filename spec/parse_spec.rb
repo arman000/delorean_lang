@@ -648,6 +648,17 @@ describe "Delorean" do
                       )
   end
 
+  it "should not allow positional args to node calls" do
+    begin
+      engine.parse defn("A:",
+                        "  d = A(1, 2, 3)",
+                        )
+      raise "fail"
+    rescue Delorean::ParseError => exc
+      exc.line.should == 2
+    end
+  end
+
   it "should parse instance calls" do
     engine.parse defn("A:",
                       "  a = [1,2,[4]].flatten(1)",

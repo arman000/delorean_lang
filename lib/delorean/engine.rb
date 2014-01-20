@@ -5,11 +5,12 @@ require 'pp'
 
 module Delorean
   class Engine
-    attr_reader :last_node, :module_name, :line_no, :comp_set, :pm, :m, :imports
+    attr_reader :last_node, :module_name, :version,
+    :line_no, :comp_set, :pm, :m, :imports
 
-    def initialize(module_name)
+    def initialize(module_name, version=nil)
       # name of current module
-      @module_name = module_name
+      @module_name, @version = module_name, version
       reset
     end
 
@@ -142,13 +143,14 @@ module Delorean
         @node_attrs[@last_node].member? name
 
       @node_attrs[@last_node] << name
-      
+
       checks = spec.map { |a|
-        n = a.index('.') ? a : (@last_node + "." + a)
+        n = a.index('.') ? a : "#{@last_node}.#{a}"
         "_x.member?('#{n}') ? raise('#{n}') : #{a}#{POST}(_x + ['#{n}'])"
       }.join(';')
 
-      code = "class #{@last_node}; def self.#{name}#{POST}(_x); #{checks}; end; end"
+      code =
+        "class #{@last_node}; def self.#{name}#{POST}(_x); #{checks}; end; end"
 
       # pp code
 
@@ -213,8 +215,12 @@ module Delorean
     def generate(t, sset=nil)
       t.check(self, sset)
 
-      # generate ruby code
-      gen = t.rewrite(self)
+      begin
+        # generate ruby code
+        gen = t.rewrite(self)
+      rescue RuntimeError => exc
+        err(ParseError, "codegen error: " + exc.message)
+      end
 
       # puts gen
 
@@ -251,7 +257,7 @@ module Delorean
           # Inside a multiline and next line doesn't look like a
           # continuation => syntax error.
           err(ParseError, "syntax error") unless line =~ /^\s+/
-          
+
           multi_line += line
           t = parser.parse(multi_line)
 
@@ -362,16 +368,14 @@ module Delorean
       }
     end
 
-    # FIXME: should be renamed to grok_runtime_exception so as to not
-    # be confused with other parse_* calls which occur at parse time.
-    def parse_runtime_exception(exc)
+    def self.grok_runtime_exception(exc)
       # parse out the delorean-related backtrace records
       bt = exc.backtrace.map{ |x|
         x.match(/^#{MOD}(.+?):(\d+)(|:in `(.+)')$/);
         $1 && [$1, $2.to_i, $4.sub(/#{POST}$/, '')]
       }.reject(&:!)
 
-      [exc.message, bt]
+      {"error" => exc.message, "backtrace" => bt}
     end
 
     ######################################################################

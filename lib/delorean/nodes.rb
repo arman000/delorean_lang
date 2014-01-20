@@ -68,15 +68,20 @@ eos
       context.parse_define_node(n.text_value, nil)
     end
 
-    def rewrite(context)
+    def def_class(context, base_name)
       # Nodes are simply translated to classes.  Define our own
       # self.name() since it's extremely slow in MRI 2.0.
-      "class #{n.text_value} < BaseClass; " +
+      "class #{n.text_value} < #{base_name}; " +
+        "def self.module_name; '#{context.module_name}'; end;" +
         "def self.name; '#{n.text_value}'; end; end"
+    end
+
+    def rewrite(context)
+      def_class(context, "BaseClass")
     end
   end
 
-  class SubNode < SNode
+  class SubNode < BaseNode
     def check(context, *)
       mname = mod.m.text_value if defined?(mod.m)
       context.parse_define_node(n.text_value, p.text_value, mname)
@@ -87,8 +92,7 @@ eos
       sname = context.super_name(p.text_value, mname)
 
       # A sub-node (derived node) is just a subclass.
-      "class #{n.text_value} < #{sname}; " +
-        "def self.name; '#{n.text_value}'; end; end"
+      def_class(context, sname)
     end
   end
 
@@ -302,9 +306,9 @@ eos
       raise "No positional arguments to node call" unless
         args.empty?
 
-      kw_str = '{' + kw.map {|k, v| "'#{k}' => #{v}" }.join(',') + '}'
+      kw_str = kw.map {|k, v| "'#{k}' => #{v}"}.join(',')
 
-      "_node_call(#{node_name}, nil, _e, #{kw_str})"
+      "_node_call(#{node_name}, _e, {#{kw_str}})"
     end
   end
 

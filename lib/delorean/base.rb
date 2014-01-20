@@ -18,6 +18,17 @@ module Delorean
     sort: 	[Array],
     split:	[String, String],
     uniq: 	[Array],
+    sum: 	[Array],
+    zip:	[Array, [Array, Array, Array]],
+    index:	[Array, [Integer, Numeric, String, Array, Fixnum]],
+    product:	[Array, Array],
+    first: 	[Enumerable, [nil, Fixnum]],
+
+    keys: 	[Hash],
+    values: 	[Hash],
+    upcase: 	[String],
+    downcase: 	[String],
+    match:	[String, [String], [nil, Fixnum]],
 
     hour:	[[Date, Time, ActiveSupport::TimeWithZone]],
     min:	[[Date, Time, ActiveSupport::TimeWithZone, Array]],
@@ -28,6 +39,24 @@ module Delorean
     day:	[[Date, Time, ActiveSupport::TimeWithZone]],
     year:	[[Date, Time, ActiveSupport::TimeWithZone]],
 
+    next_month:	[[Date, Time, ActiveSupport::TimeWithZone],
+                 [nil, Fixnum],
+                ],
+    prev_month:	[[Date, Time, ActiveSupport::TimeWithZone],
+                 [nil, Fixnum],
+                ],
+
+    beginning_of_month:	[[Date, Time, ActiveSupport::TimeWithZone]],
+
+    end_of_month:	[[Date, Time, ActiveSupport::TimeWithZone]],
+
+    next_day:	[[Date, Time, ActiveSupport::TimeWithZone],
+                 [nil, Fixnum],
+                ],
+    prev_day:	[[Date, Time, ActiveSupport::TimeWithZone],
+                 [nil, Fixnum],
+                ],
+
     to_i:	[[Numeric, String]],
     to_f:	[[Numeric, String]],
     to_d:	[[Numeric, String]],
@@ -37,12 +66,7 @@ module Delorean
   }
 
   module BaseModule
-    class NodeCall
-      attr_reader :engine, :node, :params
-      def initialize(engine, node, params)
-        @engine, @node, @params = engine, node, params
-      end
-
+    class NodeCall < Struct.new(:_e, :engine, :node, :params)
       def evaluate(attr)
         engine.evaluate(node, attr, params)
       end
@@ -57,7 +81,6 @@ module Delorean
     end
 
     class BaseClass
-
       def self._get_attr(obj, attr, _e)
         return nil if obj.nil?
 
@@ -114,10 +137,14 @@ module Delorean
         raise str
       end
 
-      def self._node_call(node, mname, _e, params)
+      def self._node_call(node, _e, params)
         context = _e[:_engine]
-        engine = mname ? context.get_import_engine(mname) : context
-        NodeCall.new(engine, node || self, params)
+
+        engine = node.is_a?(Class) &&
+          context.module_name != node.module_name ?
+        context.get_import_engine(node.module_name) : context
+
+        NodeCall.new(_e, engine, node || self, params)
       end
 
       ######################################################################
@@ -150,7 +177,7 @@ module Delorean
               break
             end
           }
-          raise "bad arg #{i} to method #{method}: #{ai}/#{ai.class} #{s}" unless ok
+          raise "bad arg #{i}, method #{method}: #{ai}/#{ai.class} #{s}" if !ok
         }
 
         obj.send(msg, *args)

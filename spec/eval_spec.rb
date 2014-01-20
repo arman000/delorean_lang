@@ -23,7 +23,7 @@ describe "Delorean" do
                       "  b = -(a + 1)",
                       "  c = -a + 1",
                       )
-    
+
     engine.evaluate_attrs("A", ["a"]).should == [123]
 
     r = engine.evaluate_attrs("A", ["x", "b"])
@@ -143,28 +143,31 @@ describe "Delorean" do
                       "  a = 1/0",
                       "  b = 10 * a",
                       )
-    
+
     begin
       engine.evaluate("A", "b")
     rescue => exc
-      res = engine.parse_runtime_exception(exc)
+      res = Delorean::Engine.grok_runtime_exception(exc)
     end
 
-    res.should == ["divided by 0", [["XXX", 2, "/"], ["XXX", 2, "a"], ["XXX", 3, "b"]]]
+    res.should == {
+      "error" => "divided by 0",
+      "backtrace" => [["XXX", 2, "/"], ["XXX", 2, "a"], ["XXX", 3, "b"]],
+    }
   end
 
   it "should handle runtime errors 2" do
     engine.parse defn("A:",
                       "  b = Dummy.call_me_maybe('a', 'b')",
                       )
-    
+
     begin
       engine.evaluate("A", "b")
     rescue => exc
-      res = engine.parse_runtime_exception(exc)
+      res = Delorean::Engine.grok_runtime_exception(exc)
     end
 
-    res[1].should == [["XXX", 2, "b"]]
+    res["backtrace"].should == [["XXX", 2, "b"]]
   end
 
   it "should handle operator precedence properly" do
@@ -190,7 +193,7 @@ describe "Delorean" do
 
     engine.parse text
     r = engine.evaluate("A", "e", {"d" => -100})
-    r.should == "gungam"+"style"
+    r.should == "gungamstyle"
 
     r = engine.evaluate("A", "e")
     r.should == "korea"
@@ -206,7 +209,7 @@ describe "Delorean" do
                       "C:",
                       "  c = A.c + B.c",
                       )
-    
+
     r = engine.evaluate("B", "c")
     r.should == 123*123
     r = engine.evaluate("C", "c", {"c" => 5})
@@ -369,13 +372,13 @@ eoc
 
     r = engine.evaluate("B", "b", {"a" => 10})
     r.should == 10*3
-    
+
     lambda {
       r = engine.evaluate("B", "b")
     }.should raise_error(Delorean::UndefinedParamError)
 
   end
-  
+
   sample_script = <<eof
 A:
 	a = 2
@@ -618,7 +621,7 @@ eof
                       "  n =?",
                       "  fact = if n <= 1 then 1 else n * A(n: n-1).fact",
                       )
-    
+
     engine.evaluate("A", "fact", "n" => 10).should == 3628800
   end
 
