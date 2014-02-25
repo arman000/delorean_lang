@@ -10,7 +10,7 @@ require 'active_record'
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
-  
+
 end
 
 def defn(*l)
@@ -18,7 +18,7 @@ def defn(*l)
 end
 
 ######################################################################
-# ActiveRecord related 
+# ActiveRecord related
 
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
@@ -85,10 +85,10 @@ class TestContainer < Delorean::AbstractContainer
     @scripts.merge!(scripts)
   end
 
-  def get_engine(name, version)
-    script = @scripts[ [name, version] ]
+  def get_engine(name)
+    script = @scripts[ name ]
 
-    raise "can't find #{name} #{version}" unless script
+    raise "can't find #{name}" unless script
 
     engine = Delorean::Engine.new name
     engine.parse script, self
@@ -97,4 +97,3 @@ class TestContainer < Delorean::AbstractContainer
 end
 
 ######################################################################
-

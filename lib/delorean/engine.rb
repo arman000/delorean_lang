@@ -5,12 +5,11 @@ require 'pp'
 
 module Delorean
   class Engine
-    attr_reader :last_node, :module_name, :version,
-    :line_no, :comp_set, :pm, :m, :imports
+    attr_reader :last_node, :module_name, :line_no, :comp_set, :pm, :m, :imports
 
-    def initialize(module_name, version=nil)
+    def initialize(module_name)
       # name of current module
-      @module_name, @version = module_name, version
+      @module_name = module_name
       reset
     end
 
@@ -32,30 +31,30 @@ module Delorean
       @multi_no || @line_no
     end
 
-    def parse_import(sset, name, version)
+    def parse_import(sset, name)
       err(ParseError, "No script set") unless sset
 
       err(ParseError, "Module #{name} importing itself") if
         name == module_name
 
       begin
-        @imports[name] = [sset.import(name, version), version]
+        @imports[name] = sset.import(name)
       rescue => exc
         err(ImportError, exc.to_s)
       end
 
-      @pm.const_set("#{MOD}#{name}", @imports[name][0].pm)
+      @pm.const_set("#{MOD}#{name}", @imports[name].pm)
     end
 
-    def gen_import(name, version)
-      @imports.merge!(@imports[name][0].imports)
+    def gen_import(name)
+      @imports.merge!(@imports[name].imports)
 
-      @m.const_set("#{MOD}#{name}", @imports[name][0].m)
+      @m.const_set("#{MOD}#{name}", @imports[name].m)
     end
 
     def get_import_engine(name)
       err(ParseError, "#{name} not imported") unless @imports[name]
-      @imports[name][0]
+      @imports[name]
     end
 
     def is_node_defined(name)

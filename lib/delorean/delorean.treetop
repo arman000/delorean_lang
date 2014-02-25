@@ -14,7 +14,7 @@ grammar Delorean
     /
     n:class_name ':' <BaseNode>
     /
-    'import' sp n:class_name sp v:integer <Import>
+    'import' sp n:class_name <Import>
   end
 
   rule class_name

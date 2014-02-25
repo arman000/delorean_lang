@@ -8,7 +8,7 @@ describe "Delorean" do
 
   let(:sset) {
     TestContainer.new({
-                        ["AAA", "0001"] =>
+                        "AAA" =>
                         defn("X:",
                              "  a =? 123",
                              "  b = a*2",
@@ -308,7 +308,7 @@ eoc
     engine.evaluate("E", "xx").should == [1,2,3]
   end
 
-  it "should be able to call class methods on ActiveRecord classes in modules" do
+  it "should be able to call class methods on AR classes in modules" do
     engine.parse defn("A:",
                       "  b = M::LittleDummy.heres_my_number(867, 5309)",
                       )
@@ -433,7 +433,8 @@ eof
     engin2.evaluate_attrs("A", ["a", "b"]).should == [222.0, 222.0/5]
 
     engine.evaluate_attrs("B", ["a", "b", "c"]).should == [123, 123*3, 123*3*2]
-    engin2.evaluate_attrs("B", ["a", "b", "c"]).should == [222.0, 222.0/5, 222.0/5*3]
+    engin2.evaluate_attrs("B", ["a", "b", "c"]).should ==
+      [222.0, 222.0/5, 222.0/5*3]
 
     engin2.evaluate("C", "d").should == 111
     lambda {
@@ -662,7 +663,7 @@ eof
   end
 
   it "should eval imports" do
-    engine.parse defn("import AAA 0001",
+    engine.parse defn("import AAA",
                       "A:",
                       "  b = 456",
                       "B: AAA::X",
@@ -675,16 +676,16 @@ eof
 
   it "should eval imports (2)" do
     sset.merge({
-                 ["BBB", "0002"] =>
-                 defn("import AAA 0001",
+                 "BBB"  =>
+                 defn("import AAA",
                       "B: AAA::X",
                       "  a = 111",
                       "  c = AAA::X(a: -1).b",
                       "  d = a * 2",
                       ),
-                 ["CCC", "0003"] =>
-                 defn("import BBB 0002",
-                      "import AAA 0001",
+                 "CCC" =>
+                 defn("import BBB",
+                      "import AAA",
                       "B: BBB::B",
                       "  e = d * 3",
                       "C: AAA::X",
@@ -692,12 +693,12 @@ eof
                       ),
                })
 
-    e2 = sset.get_engine("BBB", "0002")
+    e2 = sset.get_engine("BBB")
 
     e2.evaluate_attrs("B", ["a", "b", "c", "d"]).should ==
       [111, 222, -2, 222]
 
-    engine.parse defn("import BBB 0002",
+    engine.parse defn("import BBB",
                       "B: BBB::B",
                       "  e = d + 3",
                       ), sset
@@ -705,7 +706,7 @@ eof
     engine.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should ==
       [111, 222, -2, 222, 225]
 
-    e4 = sset.get_engine("CCC", "0003")
+    e4 = sset.get_engine("CCC")
 
     e4.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should ==
       [111, 222, -2, 222, 666]
@@ -715,16 +716,16 @@ eof
 
   it "should eval imports (3)" do
     sset.merge({
-                 ["BBB", "0002"] => getattr_code,
-                 ["CCC", "0003"] =>
-                 defn("import BBB 0002",
+                 "BBB" => getattr_code,
+                 "CCC" =>
+                 defn("import BBB",
                       "X:",
                       "  xx = [n.x for n in BBB::D().xs]",
                       "  yy = [n.x for n in BBB::D.xs]",
                       ),
                })
 
-    e4 = sset.get_engine("CCC", "0003")
+    e4 = sset.get_engine("CCC")
     e4.evaluate("X", "xx").should == [1,2,3]
     e4.evaluate("X", "yy").should == [1,2,3]
   end
@@ -750,7 +751,8 @@ eof
                       "  d = c['b'].x * c['a'] - c['b'].y",
                       )
     r = engine.evaluate_attrs("A", ["a", "b", "c", "d"])
-    r.should == [1, {"x"=>123, "y"=>456}, {"a"=>1, "b"=>{"x"=>123, "y"=>456}}, -333]
+    r.should ==
+      [1, {"x"=>123, "y"=>456}, {"a"=>1, "b"=>{"x"=>123, "y"=>456}}, -333]
   end
 
   it "should properly eval overridden attrs" do

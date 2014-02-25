@@ -8,7 +8,7 @@ describe "Delorean" do
 
   let(:sset) {
     TestContainer.new({
-                        ["AAA", "0001"] =>
+                        "AAA" =>
                         defn("X:",
                              "  a = 123",
                              "  b = a",
@@ -702,71 +702,26 @@ describe "Delorean" do
   end
 
   it "should parse imports" do
-    engine.parse defn("import AAA 0001",
+    engine.parse defn("import AAA",
                       "A:",
                       "  b = 456",
                       "B: AAA::X",
                       ), sset
-    
+
   end
 
   it "should disallow import loops" do
     pending
     sset.merge({
-                 ["BBB", "0001"] =>
-                 defn("import AAA 0001",
-                      "import CCC 0001",
+                 "BBB" =>
+                 defn("import AAA",
+                      "import CCC",
                       ),
-                 ["CCC", "0001"] =>
-                 defn("import BBB 0001",
-                      ),
-               })
-    sset.get_engine("CCC", "0001")
-  end
-
-  it "should disallow multiple versions of same script" do
-    sset.merge({
-                 ["AAA", "0002"] =>
-                 defn("A:",
-                      ),
-                 ["BBB", "0001"] =>
-                 defn("import AAA 0001",
-                      ),
-                 ["CCC", "0001"] =>
-                 defn("import BBB 0001",
-                      "import AAA 0002",
+                 "CCC" =>
+                 defn("import BBB",
                       ),
                })
-    begin
-      sset.get_engine("CCC", "0001")
-    rescue Delorean::ImportError => exc
-      exc.line.should == 2
-    end
-  end
-
-  it "should disallow multiple versions of same script (2)" do
-    sset.merge({
-                 ["BBB", "0001"] =>
-                 defn("import AAA 0001",
-                      ),
-                 ["CCC", "0001"] =>
-                 defn("import AAA 0001",
-                      "import BBB 0001",
-                      ),
-                 ["AAA", "0002"] =>
-                 defn("A:",
-                      ),
-                 ["CCC", "0002"] =>
-                 defn("import AAA 0002",
-                      "import BBB 0001",
-                      ),
-               })
-    begin
-      sset.get_engine("CCC", "0002")
-    rescue Delorean::ImportError => exc
-      exc.line.should == 2
-    end
+    sset.get_engine("CCC")
   end
 
 end
-

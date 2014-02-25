@@ -165,20 +165,12 @@ module Delorean
   end
 
   module Formula6
-    def sp1
+    def sp
       elements[1]
     end
 
     def n
       elements[2]
-    end
-
-    def sp2
-      elements[3]
-    end
-
-    def v
-      elements[4]
     end
   end
 
@@ -430,14 +422,6 @@ module Delorean
                 if r40
                   r41 = _nt_class_name
                   s38 << r41
-                  if r41
-                    r42 = _nt_sp
-                    s38 << r42
-                    if r42
-                      r43 = _nt_integer
-                      s38 << r43
-                    end
-                  end
                 end
               end
               if s38.last

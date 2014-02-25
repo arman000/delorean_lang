@@ -1,46 +1,33 @@
 require 'delorean/base'
 
-module Delorean
-  class AbstractContainer
-    def initialize
-      @engines = {}
-    end
+class Delorean::AbstractContainer
+  def initialize
+    @engines = {}
+  end
 
-    def names
-      @engines.keys.map {|n, v| n}
-    end
+  def names
+    @engines.keys
+  end
 
-    def get(name, version)
-      @engines[ [name, version] ]
-    end
+  def get(name)
+    @engines[name]
+  end
 
-    def add(name, version, engine)
-      if names.member? name
-        n, v = @engines.keys.detect {|n, v| n == name}
+  def add(name, engine)
+    @engines[name] = engine
+  end
 
-        raise "Can't import #{name} version #{version}. " +
-          "Collides with imported version #{v}."
-      end
+  def add_imports(engine)
+    engine.imports.each { |name, engine|
+      get(name) || add(name, engine)
+    }
+  end
 
-      @engines[ [name, version] ] = engine
-    end
+  def import(name)
+    get(name) || add(name, get_engine(name))
+  end
 
-    def add_imports(engine)
-      # Given an engine, make sure that all of its imports are added
-      # to the script container.  This makes sure we don't have
-      # version conflict among different scripts.
-      engine.imports.each { |name, ev|
-        get(name, ev[1]) || add(name, ev[1], ev[0])
-      }
-    end
-
-    def import(name, version)
-      get(name, version) ||
-        add(name, version, get_engine(name, version))
-    end
-
-    def get_engine(name, version)
-      raise "get_engine needs to be overriden"
-    end
+  def get_engine(name)
+    raise "get_engine needs to be overriden"
   end
 end
