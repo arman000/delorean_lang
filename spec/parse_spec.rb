@@ -2,10 +2,6 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Delorean" do
 
-  let(:engine) {
-    Delorean::Engine.new "YYY"
-  }
-
   let(:sset) {
     TestContainer.new({
                         "AAA" =>
@@ -14,6 +10,10 @@ describe "Delorean" do
                              "  b = a",
                              )
                       })
+  }
+
+  let(:engine) {
+    Delorean::Engine.new "YYY", sset
   }
 
   it "can parse very simple calls" do
@@ -706,8 +706,7 @@ describe "Delorean" do
                       "A:",
                       "  b = 456",
                       "B: AAA::X",
-                      ), sset
-
+                      )
   end
 
   it "should disallow import loops" do

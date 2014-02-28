@@ -2,10 +2,6 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Delorean" do
 
-  let(:engine) {
-    Delorean::Engine.new "XXX"
-  }
-
   let(:sset) {
     TestContainer.new({
                         "AAA" =>
@@ -14,6 +10,10 @@ describe "Delorean" do
                              "  b = a*2",
                              )
                       })
+  }
+
+  let(:engine) {
+    Delorean::Engine.new "XXX", sset
   }
 
   it "evaluate simple expressions" do
@@ -669,7 +669,7 @@ eof
                       "B: AAA::X",
                       "  a = 111",
                       "  c = AAA::X(a: 456).b",
-                      ), sset
+                      )
     engine.evaluate_attrs("B", ["a", "b", "c"], {}).should ==
       [111, 222, 456*2]
   end
@@ -701,7 +701,7 @@ eof
     engine.parse defn("import BBB",
                       "B: BBB::B",
                       "  e = d + 3",
-                      ), sset
+                      )
 
     engine.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should ==
       [111, 222, -2, 222, 225]

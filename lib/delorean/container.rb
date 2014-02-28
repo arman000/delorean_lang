@@ -5,10 +5,6 @@ class Delorean::AbstractContainer
     @engines = {}
   end
 
-  def names
-    @engines.keys
-  end
-
   def get(name)
     @engines[name]
   end

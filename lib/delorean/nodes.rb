@@ -52,8 +52,8 @@ eos
   end
 
   class Import < SNode
-    def check(context, sset)
-      context.parse_import(sset, n.text_value)
+    def check(context)
+      context.parse_import(n.text_value)
     end
 
     def rewrite(context)

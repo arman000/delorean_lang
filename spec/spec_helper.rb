@@ -90,8 +90,8 @@ class TestContainer < Delorean::AbstractContainer
 
     raise "can't find #{name}" unless script
 
-    engine = Delorean::Engine.new name
-    engine.parse script, self
+    engine = Delorean::Engine.new name, self
+    engine.parse script
     engine
   end
 end

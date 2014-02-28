@@ -5,11 +5,13 @@ require 'pp'
 
 module Delorean
   class Engine
-    attr_reader :last_node, :module_name, :line_no, :comp_set, :pm, :m, :imports
+    attr_reader :last_node, :module_name, :line_no,
+    :comp_set, :pm, :m, :imports, :sset
 
-    def initialize(module_name)
+    def initialize(module_name, sset=nil)
       # name of current module
       @module_name = module_name
+      @sset = sset
       reset
     end
 
@@ -31,7 +33,7 @@ module Delorean
       @multi_no || @line_no
     end
 
-    def parse_import(sset, name)
+    def parse_import(name)
       err(ParseError, "No script set") unless sset
 
       err(ParseError, "Module #{name} importing itself") if
@@ -211,8 +213,8 @@ module Delorean
       @@parser ||= DeloreanParser.new
     end
 
-    def generate(t, sset=nil)
-      t.check(self, sset)
+    def generate(t)
+      t.check(self)
 
       begin
         # generate ruby code
@@ -232,7 +234,7 @@ module Delorean
       end
     end
 
-    def parse(source, sset=nil)
+    def parse(source)
       raise "can't call parse again without reset" if @pm
 
       # @m module is used at runtime for code evaluation.  @pm module
@@ -262,7 +264,7 @@ module Delorean
 
           if t
             multi_line, @multi_no = nil, nil
-            generate(t, sset)
+            generate(t)
           end
 
         else
@@ -274,7 +276,7 @@ module Delorean
             multi_line = line
             @multi_no = @line_no
           else
-            generate(t, sset)
+            generate(t)
           end
         end
       end
@@ -294,9 +296,8 @@ module Delorean
 
     # enumerate qualified list of all attrs
     def enumerate_attrs
-      @node_attrs.keys.inject({}) { |h, node|
+      @node_attrs.keys.each_with_object({}) { |node, h|
         h[node] = enumerate_attrs_by_node(node)
-        h
       }
     end
 
