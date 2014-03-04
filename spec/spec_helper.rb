@@ -79,6 +79,7 @@ class TestContainer < Delorean::AbstractContainer
   def initialize(scripts={})
     super()
     @scripts = scripts
+    @engines = {}
   end
 
   def merge(scripts)
@@ -86,7 +87,9 @@ class TestContainer < Delorean::AbstractContainer
   end
 
   def get_engine(name)
-    script = @scripts[ name ]
+    return @engines[name] if @engines[name]
+
+    script = @scripts[name]
 
     raise "can't find #{name}" unless script
 

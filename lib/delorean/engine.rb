@@ -40,7 +40,7 @@ module Delorean
         name == module_name
 
       begin
-        @imports[name] = sset.import(name)
+        @imports[name] = sset.get_engine(name)
       rescue => exc
         err(ImportError, exc.to_s)
       end
