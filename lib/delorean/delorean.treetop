@@ -4,11 +4,11 @@ grammar Delorean
   end
 
   rule formula
-    sp i:identifier sp? '=?' sp? e:expression <ParameterDefault>
+    sp4 i:identifier sp? '=?' sp? e:expression <ParameterDefault>
     /
-    sp i:identifier sp? '=?' <Parameter>
+    sp4 i:identifier sp? '=?' <Parameter>
     /
-    sp i:identifier sp? '=' sp? e:expression <Formula>
+    sp4 i:identifier sp? '=' sp? e:expression <Formula>
     /
     n:class_name ':' sp? mod:(m:class_name '::')? p:class_name <SubNode>
     /
@@ -26,9 +26,9 @@ grammar Delorean
     /
     op:unary_op sp? e:expression <UnOp>
     /
-    'if' 	sp? v:expression sp?
-    'then' 	sp? e1:expression sp?
-    'else' 	sp? e2:expression <IfElse>
+    'if'        sp? v:expression sp?
+    'then'      sp? e1:expression sp?
+    'else'      sp? e2:expression <IfElse>
     /
     v:getattr_exp sp? op:binary_op sp? e:expression <BinOp>
     /
@@ -100,16 +100,16 @@ grammar Delorean
   end
 
   rule value
-    number 						/
-    string 						/
-    boolean 						/
-    nil_val						/
-    identifier						/
-    list_expr 						/
-    set_expr 						/
-    hash_expr 						/
+    number                                              /
+    string                                              /
+    boolean                                             /
+    nil_val                                             /
+    identifier                                          /
+    list_expr                                           /
+    set_expr                                            /
+    hash_expr                                           /
     mod:(m:class_name '::')? c:class_name <NodeAsValue> /
-    '(' sp? e:expression sp? ')' 	 <Expr>
+    '(' sp? e:expression sp? ')'         <Expr>
   end
 
   rule fn_args
@@ -121,7 +121,7 @@ grammar Delorean
   end
 
   rule kw_args
-    k:(i:identifier ':' sp?)? arg0:expression args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
+    k:(i:identifier sp? '=' sp?)? arg0:expression args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
   end
 
   rule number
@@ -146,6 +146,11 @@ grammar Delorean
 
   rule nil_val
     'nil' <Literal>
+  end
+
+  # and you thought python was anal about spaces?
+  rule sp4
+    '    '
   end
 
   rule sp

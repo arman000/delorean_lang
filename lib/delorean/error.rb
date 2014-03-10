@@ -10,6 +10,10 @@ module Delorean
       @line = line
       @module_name = module_name
     end
+
+    def to_s
+      super + " #{module_name}:#{line}"
+    end
   end
 
   class UndefinedError < ParseError

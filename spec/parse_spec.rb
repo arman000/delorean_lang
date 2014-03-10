@@ -6,8 +6,8 @@ describe "Delorean" do
     TestContainer.new({
                         "AAA" =>
                         defn("X:",
-                             "  a = 123",
-                             "  b = a",
+                             "    a = 123",
+                             "    b = a",
                              )
                       })
   }
@@ -18,51 +18,51 @@ describe "Delorean" do
 
   it "can parse very simple calls" do
     engine.parse defn("X:",
-                      "  a = 123",
-                      "  b = a",
+                      "    a = 123",
+                      "    b = a",
                       )
   end
 
   it "can parse simple expressions - 1" do
     engine.parse defn("A:",
-                      "  a = 123",
-                      "  x = -(a*2)",
-                      "  b = -(a + 1)",
+                      "    a = 123",
+                      "    x = -(a*2)",
+                      "    b = -(a + 1)",
                       )
   end
 
   it "can parse simple expressions - 2" do
     engine.parse defn("A:",
-                      "  a = 1 + 2 * -3 - -4",
+                      "    a = 1 + 2 * -3 - -4",
                       )
   end
 
   it "can parse params" do
     engine.parse defn("A:",
-                      "  a =?",
-                      "  b =? a*2",
+                      "    a =?",
+                      "    b =? a*2",
                       )
   end
 
   it "can parse indexing" do
     engine.parse defn("A:",
-                      "  b = [1,2,3][1]",
+                      "    b = [1,2,3][1]",
                       )
   end
 
   it "can parse indexing with getattr" do
     engine.parse defn("A:",
-                      "  a = {'x': [1,2,3]}",
-                      "  b = a.x[1]",
+                      "    a = {'x': [1,2,3]}",
+                      "    b = a.x[1]",
                       )
   end
 
   it "should accept default param definitions" do
     lambda {
       engine.parse defn("A:",
-                        "  b =? 1",
-                        "  c =? -1.1",
-                        "  d = b + c",
+                        "    b =? 1",
+                        "    c =? -1.1",
+                        "    d = b + c",
                         )
     }.should_not raise_error
   end
@@ -78,7 +78,7 @@ describe "Delorean" do
   it "should disallow .<digits> literals" do
     lambda {
       engine.parse defn("A:",
-                        "  a = .123",
+                        "    a = .123",
                         )
     }.should raise_error(Delorean::ParseError)
   end
@@ -86,7 +86,7 @@ describe "Delorean" do
   it "should disallow bad attr names" do
     lambda {
       engine.parse defn("A:",
-                        "  B = 1",
+                        "    B = 1",
                         )
     }.should raise_error(Delorean::ParseError)
 
@@ -94,7 +94,7 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("A:",
-                        "  _b = 1",
+                        "    _b = 1",
                         )
     }.should raise_error(Delorean::ParseError)
   end
@@ -116,9 +116,9 @@ describe "Delorean" do
   it "should disallow recursion" do
     lambda {
       engine.parse defn("A:",
-                        "  a = 1",
+                        "    a = 1",
                         "B: A",
-                        "  a = a + 1",
+                        "    a = a + 1",
                         )
     }.should raise_error(Delorean::RecursionError)
 
@@ -126,10 +126,10 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("A:",
-                        "  a = 1",
+                        "    a = 1",
                         "B: A",
-                        "  b = a",
-                        "  a = b",
+                        "    b = a",
+                        "    a = b",
                         )
     }.should raise_error(Delorean::RecursionError)
 
@@ -137,45 +137,45 @@ describe "Delorean" do
 
   it "should allow getattr in expressions" do
     engine.parse defn("A:",
-                      "  a = 1",
-                      "  b = A.a * A.a - A.a",
+                      "    a = 1",
+                      "    b = A.a * A.a - A.a",
                       )
   end
 
   it "should allow non-recursive code 1" do
     # this is not a recursion error
     engine.parse defn("A:",
-                      "  a = 1",
-                      "  b = 2",
+                      "    a = 1",
+                      "    b = 2",
                       "B: A",
-                      "  a = A.b",
-                      "  b = a",
+                      "    a = A.b",
+                      "    b = a",
                       )
 
   end
 
   it "should allow non-recursive code 2" do
     engine.parse defn("A:",
-                      "  a = 1",
-                      "  b = 2",
+                      "    a = 1",
+                      "    b = 2",
                       "B: A",
-                      "  a = A.b",
-                      "  b = A.b + B.a",
+                      "    a = A.b",
+                      "    b = A.b + B.a",
                       )
   end
 
   it "should allow non-recursive code 3" do
     engine.parse defn("A:",
-                      "  b = 2",
-                      "  a = A.b + A.b",
-                      "  c = a + b + a + b",
+                      "    b = 2",
+                      "    a = A.b + A.b",
+                      "    c = a + b + a + b",
                       )
   end
 
   it "should check for recursion with default params 1" do
     lambda {
       engine.parse defn("A:",
-                        "  a =? a",
+                        "    a =? a",
                         )
     }.should raise_error(Delorean::UndefinedError)
   end
@@ -183,10 +183,10 @@ describe "Delorean" do
   it "should check for recursion with default params 2" do
     lambda {
       engine.parse defn("A:",
-                        "  a = 1",
+                        "    a = 1",
                         "B: A",
-                        "  b =? a",
-                        "  a =? b",
+                        "    b =? a",
+                        "    a =? b",
                         )
     }.should raise_error(Delorean::RecursionError)
   end
@@ -194,8 +194,8 @@ describe "Delorean" do
   it "gives errors for attrs defined more than once in a node" do
     lambda {
       engine.parse defn("B:",
-                        "  b = 1 + 1",
-                        "  b = 123",
+                        "    b = 1 + 1",
+                        "    b = 123",
                         )
     }.should raise_error(Delorean::RedefinedError)
 
@@ -203,8 +203,8 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("B:",
-                        "  b =?",
-                        "  b = 123",
+                        "    b =?",
+                        "    b = 123",
                         )
     }.should raise_error(Delorean::RedefinedError)
 
@@ -212,8 +212,8 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("B:",
-                        "  b =? 22",
-                        "  b = 123",
+                        "    b =? 22",
+                        "    b = 123",
                         )
     }.should raise_error(Delorean::RedefinedError)
   end
@@ -221,7 +221,7 @@ describe "Delorean" do
   it "should raise error for nodes defined more than once" do
     lambda {
       engine.parse defn("B:",
-                        "  b =?",
+                        "    b =?",
                         "B:",
                         )
     }.should raise_error(Delorean::RedefinedError)
@@ -239,7 +239,7 @@ describe "Delorean" do
   it "should not be valid to derive from undefined nodes" do
     lambda {
       engine.parse defn("A: B",
-                        "  a = 456 * 123",
+                        "    a = 456 * 123",
                         )
     }.should raise_error(Delorean::UndefinedError)
   end
@@ -247,10 +247,10 @@ describe "Delorean" do
   it "should not be valid to use an undefined attr" do
     lambda {
       engine.parse defn("A:",
-                        "  a = 456 * 123",
+                        "    a = 456 * 123",
                         "B: A",
-                        "  b = a",
-                        "  c = d",
+                        "    b = a",
+                        "    c = d",
                         )
     }.should raise_error(Delorean::UndefinedError)
   end
@@ -258,7 +258,7 @@ describe "Delorean" do
   it "should be able to use ruby keywords as identifier" do
     lambda {
       engine.parse defn("A:",
-                        "  in = 123",
+                        "    in = 123",
                         )
     }.should_not raise_error
 
@@ -266,7 +266,7 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("B:",
-                        "  in1 = 123",
+                        "    in1 = 123",
                         )
     }.should_not raise_error
 
@@ -274,8 +274,8 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("C:",
-                        "  ifx = 123",
-                        "  elsey = ifx + 1",
+                        "    ifx = 123",
+                        "    elsey = ifx + 1",
                         )
     }.should_not raise_error
 
@@ -283,7 +283,7 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("D:",
-                        "  true = false",
+                        "    true = false",
                         )
     }.should_not raise_error
 
@@ -291,8 +291,8 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("E:",
-                        "  a = 1",
-                        "  return=a",
+                        "    a = 1",
+                        "    return=a",
                         )
     }.should_not raise_error
   end
@@ -300,8 +300,8 @@ describe "Delorean" do
   it "should parse calls followed by getattr" do
     lambda {
       engine.parse defn("A:",
-                        "  a = -1",
-                        "  b = A().a",
+                        "    a = -1",
+                        "    b = A().a",
                         )
     }.should_not raise_error
   end
@@ -309,21 +309,21 @@ describe "Delorean" do
   it "should be able to chain method calls on model functions" do
     lambda {
       engine.parse defn("A:",
-                        "  b = Dummy.i_just_met_you('CRJ', 123).name"
+                        "    b = Dummy.i_just_met_you('CRJ', 123).name"
                         )
     }.should_not raise_error
   end
 
   it "should be able to call class methods on ActiveRecord classes" do
     engine.parse defn("A:",
-                      "  b = Dummy.call_me_maybe()",
+                      "    b = Dummy.call_me_maybe()",
                       )
   end
 
   it "should get exception on arg count to class method call" do
     lambda {
       engine.parse defn("A:",
-                        '  b = Dummy.i_just_met_you("CRJ")',
+                        '    b = Dummy.i_just_met_you("CRJ")',
                         )
     }.should raise_error(Delorean::BadCallError)
   end
@@ -331,77 +331,77 @@ describe "Delorean" do
   it "shouldn't be able to call ActiveRecord methods without signature" do
     lambda {
       engine.parse defn("A:",
-                        "  b = Dummy.this_is_crazy()",
+                        "    b = Dummy.this_is_crazy()",
                         )
     }.should raise_error(Delorean::UndefinedFunctionError)
   end
 
   it "should be able to call class methods on ActiveRecord classes in modules" do
     engine.parse defn("A:",
-                      "  b = M::LittleDummy.heres_my_number(867, 5309)",
+                      "    b = M::LittleDummy.heres_my_number(867, 5309)",
                       )
   end
 
   it "should be able to override parameters with attribute definitions" do
     engine.parse defn("A:",
-                      "  b =? 22",
+                      "    b =? 22",
                       "B: A",
-                      "  b = 123",
+                      "    b = 123",
                       "C: B",
-                      "  b =? 11",
+                      "    b =? 11",
                       )
   end
 
   it "should be able to access derived attrs" do
     engine.parse defn("A:",
-                      "  b =? 22",
+                      "    b =? 22",
                       "B: A",
-                      "  c = b * 123",
+                      "    c = b * 123",
                       "C: B",
-                      "  d =? c * b + 11",
+                      "    d =? c * b + 11",
                       )
   end
 
   it "should not be able to access attrs not defined in ancestors" do
     lambda {
       engine.parse defn("A:",
-                        "  b =? 22",
+                        "    b =? 22",
                         "B: A",
-                        "  c = b * 123",
+                        "    c = b * 123",
                         "C: A",
-                        "  d =? c * b + 11",
+                        "    d =? c * b + 11",
                         )
     }.should raise_error(Delorean::UndefinedError)
   end
 
   it "should be able to access specific node attrs " do
     engine.parse defn("A:",
-                      "  b = 123",
-                      "  c = A.b",
+                      "    b = 123",
+                      "    c = A.b",
                       )
 
     engine.reset
 
     engine.parse defn("A:",
-                      "  b = 123",
+                      "    b = 123",
                       "B: A",
-                      "  b = 111",
-                      "  c = A.b * 123",
-                      "  d = B.b",
+                      "    b = 111",
+                      "    c = A.b * 123",
+                      "    d = B.b",
                       )
   end
 
   it "should be able to perform arbitrary getattr" do
     engine.parse defn("A:",
-                      "  b = 22",
-                      "  c = b.x.y.z",
+                      "    b = 22",
+                      "    c = b.x.y.z",
                       )
 
     engine.reset
 
     lambda {
       engine.parse defn("B:",
-                        "  c = b.x.y.z",
+                        "    c = b.x.y.z",
                         )
     }.should raise_error(Delorean::UndefinedError)
 
@@ -409,15 +409,15 @@ describe "Delorean" do
 
   it "should handle lines with comments" do
     engine.parse defn("A: # kaka",
-                      "  b = 22  # testing #",
-                      "  c = b",
+                      "    b = 22  # testing #",
+                      "    c = b",
                       )
   end
 
   it "should be able to report error line during parse" do
     begin
       engine.parse defn("A:",
-                        "  b = 123",
+                        "    b = 123",
                         "B: .A",
                         )
     rescue => exc
@@ -430,7 +430,7 @@ describe "Delorean" do
 
     begin
       engine.parse defn("A:",
-                        "  b = 3 % b",
+                        "    b = 3 % b",
                         )
     rescue => exc
     end
@@ -450,7 +450,7 @@ describe "Delorean" do
   it "should not allow inherited ruby methods as attrs" do
     lambda {
       engine.parse defn("A:",
-                        "  a = name",
+                        "    a = name",
                         )
     }.should raise_error(Delorean::UndefinedError)
 
@@ -458,24 +458,24 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("A:",
-                        "  a = new",
+                        "    a = new",
                         )
     }.should raise_error(Delorean::UndefinedError)
   end
 
   it "should be able to parse lists" do
     engine.parse defn("A:",
-                      "  b = []",
-                      "  c = [1,2,3]",
-                      "  d = [b, c, b, c, 1, 2, '123', 1.1]",
-                      "  e = [1, 1+1, 1+1+1]",
+                      "    b = []",
+                      "    c = [1,2,3]",
+                      "    d = [b, c, b, c, 1, 2, '123', 1.1]",
+                      "    e = [1, 1+1, 1+1+1]",
                       )
 
     engine.reset
 
     lambda {
       engine.parse defn("A:",
-                        "  a = [",
+                        "    a = [",
                         )
     }.should raise_error(Delorean::ParseError)
 
@@ -483,7 +483,7 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("A:",
-                        "  a = []-",
+                        "    a = []-",
                         )
     }.should raise_error(Delorean::ParseError)
 
@@ -491,14 +491,14 @@ describe "Delorean" do
 
   it "should handle trailing ',' with lists" do
     engine.parse defn("A:",
-                      "  b = [1,2,3,]",
+                      "    b = [1,2,3,]",
                       )
 
     engine.reset
 
     lambda {
       engine.parse defn("A:",
-                        "  a = [,]",
+                        "    a = [,]",
                         )
     }.should raise_error(Delorean::ParseError)
 
@@ -506,23 +506,23 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("A:",
-                        "  a = [1,2,,]",
+                        "    a = [1,2,,]",
                         )
     }.should raise_error(Delorean::ParseError)
   end
 
   it "should be able to parse hashes" do
     engine.parse defn("A:",
-                      "  b = {}",
-                      "  c = {'a':1, 'b': 2, 'c':-3}",
-                      "  d = [{1:11}, {2: 22}]",
+                      "    b = {}",
+                      "    c = {'a':1, 'b': 2, 'c':-3}",
+                      "    d = [{1:11}, {2: 22}]",
                       )
 
     engine.reset
 
     lambda {
       engine.parse defn("A:",
-                        "  a = {",
+                        "    a = {",
                         )
     }.should raise_error(Delorean::ParseError)
 
@@ -530,21 +530,21 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("A:",
-                        "  a = {}+",
+                        "    a = {}+",
                         )
     }.should raise_error(Delorean::ParseError)
   end
 
   it "should handle trailing ',' with hashes" do
     engine.parse defn("A:",
-                      "  b = {-1:1,}",
+                      "    b = {-1:1,}",
                       )
 
     engine.reset
 
     lambda {
       engine.parse defn("A:",
-                        "  a = {,}",
+                        "    a = {,}",
                         )
     }.should raise_error(Delorean::ParseError)
 
@@ -552,62 +552,62 @@ describe "Delorean" do
 
     lambda {
       engine.parse defn("A:",
-                        "  a = {-1:1,,}",
+                        "    a = {-1:1,,}",
                         )
     }.should raise_error(Delorean::ParseError)
   end
 
   it "should be able to parse list operations " do
     engine.parse defn("A:",
-                      "  b = [] + []",
+                      "    b = [] + []",
                       )
   end
 
   it "should parse list comprehension" do
     engine.parse defn("A:",
-                      "  b = [123 for i in 123]",
+                      "    b = [123 for i in 123]",
                       )
 
   end
 
   it "should parse list comprehension (2)" do
     engine.parse defn("A:",
-                      "  b = [i+1 for i in [1,2,3]]",
+                      "    b = [i+1 for i in [1,2,3]]",
                       )
 
   end
 
   it "should parse nested list comprehension" do
     engine.parse defn("A:",
-                      "  b = [[a+c for c in [4,5]] for a in [1,2,3]]",
+                      "    b = [[a+c for c in [4,5]] for a in [1,2,3]]",
                       )
 
   end
 
   it "should accept list comprehension variable override" do
     engine.parse defn("A:",
-                      "  b = [b+1 for b in [1,2,3]]",
+                      "    b = [b+1 for b in [1,2,3]]",
                       )
   end
 
   it "should accept list comprehension variable override (2)" do
     engine.parse defn("A:",
-                      "  a = 1",
-                      "  b = [a+1 for a in [1,2,3]]",
+                      "    a = 1",
+                      "    b = [a+1 for a in [1,2,3]]",
                       )
   end
 
   it "errors out on bad list comprehension" do
     lambda {
       engine.parse defn("A:",
-                        "  b = [i+1 for x in [1,2,3]]",
+                        "    b = [i+1 for x in [1,2,3]]",
                         )
     }.should raise_error(Delorean::UndefinedError)
     engine.reset
 
     lambda {
       engine.parse defn("A:",
-                        "  a = [123 for b in b]",
+                        "    a = [123 for b in b]",
                         )
     }.should raise_error(Delorean::UndefinedError)
     engine.reset
@@ -615,7 +615,7 @@ describe "Delorean" do
     # disallow nested comprehension var reuse
     lambda {
       engine.parse defn("A:",
-                        "  b = [[a+1 for a in [4,5]] for a in [1,2,3]]",
+                        "    b = [[a+1 for a in [4,5]] for a in [1,2,3]]",
                         )
     }.should raise_error(Delorean::RedefinedError)
     engine.reset
@@ -623,35 +623,35 @@ describe "Delorean" do
 
   it "should allow nodes as values" do
     engine.parse defn("A:",
-                      "  a = 123",
+                      "    a = 123",
                       "B:",
-                      "  a = A",
+                      "    a = A",
                       )
   end
 
   it "should parse module calls" do
     engine.parse defn("A:",
-                      "  a = 123",
-                      "  b = 456 + a",
-                      "  n = 'A'",
-                      "  c = nil(x: 123, y: 456)",
-                      "  d = n(x: 123,",
-                      "        y: 456,",
-                      "       )",
+                      "    a = 123",
+                      "    b = 456 + a",
+                      "    n = 'A'",
+                      "    c = nil(x = 123, y = 456)",
+                      "    d = n(x = 123,",
+                      "          y = 456,",
+                      "         )",
                       )
   end
 
   it "should parse module calls by node name" do
     engine.parse defn("A:",
-                      "  a = 123",
-                      "  d = A()",
+                      "    a = 123",
+                      "    d = A()",
                       )
   end
 
   it "should not allow positional args to node calls" do
     begin
       engine.parse defn("A:",
-                        "  d = A(1, 2, 3)",
+                        "    d = A(1, 2, 3)",
                         )
       raise "fail"
     rescue Delorean::ParseError => exc
@@ -661,26 +661,26 @@ describe "Delorean" do
 
   it "should parse instance calls" do
     engine.parse defn("A:",
-                      "  a = [1,2,[4]].flatten(1)",
+                      "    a = [1,2,[4]].flatten(1)",
                       )
   end
 
   it "should parse multiline attr defs" do
     engine.parse defn("A:",
-                      "  a = [1,",
-                      "       2,",
-                      "       3]",
-                      "  b = 456",
+                      "    a = [1,",
+                      "         2,",
+                      "         3]",
+                      "    b = 456",
                       )
   end
 
   it "should give proper errors on parse multiline attr defs" do
     begin
       engine.parse defn("A:",
-                        "  a = [1,",
-                        "       2,",
-                        "       3];",
-                        "  b = 456",
+                        "    a = [1,",
+                        "         2,",
+                        "         3];",
+                        "    b = 456",
                         )
       raise "fail"
     rescue Delorean::ParseError => exc
@@ -691,9 +691,9 @@ describe "Delorean" do
   it "should give proper errors when multiline error falls off the end" do
     begin
       engine.parse defn("A:",
-                        "  x = 123",
-                        "  a = 1 +",
-                        "       2 +",
+                        "    x = 123",
+                        "    a = 1 +",
+                        "         2 +",
                         )
       raise "fail"
     rescue Delorean::ParseError => exc
@@ -704,7 +704,7 @@ describe "Delorean" do
   it "should parse imports" do
     engine.parse defn("import AAA",
                       "A:",
-                      "  b = 456",
+                      "    b = 456",
                       "B: AAA::X",
                       )
   end

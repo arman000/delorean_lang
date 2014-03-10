@@ -8,7 +8,7 @@ describe "Delorean" do
 
   it "should handle MAX as a node name" do
     engine.parse defn("MAX:",
-                      "  a = [1, 2, 3, 0, -10].max()",
+                      "    a = [1, 2, 3, 0, -10].max()",
                       )
 
     r = engine.evaluate("MAX", "a")
@@ -17,7 +17,7 @@ describe "Delorean" do
 
   it "should handle MIN" do
     engine.parse defn("A:",
-                      "  a = [1, 2, -3, 4].min()",
+                      "    a = [1, 2, -3, 4].min()",
                       )
 
     r = engine.evaluate("A", "a")
@@ -26,9 +26,9 @@ describe "Delorean" do
 
   it "should handle ROUND" do
     engine.parse defn("A:",
-                      "  a = 12.3456.round(2)",
-                      "  b = 12.3456.round(1)",
-                      "  c = 12.3456.round()",
+                      "    a = 12.3456.round(2)",
+                      "    b = 12.3456.round(1)",
+                      "    c = 12.3456.round()",
                       )
 
     r = engine.evaluate_attrs("A", ["a", "b", "c"])
@@ -37,9 +37,9 @@ describe "Delorean" do
 
   it "should handle NUMBER" do
     engine.parse defn("A:",
-                      "  a = 12.3456.to_f()",
-                      "  b = '12.3456'.to_f()",
-                      "  c = '12'.to_f()",
+                      "    a = 12.3456.to_f()",
+                      "    b = '12.3456'.to_f()",
+                      "    c = '12'.to_f()",
                       )
 
     r = engine.evaluate_attrs("A", ["a", "b", "c"])
@@ -48,10 +48,10 @@ describe "Delorean" do
 
   it "should handle ABS" do
     engine.parse defn("A:",
-                      "  a = (-123).abs()",
-                      "  b = (-1.1).abs()",
-                      "  c = 2.3.abs()",
-                      "  d = 0.abs()",
+                      "    a = (-123).abs()",
+                      "    b = (-1.1).abs()",
+                      "    c = 2.3.abs()",
+                      "    d = 0.abs()",
                       )
 
     r = engine.evaluate_attrs("A", ["a", "b", "c", "d"])
@@ -60,9 +60,9 @@ describe "Delorean" do
 
   it "should handle STRING" do
     engine.parse defn("A:",
-                      "  a = 'hello'.to_s()",
-                      "  b = 12.3456.to_s()",
-                      "  c = [1,2,3].to_s()",
+                      "    a = 'hello'.to_s()",
+                      "    b = 12.3456.to_s()",
+                      "    c = [1,2,3].to_s()",
                       )
 
     r = engine.evaluate_attrs("A", ["a", "b", "c"])
@@ -71,11 +71,11 @@ describe "Delorean" do
 
   it "should handle TIMEPART" do
     engine.parse defn("A:",
-                      "  p =?",
-                      "  h = p.hour()",
-                      "  m = p.min()",
-                      "  s = p.sec()",
-                      "  d = p.to_date()",
+                      "    p =?",
+                      "    h = p.hour()",
+                      "    m = p.min()",
+                      "    s = p.sec()",
+                      "    d = p.to_date()",
                       )
 
     p = Time.now
@@ -90,10 +90,10 @@ describe "Delorean" do
 
   it "should handle DATEPART" do
     engine.parse defn("A:",
-                      "  p =?",
-                      "  y = p.year()",
-                      "  d = p.day()",
-                      "  m = p.month()",
+                      "    p =?",
+                      "    y = p.year()",
+                      "    d = p.day()",
+                      "    m = p.month()",
                       )
 
     p = Date.today
@@ -108,8 +108,8 @@ describe "Delorean" do
     x = [[1,2,[3]], 4, 5, [6]]
 
     engine.parse defn("A:",
-                      "  a = #{x}",
-                      "  b = a.flatten() + a.flatten(1)"
+                      "    a = #{x}",
+                      "    b = a.flatten() + a.flatten(1)"
                       )
 
     engine.evaluate("A", "b").should == x.flatten + x.flatten(1)
@@ -117,8 +117,8 @@ describe "Delorean" do
 
   it "should handle ERR" do
     engine.parse defn("A:",
-                      "  a = ERR('hello')",
-                      "  b = ERR('xx', 1, 2, 3)",
+                      "    a = ERR('hello')",
+                      "    b = ERR('xx', 1, 2, 3)",
                       )
 
     expect { engine.evaluate("A", "a") }.to raise_error('hello')
@@ -132,17 +132,17 @@ describe "Delorean" do
     x = [[1, 2, [-3]], 4, 5, [6], -3, 4, 5, 0]
 
     engine.parse defn("A:",
-                      "  a = #{x}",
-                      "  b = a.flatten()",
-                      "  c = a.flatten(1)",
-                      "  d = b+c",
-                      "  dd = d.flatten()",
-                      "  e = dd.sort()",
-                      "  f = e.uniq()",
-                      "  g = e.length()",
-                      "  gg = a.length()",
-                      "  l = a.member(5)",
-                      "  m = [a.member(5), a.member(55)]",
+                      "    a = #{x}",
+                      "    b = a.flatten()",
+                      "    c = a.flatten(1)",
+                      "    d = b+c",
+                      "    dd = d.flatten()",
+                      "    e = dd.sort()",
+                      "    f = e.uniq()",
+                      "    g = e.length()",
+                      "    gg = a.length()",
+                      "    l = a.member(5)",
+                      "    m = [a.member(5), a.member(55)]",
                       )
 
     engine.evaluate("A", "c").should == x.flatten(1)
@@ -159,8 +159,8 @@ describe "Delorean" do
     x = [[1, 2, [-3]], 4, [5, 6], -3, 4, 5, 0]
 
     engine.parse defn("A:",
-                      "  a = #{x}",
-                      "  b = a.slice(0, 4)",
+                      "    a = #{x}",
+                      "    b = a.slice(0, 4)",
                       )
     engine.evaluate("A", "b").should == x.slice(0,4)
   end
