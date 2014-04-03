@@ -7,62 +7,62 @@ module Delorean
   # hash.  The whole whitelist mechanism should be eventually
   # rethought.
   RUBY_WHITELIST = {
-    compact:	[Array],
-    flatten:	[Array, [Fixnum, nil]],
-    length: 	[[Array, String]],
-    max: 	[Array],
-    member:	"member?",
-    member?:	[Array, [Fixnum, String]],
-    reverse: 	[Array],
-    slice:    	[Array, Fixnum, Fixnum],
-    sort: 	[Array],
-    split:	[String, String],
-    uniq: 	[Array],
-    sum: 	[Array],
-    zip:	[Array, [Array, Array, Array]],
-    index:	[Array, [Integer, Numeric, String, Array, Fixnum]],
-    product:	[Array, Array],
-    first: 	[Enumerable, [nil, Fixnum]],
+    compact:    [Array],
+    flatten:    [Array, [Fixnum, nil]],
+    length:     [[Array, String]],
+    max:        [Array],
+    member:     "member?",
+    member?:    [Array, [Fixnum, String]],
+    reverse:    [Array],
+    slice:      [Array, Fixnum, Fixnum],
+    sort:       [Array],
+    split:      [String, String],
+    uniq:       [Array],
+    sum:        [Array],
+    zip:        [Array, [Array, Array, Array]],
+    index:      [Array, [Integer, Numeric, String, Array, Fixnum]],
+    product:    [Array, Array],
+    first:      [Enumerable, [nil, Fixnum]],
 
-    keys: 	[Hash],
-    values: 	[Hash],
-    upcase: 	[String],
-    downcase: 	[String],
-    match:	[String, [String], [nil, Fixnum]],
+    keys:       [Hash],
+    values:     [Hash],
+    upcase:     [String],
+    downcase:   [String],
+    match:      [String, [String], [nil, Fixnum]],
 
-    hour:	[[Date, Time, ActiveSupport::TimeWithZone]],
-    min:	[[Date, Time, ActiveSupport::TimeWithZone, Array]],
-    sec:	[[Date, Time, ActiveSupport::TimeWithZone]],
-    to_date:	[[Date, Time, ActiveSupport::TimeWithZone]],
+    hour:       [[Date, Time, ActiveSupport::TimeWithZone]],
+    min:        [[Date, Time, ActiveSupport::TimeWithZone, Array]],
+    sec:        [[Date, Time, ActiveSupport::TimeWithZone]],
+    to_date:    [[Date, Time, ActiveSupport::TimeWithZone]],
 
-    month:	[[Date, Time, ActiveSupport::TimeWithZone]],
-    day:	[[Date, Time, ActiveSupport::TimeWithZone]],
-    year:	[[Date, Time, ActiveSupport::TimeWithZone]],
+    month:      [[Date, Time, ActiveSupport::TimeWithZone]],
+    day:        [[Date, Time, ActiveSupport::TimeWithZone]],
+    year:       [[Date, Time, ActiveSupport::TimeWithZone]],
 
-    next_month:	[[Date, Time, ActiveSupport::TimeWithZone],
+    next_month: [[Date, Time, ActiveSupport::TimeWithZone],
                  [nil, Fixnum],
                 ],
-    prev_month:	[[Date, Time, ActiveSupport::TimeWithZone],
-                 [nil, Fixnum],
-                ],
-
-    beginning_of_month:	[[Date, Time, ActiveSupport::TimeWithZone]],
-
-    end_of_month:	[[Date, Time, ActiveSupport::TimeWithZone]],
-
-    next_day:	[[Date, Time, ActiveSupport::TimeWithZone],
-                 [nil, Fixnum],
-                ],
-    prev_day:	[[Date, Time, ActiveSupport::TimeWithZone],
+    prev_month: [[Date, Time, ActiveSupport::TimeWithZone],
                  [nil, Fixnum],
                 ],
 
-    to_i:	[[Numeric, String]],
-    to_f:	[[Numeric, String]],
-    to_d:	[[Numeric, String]],
-    to_s:	[Object],
-    abs:	[Numeric],
-    round:	[Numeric, [nil, Integer]],
+    beginning_of_month: [[Date, Time, ActiveSupport::TimeWithZone]],
+
+    end_of_month:       [[Date, Time, ActiveSupport::TimeWithZone]],
+
+    next_day:   [[Date, Time, ActiveSupport::TimeWithZone],
+                 [nil, Fixnum],
+                ],
+    prev_day:   [[Date, Time, ActiveSupport::TimeWithZone],
+                 [nil, Fixnum],
+                ],
+
+    to_i:       [[Numeric, String]],
+    to_f:       [[Numeric, String]],
+    to_d:       [[Numeric, String]],
+    to_s:       [Object],
+    abs:        [Numeric],
+    round:      [Numeric, [nil, Integer]],
   }
 
   module BaseModule
@@ -77,6 +77,13 @@ module Delorean
         args.each_with_object({}) { |attr, h|
           h[attr] = evaluate(attr)
         }
+      end
+
+      # add new arguments, results in a new NodeCall
+      def +(args)
+        raise "bad arg to %" unless args.is_a?(Hash)
+
+        NodeCall.new(_e, engine, node, params.merge(args))
       end
     end
 
