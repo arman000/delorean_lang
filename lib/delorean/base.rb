@@ -68,7 +68,9 @@ module Delorean
   module BaseModule
     class NodeCall < Struct.new(:_e, :engine, :node, :params)
       def evaluate(attr)
-        engine.evaluate(node, attr, params)
+        # FIXME: evaluate() modifies params! => need to clone it.
+        # This is pretty awful.
+        engine.evaluate(node, attr, params.clone)
       end
 
       def %(args)
@@ -146,6 +148,9 @@ module Delorean
 
       def self._node_call(node, _e, params)
         context = _e[:_engine]
+
+        # a node call is being called with amended args
+        return node + params if node.is_a?(NodeCall)
 
         engine = node.is_a?(Class) &&
           context.module_name != node.module_name ?

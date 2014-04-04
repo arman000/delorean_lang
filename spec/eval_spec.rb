@@ -586,13 +586,26 @@ eof
     engine.parse defn("A:",
                       "    a =?",
                       "    aa = a*2",
-                      "    e = A(a=12)",
-                      "    d = e+{'a':3}",
-                      "    f = e+{'a':4}",
+                      "    c = A(a=12)",
+                      "    d = c+{'a':3}",
+                      "    f = c+{'a':4}",
                       "    g = d.aa + f.aa",
+                      "    h = c(a=5).aa",
+                      "    j = d(a=6).aa",
                       )
 
-    engine.evaluate("A", "g").should == 3*2 + 4*2
+    engine.evaluate_attrs("A", ["g", "h", "j"]).should ==
+      [3*2 + 4*2, 5*2, 6*2]
+  end
+
+  it "should be able to amend node calls 2" do
+    engine.parse defn("A:",
+                      "    a =?",
+                      "    d = A(a=3)",
+                      "    e = [d.a, d(a=4).a]",
+                      )
+
+    engine.evaluate_attrs("A", ["e"]).should == [[3,4]]
   end
 
   it "should eval module calls 1" do
