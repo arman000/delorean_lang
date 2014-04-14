@@ -252,6 +252,14 @@ describe "Delorean" do
     r.should == "CRJ"
   end
 
+  it "should be able to access ActiveRecord whitelisted fns using .attr syntax" do
+    engine.parse defn("A:",
+                      '    b = Dummy.i_just_met_you("CRJ", 1.234).name2',
+                      )
+    r = engine.evaluate("A", "b")
+    r.should == "CRJ-1.234"
+  end
+
   it "should be able to get attr on Hash objects using a.b syntax" do
     engine.parse defn("A:",
                       '    b = Dummy.i_threw_a_hash_in_the_well()',

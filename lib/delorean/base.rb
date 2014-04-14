@@ -91,6 +91,8 @@ module Delorean
 
     class BaseClass
       def self._get_attr(obj, attr, _e)
+        # FIXME: even Javascript which is superpermissive raises an
+        # exception on null getattr.
         return nil if obj.nil?
 
         # NOTE: should keep this function consistent with _index
@@ -104,7 +106,13 @@ module Delorean
           return obj.send(attr.to_sym) if
             klass.reflect_on_all_associations.map(&:name).member? attr.to_sym
 
-          raise InvalidGetAttribute, "ActiveRecord lookup '#{attr}' on #{obj}"
+          # FIXME: should call _instance_call for other types as well.
+          # Too lazy to implement this now.
+          begin
+            return _instance_call(obj, attr, [])
+          rescue
+            raise InvalidGetAttribute, "ActiveRecord lookup '#{attr}' on #{obj}"
+          end
         elsif obj.instance_of?(NodeCall)
           return obj.evaluate(attr)
         elsif obj.instance_of?(Hash)
@@ -113,7 +121,6 @@ module Delorean
         elsif obj.instance_of?(Class) && (obj < BaseClass)
           return obj.send((attr + POST).to_sym, _e)
         end
-
         raise InvalidGetAttribute,
         "bad attribute lookup '#{attr}' on <#{obj.class}> #{obj}"
       end

@@ -60,6 +60,10 @@ class Dummy < ActiveRecord::Base
   end
 
   I_THREW_A_HASH_IN_THE_WELL_SIG = [0, 0]
+
+  def name2
+    "#{name}-#{number}"
+  end
 end
 
 module M
@@ -72,6 +76,11 @@ module M
     end
   end
 end
+
+Delorean::RUBY_WHITELIST.
+  merge!({
+           name2: [Dummy],
+         })
 
 ######################################################################
 
