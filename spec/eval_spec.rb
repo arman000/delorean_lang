@@ -672,13 +672,13 @@ eof
     engine.parse defn("A:",
                       "    a = 1",
                       "    b = [a+1",
-                      "         for a in [1,2,3]",
-                      "    ]",
+                      "        for a in [1,2,3]",
+                      "        ]",
                       )
     engine.evaluate("A", "b").should == [2, 3, 4]
   end
 
-  it "should eval multiline expressions" do
+  it "should eval multiline expressions (2)" do
     engine.parse defn("A:",
                       "    a = 123",
                       "    b = 456 + ",

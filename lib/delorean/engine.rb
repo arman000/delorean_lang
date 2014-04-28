@@ -255,34 +255,37 @@ module Delorean
         next if line.length == 0
 
         if multi_line
-          # Inside a multiline and next line doesn't look like a
-          # continuation => syntax error.
-          err(ParseError, "syntax error") unless line =~ /^\s+/
+          # if line starts with >4 spaces, assume it's a multline
+          # continuation.
+          if line =~ /\A {5}/
+            multi_line += line
+            next
+          else
+            t = parser.parse(multi_line)
+            err(ParseError, "syntax error") unless t
 
-          multi_line += line
-          t = parser.parse(multi_line)
-
-          if t
             multi_line, @multi_no = nil, nil
             generate(t)
           end
+        end
 
+        t = parser.parse(line)
+
+        if !t
+          err(ParseError, "syntax error") unless line =~ /^\s+/
+
+          multi_line = line
+          @multi_no = @line_no
         else
-          t = parser.parse(line)
-
-          if !t
-            err(ParseError, "syntax error") unless line =~ /^\s+/
-
-            multi_line = line
-            @multi_no = @line_no
-          else
-            generate(t)
-          end
+          generate(t)
         end
       end
 
-      # left over multi_line
-      err(ParseError, "syntax error") if multi_line
+      if multi_line
+        t = parser.parse(multi_line)
+        err(ParseError, "syntax error") unless t
+        generate(t)
+      end
     end
 
     ######################################################################

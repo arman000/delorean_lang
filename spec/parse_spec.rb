@@ -701,6 +701,33 @@ describe "Delorean" do
     end
   end
 
+  it "should give proper errors when multiline doesn't end properly" do
+    begin
+      engine.parse defn("A:",
+                        "    a = 1",
+                        "    b = [a+1",
+                        "        for a in [1,2,3]",
+                        "B:",
+                        )
+      raise "fail"
+    rescue Delorean::ParseError => exc
+      exc.line.should == 3
+    end
+  end
+
+  it "should error on multiline not properly spaced" do
+    begin
+      engine.parse defn("A:",
+                        "    a = [1,",
+                        "    2]",
+                        "    b = 456",
+                        )
+      raise "fail"
+    rescue Delorean::ParseError => exc
+      exc.line.should == 2
+    end
+  end
+
   it "should parse imports" do
     engine.parse defn("import AAA",
                       "A:",
