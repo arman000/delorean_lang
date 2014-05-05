@@ -76,9 +76,8 @@ module Delorean
       def %(args)
         raise "bad arg to %" unless args.is_a?(Array)
 
-        args.each_with_object({}) { |attr, h|
-          h[attr] = evaluate(attr)
-        }
+        # FIXME: params.clone!!!!
+        engine.evaluate_attrs_hash(node, args, params.clone)
       end
 
       # add new arguments, results in a new NodeCall
