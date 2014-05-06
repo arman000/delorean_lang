@@ -68,16 +68,18 @@ module Delorean
   module BaseModule
     class NodeCall < Struct.new(:_e, :engine, :node, :params)
       def evaluate(attr)
-        # FIXME: evaluate() modifies params! => need to sanitize/clone
-        # it.  This is pretty awful.
-        engine.evaluate(node, attr, sanitized_params)
+        # FIXME: evaluate() modifies params! => need to clone it.
+        # This is pretty awful.  NOTE: can't sanitize params as Marty
+        # patches NodeCall and modifies params to send _parent_id.
+        # This whole thing needs to be redone.
+        engine.evaluate(node, attr, params.clone)
       end
 
       def %(args)
         raise "bad arg to %" unless args.is_a?(Array)
 
         # FIXME: params.clone!!!!
-        engine.eval_to_hash(node, args, sanitized_params)
+        engine.eval_to_hash(node, args, params.clone)
       end
 
       # add new arguments, results in a new NodeCall
