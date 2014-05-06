@@ -244,7 +244,7 @@ describe "Delorean" do
     }.should raise_error(Delorean::InvalidGetAttribute)
   end
 
-  it "should be able to get attr on ActiveRecord objects using Class.method().attr syntax" do
+  it "should be able to get attr on AR objs using Class.method().attr syntax" do
     engine.parse defn("A:",
                       '    b = Dummy.i_just_met_you("CRJ", 1.234).name',
                       )
@@ -252,7 +252,7 @@ describe "Delorean" do
     r.should == "CRJ"
   end
 
-  it "should be able to access ActiveRecord whitelisted fns using .attr syntax" do
+  it "should be able to access ActiveRecord whitelisted fns using .x syntax" do
     engine.parse defn("A:",
                       '    b = Dummy.i_just_met_you("CRJ", 1.234).name2',
                       )
@@ -809,4 +809,22 @@ eof
     engine.evaluate("B", "m").should == [5, 2]
   end
 
+  it "implements simple version of self (_)" do
+    engine.parse defn("B:",
+                      "    a =?",
+                      "    b =?",
+                      "    x = a - b",
+                      "A:",
+                      "    a =?",
+                      "    b =?",
+                      "    x = _.a * _.b",
+                      "    y = a && _",
+                      "    z = (B() + _).x",
+                      )
+
+    engine.evaluate("A", "x", {"a"=>3, "b"=>5}).should == 15
+    h = {"a"=>1, "b"=>2, "c"=>3}
+    engine.evaluate("A", "y", {"a"=>1, "b"=>2, "c"=>3}).should == h
+    engine.evaluate("A", "z", {"a"=>1, "b"=>2, "c"=>3}).should == -1
+  end
 end

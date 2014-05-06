@@ -105,6 +105,7 @@ grammar Delorean
     boolean                                             /
     nil_val                                             /
     identifier                                          /
+    self                                                /
     list_expr                                           /
     set_expr                                            /
     hash_expr                                           /
@@ -142,6 +143,10 @@ grammar Delorean
 
   rule boolean
     'true' <Literal> / 'false' <Literal>
+  end
+
+  rule self
+    '_' <Self>
   end
 
   rule nil_val

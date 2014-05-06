@@ -68,16 +68,16 @@ module Delorean
   module BaseModule
     class NodeCall < Struct.new(:_e, :engine, :node, :params)
       def evaluate(attr)
-        # FIXME: evaluate() modifies params! => need to clone it.
-        # This is pretty awful.
-        engine.evaluate(node, attr, params.clone)
+        # FIXME: evaluate() modifies params! => need to sanitize/clone
+        # it.  This is pretty awful.
+        engine.evaluate(node, attr, sanitized_params)
       end
 
       def %(args)
         raise "bad arg to %" unless args.is_a?(Array)
 
         # FIXME: params.clone!!!!
-        engine.evaluate_attrs_hash(node, args, params.clone)
+        engine.eval_to_hash(node, args, sanitized_params)
       end
 
       # add new arguments, results in a new NodeCall
@@ -85,6 +85,10 @@ module Delorean
         raise "bad arg to %" unless args.is_a?(Hash)
 
         NodeCall.new(_e, engine, node, params.merge(args))
+      end
+
+      def sanitized_params
+        BaseClass._sanitize_hash(params)
       end
     end
 
@@ -142,6 +146,15 @@ module Delorean
           obj[*args]
         else
           raise InvalidIndex
+        end
+      end
+
+      ######################################################################
+
+      def self._sanitize_hash(_e)
+        _e.each_with_object({}) do
+          |(k,v), h|
+          h[k] = v if k =~ /\A[a-z][A-Za-z0-9_]*\z/
         end
       end
 

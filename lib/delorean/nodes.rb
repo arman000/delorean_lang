@@ -202,6 +202,17 @@ eos
     end
   end
 
+  # _ is self -- a naive implementation of "self" for now.
+  class Self < SNode
+    def check(context, *)
+      []
+    end
+
+    def rewrite(context)
+      "_sanitize_hash(_e)"
+    end
+  end
+
   class DString < Literal
     def rewrite(context)
       # remove the quotes and requote.  We don't want the likes of #{}

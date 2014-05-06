@@ -343,7 +343,7 @@ module Delorean
       evaluate_attrs(node, [attr], params)[0]
     end
 
-    def evaluate_attrs_hash(node, attrs, params={})
+    def eval_to_hash(node, attrs, params={})
       res = evaluate_attrs(node, attrs, params)
       Hash[* attrs.zip(res).flatten(1)]
     end

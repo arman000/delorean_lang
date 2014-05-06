@@ -2308,112 +2308,117 @@ module Delorean
             if r5
               r0 = r5
             else
-              r6 = _nt_list_expr
+              r6 = _nt_self
               if r6
                 r0 = r6
               else
-                r7 = _nt_set_expr
+                r7 = _nt_list_expr
                 if r7
                   r0 = r7
                 else
-                  r8 = _nt_hash_expr
+                  r8 = _nt_set_expr
                   if r8
                     r0 = r8
                   else
-                    i9, s9 = index, []
-                    i11, s11 = index, []
-                    r12 = _nt_class_name
-                    s11 << r12
-                    if r12
-                      if has_terminal?('::', false, index)
-                        r13 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                        @index += 2
-                      else
-                        terminal_parse_failure('::')
-                        r13 = nil
-                      end
-                      s11 << r13
-                    end
-                    if s11.last
-                      r11 = instantiate_node(SyntaxNode,input, i11...index, s11)
-                      r11.extend(Value0)
-                    else
-                      @index = i11
-                      r11 = nil
-                    end
-                    if r11
-                      r10 = r11
-                    else
-                      r10 = instantiate_node(SyntaxNode,input, index...index)
-                    end
-                    s9 << r10
-                    if r10
-                      r14 = _nt_class_name
-                      s9 << r14
-                    end
-                    if s9.last
-                      r9 = instantiate_node(NodeAsValue,input, i9...index, s9)
-                      r9.extend(Value1)
-                    else
-                      @index = i9
-                      r9 = nil
-                    end
+                    r9 = _nt_hash_expr
                     if r9
                       r0 = r9
                     else
-                      i15, s15 = index, []
-                      if has_terminal?('(', false, index)
-                        r16 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                        @index += 1
-                      else
-                        terminal_parse_failure('(')
-                        r16 = nil
-                      end
-                      s15 << r16
-                      if r16
-                        r18 = _nt_sp
-                        if r18
-                          r17 = r18
+                      i10, s10 = index, []
+                      i12, s12 = index, []
+                      r13 = _nt_class_name
+                      s12 << r13
+                      if r13
+                        if has_terminal?('::', false, index)
+                          r14 = instantiate_node(SyntaxNode,input, index...(index + 2))
+                          @index += 2
                         else
-                          r17 = instantiate_node(SyntaxNode,input, index...index)
+                          terminal_parse_failure('::')
+                          r14 = nil
                         end
-                        s15 << r17
+                        s12 << r14
+                      end
+                      if s12.last
+                        r12 = instantiate_node(SyntaxNode,input, i12...index, s12)
+                        r12.extend(Value0)
+                      else
+                        @index = i12
+                        r12 = nil
+                      end
+                      if r12
+                        r11 = r12
+                      else
+                        r11 = instantiate_node(SyntaxNode,input, index...index)
+                      end
+                      s10 << r11
+                      if r11
+                        r15 = _nt_class_name
+                        s10 << r15
+                      end
+                      if s10.last
+                        r10 = instantiate_node(NodeAsValue,input, i10...index, s10)
+                        r10.extend(Value1)
+                      else
+                        @index = i10
+                        r10 = nil
+                      end
+                      if r10
+                        r0 = r10
+                      else
+                        i16, s16 = index, []
+                        if has_terminal?('(', false, index)
+                          r17 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                          @index += 1
+                        else
+                          terminal_parse_failure('(')
+                          r17 = nil
+                        end
+                        s16 << r17
                         if r17
-                          r19 = _nt_expression
-                          s15 << r19
+                          r19 = _nt_sp
                           if r19
-                            r21 = _nt_sp
-                            if r21
-                              r20 = r21
-                            else
-                              r20 = instantiate_node(SyntaxNode,input, index...index)
-                            end
-                            s15 << r20
+                            r18 = r19
+                          else
+                            r18 = instantiate_node(SyntaxNode,input, index...index)
+                          end
+                          s16 << r18
+                          if r18
+                            r20 = _nt_expression
+                            s16 << r20
                             if r20
-                              if has_terminal?(')', false, index)
-                                r22 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                                @index += 1
+                              r22 = _nt_sp
+                              if r22
+                                r21 = r22
                               else
-                                terminal_parse_failure(')')
-                                r22 = nil
+                                r21 = instantiate_node(SyntaxNode,input, index...index)
                               end
-                              s15 << r22
+                              s16 << r21
+                              if r21
+                                if has_terminal?(')', false, index)
+                                  r23 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                                  @index += 1
+                                else
+                                  terminal_parse_failure(')')
+                                  r23 = nil
+                                end
+                                s16 << r23
+                              end
                             end
                           end
                         end
-                      end
-                      if s15.last
-                        r15 = instantiate_node(Expr,input, i15...index, s15)
-                        r15.extend(Value2)
-                      else
-                        @index = i15
-                        r15 = nil
-                      end
-                      if r15
-                        r0 = r15
-                      else
-                        @index = i0
-                        r0 = nil
+                        if s16.last
+                          r16 = instantiate_node(Expr,input, i16...index, s16)
+                          r16.extend(Value2)
+                        else
+                          @index = i16
+                          r16 = nil
+                        end
+                        if r16
+                          r0 = r16
+                        else
+                          @index = i0
+                          r0 = nil
+                        end
                       end
                     end
                   end
@@ -3045,6 +3050,30 @@ module Delorean
     end
 
     node_cache[:boolean][start_index] = r0
+
+    r0
+  end
+
+  def _nt_self
+    start_index = index
+    if node_cache[:self].has_key?(index)
+      cached = node_cache[:self][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    if has_terminal?('_', false, index)
+      r0 = instantiate_node(Self,input, index...(index + 1))
+      @index += 1
+    else
+      terminal_parse_failure('_')
+      r0 = nil
+    end
+
+    node_cache[:self][start_index] = r0
 
     r0
   end
