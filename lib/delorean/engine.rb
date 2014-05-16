@@ -189,7 +189,14 @@ module Delorean
     end
 
     def parse_check_call_fn(fn, argcount, class_name=nil)
-      klass = class_name ? parse_class(class_name) : (@m::BaseClass)
+      klass = case class_name
+              when nil
+                @m::BaseClass
+              when String
+                parse_class(class_name)
+              else
+                class_name
+              end
 
       err(UndefinedFunctionError, "Function #{fn} not found") unless
         klass.methods.member? fn.to_sym

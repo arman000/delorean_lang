@@ -105,8 +105,7 @@ eos
       # an attr is defined as a class function on the node class.
       "class #{context.last_node}; " +
         "def self.#{i.text_value}#{POST}(_e); " +
-        "_e[self.name+'.#{i.text_value}'] ||= " +
-        e.rewrite(context) + "; end; end;"
+        "_e[self.name+'.#{i.text_value}'] ||= #{e.rewrite(context)}; end; end;"
     end
   end
 
@@ -116,7 +115,19 @@ eos
     end
 
     def rewrite(context)
-      "(" + e.rewrite(context) + ")"
+      "(#{e.rewrite(context)})"
+    end
+  end
+
+  class ClassText
+    attr_reader :text
+
+    def initialize(text)
+      @text = text
+    end
+
+    def to_s
+      text
     end
   end
 
@@ -140,9 +151,9 @@ eos
         context.parse_check_defined_mod_node(node_name, mname)
         context.super_name(node_name, mname)
       rescue UndefinedError, ParseError
-        # kind of hacky, we wrap the class name in a list so Call will
-        # be able to tell it apart from a regular value.
-        [text_value]
+        # FIXME: wrap the class name so Call will be able to tell it
+        # apart from a regular value.
+        ClassText.new(text_value)
       end
     end
   end
@@ -213,6 +224,16 @@ eos
     end
   end
 
+  class IString < Literal
+    def rewrite(context)
+      # FIXME: hacky to just fail
+      raise "String interpolation not supported" if text_value =~ /\#\{.*\}/
+
+      # FIXME: syntax check?
+      text_value
+    end
+  end
+
   class DString < Literal
     def rewrite(context)
       # remove the quotes and requote.  We don't want the likes of #{}
@@ -275,7 +296,9 @@ eos
     end
 
     def rewrite(context, vcode)
-      "_get_attr(#{vcode}, '#{i.text_value}', _e)"
+      attr = i.text_value
+      attr = "'#{attr}'" unless attr =~ /\A[0-9]+\z/
+      "_get_attr(#{vcode}, #{attr}, _e)"
     end
   end
 
@@ -293,13 +316,13 @@ eos
 
       args_str = args.reverse.join(',')
 
-      if vcode.is_a? Array
+      if vcode.is_a?(ClassText)
         # ruby class call
-        class_name = vcode[0]
+        class_name = vcode.text
         context.parse_check_call_fn(i.text_value, args.count, class_name)
         "#{class_name}.#{i.text_value}(#{args_str})"
       else
-        "_instance_call(#{vcode}, '#{i.text_value}', [#{args_str}])"
+        "_instance_call(#{vcode}, '#{i.text_value}', [#{args_str}], _e)"
       end
 
     end
@@ -314,10 +337,9 @@ eos
     def rewrite(context, node_name)
       args, kw = al.text_value.empty? ? [[], {}] : al.rewrite(context)
 
-      raise "No positional arguments to node call" unless
-        args.empty?
-
-      kw_str = kw.map {|k, v| "'#{k}' => #{v}"}.join(',')
+      kw_str =
+        (kw.map {|k, v| "'#{k}' => #{v}"} +
+         args.each_with_index.map {|v, i| "#{i} => #{v}"}).join(',')
 
       "_node_call(#{node_name}, _e, {#{kw_str}})"
     end
@@ -331,13 +353,13 @@ eos
     end
 
     def rewrite(context)
-      attr_list = ga.text_value.split('.')
+      attrs = ga.text_value.split('.')
 
       # If ga.text_value is not "", then we need to drop the 1st
       # element since it'll be "".
-      attr_list.shift
+      attrs.shift
 
-      attr_list.inject(v.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}', _e)"}
+      attrs.inject(v.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}', _e)"}
     end
   end
 
@@ -403,7 +425,7 @@ eos
     def rewrite(context)
       res = "(#{e1.rewrite(context)})"
       context.parse_define_var(i.text_value)
-      res += ".select{|#{i.rewrite(context)}| (#{ifexp.e3.rewrite(context)})}" if
+      res += ".select{|#{i.rewrite(context)}|(#{ifexp.e3.rewrite(context)})}" if
         defined?(ifexp.e3)
       res += ".map{|#{i.rewrite(context)}| (#{e2.rewrite(context)}) }"
       context.parse_undef_var(i.text_value)

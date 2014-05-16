@@ -52,7 +52,7 @@ grammar Delorean
     /
     '.' sp? i:identifier '(' sp? al:kw_args? sp? ')' <Call>
     /
-    '.' sp? i:identifier <GetAttr>
+    '.' sp? i:(identifier / integer) <GetAttr>
   end
 
   rule list_expr
@@ -92,7 +92,8 @@ grammar Delorean
   # Arrays).  So, be cautious about which opertaions are added.
   rule binary_op
     '==' / '!=' / '>=' / '<=' / '&&' / '||' /
-    '>' / '<' / '+' / '-' / '*' / '/' / '%' / '&' / '^' / '|'
+    '>'  / '<'  / '+' / '-' / '*' / '/' / '%' /
+    '&'  / '^'  / '|'
   end
 
   rule unary_op
@@ -100,7 +101,8 @@ grammar Delorean
   end
 
   rule value
-    number                                              /
+    decimal                                             /
+    integer                                             /
     string                                              /
     boolean                                             /
     nil_val                                             /
@@ -110,7 +112,7 @@ grammar Delorean
     set_expr                                            /
     hash_expr                                           /
     mod:(m:class_name '::')? c:class_name <NodeAsValue> /
-    '(' sp? e:expression sp? ')'         <Expr>
+    '(' sp? e:expression sp? ')'          <Expr>
   end
 
   rule fn_args
@@ -118,23 +120,21 @@ grammar Delorean
   end
 
   rule hash_args
-    e0:expression sp? ':' sp? e1:expression args_rest:(sp? ',' sp? al:hash_args?)? <HashArgs>
+    e0:expression sp? ':' sp? e1:expression
+    args_rest:(sp? ',' sp? al:hash_args?)? <HashArgs>
   end
 
   rule kw_args
-    k:(i:identifier sp? '=' sp?)? arg0:expression args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
-  end
-
-  rule number
-    decimal / integer
+    k:(i:identifier sp? '=' sp?)? arg0:expression
+    args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
   end
 
   rule decimal
-    [0-9]+ '.' [0-9]+ <Literal>
+    i:integer '.' [0-9]+ <Literal>
   end
 
   rule integer
-    [0-9]+ <Literal>
+    '0' <Literal> / [1-9] [0-9]* <Literal>
   end
 
   rule identifier
@@ -163,7 +163,7 @@ grammar Delorean
   end
 
   rule string
-    '"' ('\"' / !'"' .)* '"' <DString>
+    '"' ('\"' / !'"' .)* '"' <IString>
     /
     "'" [^']* "'" <DString>
   end

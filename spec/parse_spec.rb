@@ -60,7 +60,8 @@ describe "Delorean" do
   it "should accept default param definitions" do
     lambda {
       engine.parse defn("A:",
-                        "    b =? 1",
+                        "    a =? 0.0123",
+                        "    b =? 0",
                         "    c =? -1.1",
                         "    d = b + c",
                         )
@@ -79,6 +80,22 @@ describe "Delorean" do
     lambda {
       engine.parse defn("A:",
                         "    a = .123",
+                        )
+    }.should raise_error(Delorean::ParseError)
+  end
+
+  it "should disallow leading 0s in numbers" do
+    lambda {
+      engine.parse defn("A:",
+                        "    a = 00.123",
+                        )
+    }.should raise_error(Delorean::ParseError)
+  end
+
+  it "should disallow leading 0s in numbers (2)" do
+    lambda {
+      engine.parse defn("A:",
+                        "    a = 0123",
                         )
     }.should raise_error(Delorean::ParseError)
   end
@@ -648,15 +665,10 @@ describe "Delorean" do
                       )
   end
 
-  it "should not allow positional args to node calls" do
-    begin
-      engine.parse defn("A:",
-                        "    d = A(1, 2, 3)",
-                        )
-      raise "fail"
-    rescue Delorean::ParseError => exc
-      exc.line.should == 2
-    end
+  it "should allow positional args to node calls" do
+    engine.parse defn("A:",
+                      "    d = A(1, 2, 3, a=123, b=456)",
+                      )
   end
 
   it "should parse instance calls" do
@@ -721,6 +733,18 @@ describe "Delorean" do
                         "    a = [1,",
                         "    2]",
                         "    b = 456",
+                        )
+      raise "fail"
+    rescue Delorean::ParseError => exc
+      exc.line.should == 2
+    end
+  end
+
+  # this is a parsing limitation which should go away
+  it "should not parse interpolated strings" do
+    begin
+      engine.parse defn("A:",
+                        '    d = "#{this is a test}"',
                         )
       raise "fail"
     rescue Delorean::ParseError => exc

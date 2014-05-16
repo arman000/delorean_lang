@@ -30,6 +30,8 @@ ActiveRecord::Migration.create_table :dummies do |t|
 end
 
 class Dummy < ActiveRecord::Base
+  include Delorean::Model
+
   attr_accessible :name, :number, :dummy
   belongs_to :dummy
 
@@ -63,6 +65,14 @@ class Dummy < ActiveRecord::Base
 
   def name2
     "#{name}-#{number}"
+  end
+
+  delorean_fn :one_or_two, sig: [1, 2] do
+    |*args|
+    # FIXME: |a,b| will not work properly with delorean_fn
+    a, b = args
+
+    [a, b]
   end
 end
 

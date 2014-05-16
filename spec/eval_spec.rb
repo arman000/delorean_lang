@@ -40,12 +40,29 @@ describe "Delorean" do
     r.should == -122
   end
 
+  it "proper string interpolation" do
+    engine.parse defn("A:",
+                      '    a = "\n123\n"',
+                      )
+
+    r = engine.evaluate("A", "a")
+    r.should == "\n123\n"
+  end
+
   it "should handle getattr in expressions" do
     engine.parse defn("A:",
                       "    a = {'x':123, 'y':456, 'z':789}",
                       "    b = A.a.x * A.a.y - A.a.z",
                       )
     engine.evaluate_attrs("A", ["b"]).should == [123*456-789]
+  end
+
+  it "should handle numeric getattr" do
+    engine.parse defn("A:",
+                      "    a = {1:123, 0:456, 'z':789, 2: {'a':444}}",
+                      "    b = A.a.1 * A.a.0 - A.a.z - A.a.2.a",
+                      )
+    engine.evaluate_attrs("A", ["b"]).should == [123*456-789-444]
   end
 
   it "should be able to evaluate multiple node attrs" do
@@ -63,12 +80,21 @@ describe "Delorean" do
   it "should give error when accessing undefined attr" do
     engine.parse defn("A:",
                       "    a = 1",
-                      "    c = a.to_s",
+                      "    c = a.to_ss",
                       )
 
     lambda {
       r = engine.evaluate("A", "c")
     }.should raise_error(Delorean::InvalidGetAttribute)
+  end
+
+  it "should be able to call 0-ary functions without ()" do
+    engine.parse defn("A:",
+                      "    a = 1",
+                      "    d = a.to_s",
+                      )
+
+    engine.evaluate("A", "d").should == "1"
   end
 
   it "should handle default param values" do
@@ -170,6 +196,16 @@ describe "Delorean" do
     res["backtrace"].should == [["XXX", 2, "b"]]
   end
 
+  it "should handle optional args to external fns" do
+    engine.parse defn("A:",
+                      "    b = Dummy.one_or_two(['a', 'b'])",
+                      "    c = Dummy.one_or_two([1,2,3], ['a', 'b'])",
+                      )
+
+    engine.evaluate("A", "b").should == [['a', 'b'], nil]
+    engine.evaluate("A", "c").should == [[1,2,3], ['a', 'b']]
+  end
+
   it "should handle operator precedence properly" do
     engine.parse defn("A:",
                       "    b = 3+2*4-1",
@@ -214,6 +250,18 @@ describe "Delorean" do
     r.should == 123*123
     r = engine.evaluate("C", "c", {"c" => 5})
     r.should == 123*123 + 5
+  end
+
+  it "should be able to access nodes and node attrs dynamically " do
+    engine.parse defn("A:",
+                      "    b = 123",
+                      "B:",
+                      "    b = A",
+                      "    c = b.b * 456",
+                      )
+
+    r = engine.evaluate("B", "c")
+    r.should == 123*456
   end
 
   it "should be able to call class methods on ActiveRecord classes" do
@@ -324,13 +372,13 @@ eoc
     r.should == 867 + 5309
   end
 
-  it "should not eval inside strings" do
+  it "should be able to use AR classes as values and call their methods" do
     engine.parse defn("A:",
-                      '    d = "#{this is a test}"',
+                      "    a = M::LittleDummy",
+                      "    b = a.heres_my_number(867, 5309)",
                       )
-
-    r = engine.evaluate("A", "d")
-    r.should == '#{this is a test}'
+    r = engine.evaluate("A", "b")
+    r.should == 867 + 5309
   end
 
   it "should ignore undeclared params sent to eval which match attr names" do
@@ -826,5 +874,18 @@ eof
     h = {"a"=>1, "b"=>2, "c"=>3}
     engine.evaluate("A", "y", {"a"=>1, "b"=>2, "c"=>3}).should == h
     engine.evaluate("A", "z", {"a"=>1, "b"=>2, "c"=>3}).should == -1
+  end
+
+  it "implements positional args in node calls" do
+    engine.parse defn("B:",
+                      "    a =?",
+                      "    b =?",
+                      "    x = (_.0 - _.1) * (a - b)",
+                      "A:",
+                      "    a = _.0 - _.1",
+                      "    z = B(10, 20, a=3, b=7).x",
+                      )
+    engine.evaluate_attrs("A", ["a", "z"], {0 => 123, 1 => 456}).should ==
+      [123-456, -40]
   end
 end
