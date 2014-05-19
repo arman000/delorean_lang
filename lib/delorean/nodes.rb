@@ -339,7 +339,7 @@ eos
 
       kw_str =
         (kw.map {|k, v| "'#{k}' => #{v}"} +
-         args.each_with_index.map {|v, i| "#{i} => #{v}"}).join(',')
+         args.reverse.each_with_index.map {|v, i| "#{i} => #{v}"}).join(',')
 
       "_node_call(#{node_name}, _e, {#{kw_str}})"
     end
