@@ -881,11 +881,20 @@ eof
                       "    a =?",
                       "    b =?",
                       "    x = (_.0 - _.1) * (a - b)",
+                      "    p0 = (_.0)",
+                      "    p1 = (_.1)",
                       "A:",
                       "    a = _.0 - _.1",
                       "    z = B(10, 20, a=3, b=7).x",
+                      "    z0 = B(10, 20).p0",
+                      "    z1 = B(10, 20).p1",
                       )
+    # FIXME - These expectations are failing because _.0 and _.1 on node B
+    # are getting swapped
+    engine.evaluate_attrs("A", ["z0", "z1"]).should ==
+      [10, 20]
+
     engine.evaluate_attrs("A", ["a", "z"], {0 => 123, 1 => 456}).should ==
-      [123-456, -40]
+      [123-456, 40]
   end
 end
