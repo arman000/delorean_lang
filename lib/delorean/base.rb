@@ -1,4 +1,5 @@
 require 'active_support/time'
+require 'bigdecimal'
 
 module Delorean
 
@@ -13,7 +14,7 @@ module Delorean
     length:             [[Array, String]],
     max:                [Array],
     member:             "member?",
-    member?:            [Array, [Fixnum, String]],
+    member?:            [Array, [Object]],
     reverse:            [Array],
     slice:              [Array, Fixnum, Fixnum],
     sort:               [Array],
@@ -21,8 +22,7 @@ module Delorean
     uniq:               [Array],
     sum:                [Array],
     zip:                [Array, [Array, Array, Array]],
-    index:              [Array,
-                         [Integer, Numeric, String, Array, Fixnum, Hash]],
+    index:              [Array, [Object]],
     product:            [Array, Array],
     first:              [Enumerable, [nil, Fixnum]],
     intersection:       [Set, Enumerable],
