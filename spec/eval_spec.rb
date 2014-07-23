@@ -534,14 +534,13 @@ eof
       ]
   end
 
-  it "should eval sets and set comprehension" do
+  it "should eval sets" do
     engine.parse defn("A:",
                       "    a = {-}",
-                      "    b = {i*5 for i in {1,2,3}}",
                       "    c = {1,2,3} | {4,5}",
                       )
-    engine.evaluate_attrs("A", ["a", "b", "c"]).should ==
-      [Set[], Set[5,10,15], Set[1,2,3,4,5]]
+    engine.evaluate_attrs("A", ["a", "c"]).should ==
+      [Set[], Set[1,2,3,4,5]]
   end
 
   it "should eval list comprehension" do
@@ -581,6 +580,13 @@ eof
                       )
     engine.evaluate("A", "b").should == [5, 15, 25]
     engine.evaluate("A", "c").should == [0.5]
+  end
+
+  it "should handle list comprehension unpacking" do
+    engine.parse defn("A:",
+                      "    b = [a-b for a, b in [[1,2],[20,10]]]",
+                      )
+    engine.evaluate("A", "b").should == [-1, 10]
   end
 
   it "should eval hashes" do
@@ -636,6 +642,13 @@ eof
                       )
 
     engine.evaluate_attrs("A", ["d", "f"]).should == [26, 2]
+  end
+
+  it "should eval multi-var hash comprehension" do
+    engine.parse defn("A:",
+                      "    b = {k*5 : v+1 for k, v in {1:2, 7:-30}}",
+                      )
+    engine.evaluate("A", "b").should == {5=>3, 35=>-29}
   end
 
   it "should be able to amend node calls" do

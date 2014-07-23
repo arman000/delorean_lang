@@ -11,7 +11,7 @@ module Delorean
     compact:            [Array],
     to_set:             [Array],
     flatten:            [Array, [Fixnum, nil]],
-    length:             [[Array, String]],
+    length:             [Enumerable],
     max:                [Array],
     member:             "member?",
     member?:            [Array, [Object]],
@@ -25,6 +25,7 @@ module Delorean
     index:              [Array, [Object]],
     product:            [Array, Array],
     first:              [Enumerable, [nil, Fixnum]],
+    last:               [Enumerable, [nil, Fixnum]],
     intersection:       [Set, Enumerable],
     union:              [Set, Enumerable],
 
@@ -117,6 +118,9 @@ module Delorean
         elsif obj.instance_of?(NodeCall)
           return obj.evaluate(attr)
         elsif obj.instance_of?(Hash)
+          # FIXME: this implementation doesn't handle something like
+          # {}.length.  i.e. length is a whitelisted function, but not
+          # an attr. This implementation returns nil instead of 0.
           return obj[attr] if obj.member?(attr)
           return attr.is_a?(String) ? obj[attr.to_sym] : nil
         elsif obj.instance_of?(Class) && (obj < BaseClass)

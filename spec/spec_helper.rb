@@ -32,7 +32,6 @@ end
 class Dummy < ActiveRecord::Base
   include Delorean::Model
 
-  attr_accessible :name, :number, :dummy
   belongs_to :dummy
 
   def self.i_just_met_you(name, number)

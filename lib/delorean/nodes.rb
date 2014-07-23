@@ -404,31 +404,51 @@ eos
     end
   end
 
+  class UnpackArgs < SNode
+    def check(context, *)
+      [arg0.text_value] +
+        (defined?(args_rest.args) && !args_rest.args.text_value.empty? ?
+         args_rest.args.check(context) : [])
+    end
+
+    def rewrite(context)
+      arg0.rewrite(context) +
+        (defined?(args_rest.args) && !args_rest.args.text_value.empty? ?
+         ", " + args_rest.args.rewrite(context) : "")
+    end
+  end
+
   class ListComprehension < SNode
     def check(context, *)
-      vname = i.text_value
-
+      unpack_vars = args.check(context)
       e1c = e1.check(context)
-      context.parse_define_var(vname)
+      unpack_vars.each {|vname| context.parse_define_var(vname)}
+
       # need to check e2/e3 in a context where the comprehension var
       # is defined.
       e2c = e2.check(context)
       e3c = defined?(ifexp.e3) ? ifexp.e3.check(context) : []
 
-      context.parse_undef_var(vname)
-      e2c.delete(vname)
-      e3c.delete(vname)
+      unpack_vars.each {
+        |vname|
+        context.parse_undef_var(vname)
+        e2c.delete(vname)
+        e3c.delete(vname)
+      }
 
       e1c + e2c + e3c
     end
 
     def rewrite(context)
       res = "(#{e1.rewrite(context)})"
-      context.parse_define_var(i.text_value)
-      res += ".select{|#{i.rewrite(context)}|(#{ifexp.e3.rewrite(context)})}" if
+      unpack_vars = args.check(context)
+      unpack_vars.each {|vname| context.parse_define_var(vname)}
+      args_str = args.rewrite(context)
+
+      res += ".select{|#{args_str}|(#{ifexp.e3.rewrite(context)})}" if
         defined?(ifexp.e3)
-      res += ".map{|#{i.rewrite(context)}| (#{e2.rewrite(context)}) }"
-      context.parse_undef_var(i.text_value)
+      res += ".map{|#{args_str}| (#{e2.rewrite(context)}) }"
+      unpack_vars.each {|vname| context.parse_undef_var(vname)}
       res
     end
   end
@@ -439,41 +459,45 @@ eos
     end
   end
 
-  class SetComprehension < ListComprehension
-    def rewrite(context)
-      "Set[*#{super}]"
-    end
-  end
-
   class HashComprehension < SNode
-    def check(context, *)
-      vname = i.text_value
+    # used in generating unique hash names
+    @@comp_count = 0
 
+    def check(context, *)
+      unpack_vars = args.check(context)
       e1c = e1.check(context)
-      context.parse_define_var(vname)
+      unpack_vars.each {|vname| context.parse_define_var(vname)}
+
       # need to check el/er/ei in a context where the comprehension var
       # is defined.
       elc = el.check(context)
       erc = er.check(context)
       eic = defined?(ifexp.ei) ? ifexp.ei.check(context) : []
 
-      context.parse_undef_var(vname)
-      elc.delete(vname)
-      erc.delete(vname)
-      eic.delete(vname)
-
+      unpack_vars.each {
+        |vname|
+        context.parse_undef_var(vname)
+        elc.delete(vname)
+        erc.delete(vname)
+        eic.delete(vname)
+      }
       e1c + elc + erc + eic
     end
 
     def rewrite(context)
       res = "(#{e1.rewrite(context)})"
-      context.parse_define_var(i.text_value)
-      iw = i.rewrite(context)
-      res += ".select{|#{iw}| (#{ifexp.ei.rewrite(context)}) }" if
+      unpack_vars = args.check(context)
+      unpack_vars.each {|vname| context.parse_define_var(vname)}
+      args_str = args.rewrite(context)
+
+      hid = @@comp_count += 1
+
+      res += ".select{|#{args_str}| (#{ifexp.ei.rewrite(context)}) }" if
         defined?(ifexp.ei)
-      res += ".inject({}){|_h#{iw}, #{iw}| " +
-        "_h#{iw}[#{el.rewrite(context)}]=(#{er.rewrite(context)}); _h#{iw}}"
-      context.parse_undef_var(i.text_value)
+      res += ".each_with_object({}){|(#{args_str}), _h#{hid}| " +
+        "_h#{hid}[#{el.rewrite(context)}]=(#{er.rewrite(context)})}"
+
+      unpack_vars.each {|vname| context.parse_undef_var(vname)}
       res
     end
   end
@@ -484,7 +508,7 @@ eos
     end
 
     def rewrite(context)
-      "{" + (defined?(args) ? args.rewrite(context) : "") + "}"
+      "{#{args.rewrite(context) if defined?(args)}}"
     end
   end
 

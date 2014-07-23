@@ -101,7 +101,9 @@ describe "Delorean" do
     r.should == [p.year, p.day, p.month]
 
     # Non date argument should raise an error
-    expect { engine.evaluate_attrs("A", ["y", "d", "m"], {"p" => 123}) }.to raise_error
+    expect {
+      engine.evaluate_attrs("A", ["y", "d", "m"], {"p" => 123})
+    }.to raise_error
   end
 
   it "should handle FLATTEN" do
@@ -139,10 +141,11 @@ describe "Delorean" do
                       "    dd = d.flatten()",
                       "    e = dd.sort()",
                       "    f = e.uniq()",
-                      "    g = e.length()",
+                      "    g = e.length",
                       "    gg = a.length()",
                       "    l = a.member(5)",
                       "    m = [a.member(5), a.member(55)]",
+                      "    n = {'a':1, 'b':2, 'c':3}.length()",
                       )
 
     engine.evaluate("A", "c").should == x.flatten(1)
@@ -153,6 +156,20 @@ describe "Delorean" do
     engine.evaluate("A", "g").should == dd.length
     engine.evaluate("A", "gg").should == x.length
     engine.evaluate("A", "m").should == [x.member?(5), x.member?(55)]
+    engine.evaluate("A", "n").should == 3
+  end
+
+  it "should be able to call function on hash" do
+    # FIXME: this is actually a Delorean design issue.  How do
+    # whitelisted functions interact with attrs?  In this case, we
+    # return nil since there is no Delorean 'length' attr in the hash.
+
+    engine.parse defn("A:",
+                      "    n = {}.length",
+                      "    m = {'length':100}.length",
+                      )
+    engine.evaluate("A", "n").should == 0
+    engine.evaluate("A", "m").should == 100
   end
 
   it "should handle RUBY slice function" do

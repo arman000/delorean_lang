@@ -1171,6 +1171,100 @@ module Delorean
     r0
   end
 
+  module UnpackArgs0
+    def args
+      elements[3]
+    end
+  end
+
+  module UnpackArgs1
+    def arg0
+      elements[0]
+    end
+
+    def args_rest
+      elements[1]
+    end
+  end
+
+  def _nt_unpack_args
+    start_index = index
+    if node_cache[:unpack_args].has_key?(index)
+      cached = node_cache[:unpack_args][index]
+      if cached
+        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0, s0 = index, []
+    r1 = _nt_identifier
+    s0 << r1
+    if r1
+      i3, s3 = index, []
+      r5 = _nt_sp
+      if r5
+        r4 = r5
+      else
+        r4 = instantiate_node(SyntaxNode,input, index...index)
+      end
+      s3 << r4
+      if r4
+        if has_terminal?(',', false, index)
+          r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
+          @index += 1
+        else
+          terminal_parse_failure(',')
+          r6 = nil
+        end
+        s3 << r6
+        if r6
+          r8 = _nt_sp
+          if r8
+            r7 = r8
+          else
+            r7 = instantiate_node(SyntaxNode,input, index...index)
+          end
+          s3 << r7
+          if r7
+            r10 = _nt_unpack_args
+            if r10
+              r9 = r10
+            else
+              r9 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s3 << r9
+          end
+        end
+      end
+      if s3.last
+        r3 = instantiate_node(SyntaxNode,input, i3...index, s3)
+        r3.extend(UnpackArgs0)
+      else
+        @index = i3
+        r3 = nil
+      end
+      if r3
+        r2 = r3
+      else
+        r2 = instantiate_node(SyntaxNode,input, index...index)
+      end
+      s0 << r2
+    end
+    if s0.last
+      r0 = instantiate_node(UnpackArgs,input, i0...index, s0)
+      r0.extend(UnpackArgs1)
+    else
+      @index = i0
+      r0 = nil
+    end
+
+    node_cache[:unpack_args][start_index] = r0
+
+    r0
+  end
+
   module ListExpr0
     def sp
       elements[1]
@@ -1195,7 +1289,7 @@ module Delorean
       elements[5]
     end
 
-    def i
+    def args
       elements[6]
     end
 
@@ -1282,7 +1376,7 @@ module Delorean
                 r9 = _nt_sp
                 s2 << r9
                 if r9
-                  r10 = _nt_identifier
+                  r10 = _nt_unpack_args
                   s2 << r10
                   if r10
                     r11 = _nt_sp
@@ -1445,52 +1539,6 @@ module Delorean
   end
 
   module SetExpr0
-    def sp
-      elements[1]
-    end
-
-    def e3
-      elements[2]
-    end
-
-  end
-
-  module SetExpr1
-    def e2
-      elements[2]
-    end
-
-    def sp1
-      elements[3]
-    end
-
-    def sp2
-      elements[5]
-    end
-
-    def i
-      elements[6]
-    end
-
-    def sp3
-      elements[7]
-    end
-
-    def sp4
-      elements[9]
-    end
-
-    def e1
-      elements[10]
-    end
-
-    def ifexp
-      elements[12]
-    end
-
-  end
-
-  module SetExpr2
     def args
       elements[2]
     end
@@ -1537,117 +1585,32 @@ module Delorean
         end
         s2 << r4
         if r4
-          r6 = _nt_expression
+          r6 = _nt_fn_args
           s2 << r6
           if r6
-            r7 = _nt_sp
+            r8 = _nt_sp
+            if r8
+              r7 = r8
+            else
+              r7 = instantiate_node(SyntaxNode,input, index...index)
+            end
             s2 << r7
             if r7
-              if has_terminal?('for', false, index)
-                r8 = instantiate_node(SyntaxNode,input, index...(index + 3))
-                @index += 3
+              if has_terminal?('}', false, index)
+                r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
+                @index += 1
               else
-                terminal_parse_failure('for')
-                r8 = nil
+                terminal_parse_failure('}')
+                r9 = nil
               end
-              s2 << r8
-              if r8
-                r9 = _nt_sp
-                s2 << r9
-                if r9
-                  r10 = _nt_identifier
-                  s2 << r10
-                  if r10
-                    r11 = _nt_sp
-                    s2 << r11
-                    if r11
-                      if has_terminal?('in', false, index)
-                        r12 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                        @index += 2
-                      else
-                        terminal_parse_failure('in')
-                        r12 = nil
-                      end
-                      s2 << r12
-                      if r12
-                        r13 = _nt_sp
-                        s2 << r13
-                        if r13
-                          r14 = _nt_expression
-                          s2 << r14
-                          if r14
-                            r16 = _nt_sp
-                            if r16
-                              r15 = r16
-                            else
-                              r15 = instantiate_node(SyntaxNode,input, index...index)
-                            end
-                            s2 << r15
-                            if r15
-                              i18, s18 = index, []
-                              if has_terminal?('if', false, index)
-                                r19 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                                @index += 2
-                              else
-                                terminal_parse_failure('if')
-                                r19 = nil
-                              end
-                              s18 << r19
-                              if r19
-                                r20 = _nt_sp
-                                s18 << r20
-                                if r20
-                                  r21 = _nt_expression
-                                  s18 << r21
-                                  if r21
-                                    r23 = _nt_sp
-                                    if r23
-                                      r22 = r23
-                                    else
-                                      r22 = instantiate_node(SyntaxNode,input, index...index)
-                                    end
-                                    s18 << r22
-                                  end
-                                end
-                              end
-                              if s18.last
-                                r18 = instantiate_node(SyntaxNode,input, i18...index, s18)
-                                r18.extend(SetExpr0)
-                              else
-                                @index = i18
-                                r18 = nil
-                              end
-                              if r18
-                                r17 = r18
-                              else
-                                r17 = instantiate_node(SyntaxNode,input, index...index)
-                              end
-                              s2 << r17
-                              if r17
-                                if has_terminal?('}', false, index)
-                                  r24 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                                  @index += 1
-                                else
-                                  terminal_parse_failure('}')
-                                  r24 = nil
-                                end
-                                s2 << r24
-                              end
-                            end
-                          end
-                        end
-                      end
-                    end
-                  end
-                end
-              end
+              s2 << r9
             end
           end
         end
       end
       if s2.last
-        r2 = instantiate_node(SetComprehension,input, i2...index, s2)
-        r2.extend(SetExpr1)
+        r2 = instantiate_node(SetExpr,input, i2...index, s2)
+        r2.extend(SetExpr0)
       else
         @index = i2
         r2 = nil
@@ -1655,60 +1618,8 @@ module Delorean
       if r2
         r0 = r2
       else
-        i25, s25 = index, []
-        if has_terminal?('{', false, index)
-          r26 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
-        else
-          terminal_parse_failure('{')
-          r26 = nil
-        end
-        s25 << r26
-        if r26
-          r28 = _nt_sp
-          if r28
-            r27 = r28
-          else
-            r27 = instantiate_node(SyntaxNode,input, index...index)
-          end
-          s25 << r27
-          if r27
-            r29 = _nt_fn_args
-            s25 << r29
-            if r29
-              r31 = _nt_sp
-              if r31
-                r30 = r31
-              else
-                r30 = instantiate_node(SyntaxNode,input, index...index)
-              end
-              s25 << r30
-              if r30
-                if has_terminal?('}', false, index)
-                  r32 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                  @index += 1
-                else
-                  terminal_parse_failure('}')
-                  r32 = nil
-                end
-                s25 << r32
-              end
-            end
-          end
-        end
-        if s25.last
-          r25 = instantiate_node(SetExpr,input, i25...index, s25)
-          r25.extend(SetExpr2)
-        else
-          @index = i25
-          r25 = nil
-        end
-        if r25
-          r0 = r25
-        else
-          @index = i0
-          r0 = nil
-        end
+        @index = i0
+        r0 = nil
       end
     end
 
@@ -1745,7 +1656,7 @@ module Delorean
       elements[9]
     end
 
-    def i
+    def args
       elements[10]
     end
 
@@ -1860,7 +1771,7 @@ module Delorean
                         r15 = _nt_sp
                         s2 << r15
                         if r15
-                          r16 = _nt_identifier
+                          r16 = _nt_unpack_args
                           s2 << r16
                           if r16
                             r17 = _nt_sp

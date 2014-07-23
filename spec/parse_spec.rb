@@ -638,6 +638,12 @@ describe "Delorean" do
     engine.reset
   end
 
+  it "should accept hash comprehension 2-var unpacking" do
+    engine.parse defn("A:",
+                      "    b = [ a+b for a, b in [] ]",
+                      )
+  end
+
   it "should allow nodes as values" do
     engine.parse defn("A:",
                       "    a = 123",
