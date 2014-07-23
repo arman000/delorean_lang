@@ -13,9 +13,11 @@ Gem::Specification.new do |gem|
   gem.name          = "delorean_lang"
   gem.require_paths = ["lib"]
   gem.version       = Delorean::VERSION
+  gem.licenses      = ['MIT']
 
-  gem.add_dependency "treetop", "~> 1.4.8"
-  gem.add_dependency "activerecord"
-  gem.add_development_dependency "rspec"
-  gem.add_development_dependency "sqlite3"
+
+  gem.add_dependency "treetop", "~> 1.4"
+  gem.add_dependency "activerecord", "~> 3.2"
+  gem.add_development_dependency "rspec", '~> 0'
+  gem.add_development_dependency "sqlite3", '~> 0'
 end
