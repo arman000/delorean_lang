@@ -459,6 +459,12 @@ eos
     end
   end
 
+  class SetComprehension < ListComprehension
+    def rewrite(context)
+      "Set[*#{super}]"
+    end
+  end
+
   class HashComprehension < SNode
     # used in generating unique hash names
     @@comp_count = 0

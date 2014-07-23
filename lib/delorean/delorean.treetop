@@ -74,6 +74,12 @@ grammar Delorean
   rule set_expr
     '{-}' <SetExpr>
     /
+    '{' sp? e2:expression sp
+        'for' sp args:unpack_args sp
+        'in' sp e1:expression sp?
+        ifexp:('if' sp e3:expression sp?)?
+    '}' <SetComprehension>
+    /
     '{' sp? args:fn_args sp? '}' <SetExpr>
   end
 
