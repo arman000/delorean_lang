@@ -500,7 +500,10 @@ eos
 
       res += ".select{|#{args_str}| (#{ifexp.ei.rewrite(context)}) }" if
         defined?(ifexp.ei)
-      res += ".each_with_object({}){|(#{args_str}), _h#{hid}| " +
+
+      unpack_str = unpack_vars.count > 1 ? "(#{args_str})" : args_str
+
+      res += ".each_with_object({}){|#{unpack_str}, _h#{hid}| " +
         "_h#{hid}[#{el.rewrite(context)}]=(#{er.rewrite(context)})}"
 
       unpack_vars.each {|vname| context.parse_undef_var(vname)}

@@ -615,8 +615,27 @@ eof
   it "should eval hash comprehension" do
     engine.parse defn("A:",
                       "    b = {i*5 :i for i in [1,2,3]}",
+                      "    c = [kv for kv in {1:11, 2:22}]",
                       )
     engine.evaluate("A", "b").should == {5=>1, 10=>2, 15=>3}
+    engine.evaluate("A", "c").should == [[1, 11], [2, 22]]
+  end
+
+  it "for-in-hash should iterate over key/value pairs" do
+    engine.parse defn("A:",
+                      "    b = {1: 11, 2: 22}",
+                      "    c = [kv[0]-kv[1] for kv in b]",
+                      "    d = {kv[0] : kv[1] for kv in b}",
+                      "    e = [kv for kv in b if kv[1]]",
+                      "    f = [k-v for k, v in b if k>1]",
+                      )
+    engine.evaluate("A", "c").should == [-10, -20]
+    engine.evaluate("A", "d").should == {1=>11, 2=>22}
+    engine.evaluate("A", "f").should == [-20]
+
+    # FIXME: this is a known bug in Delorean caused by the strange way
+    # that select iterates over hashes and provides args to the block.
+    # engine.evaluate("A", "e").should == [[1,11], [2,22]]
   end
 
   it "should eval nested hash comprehension" do

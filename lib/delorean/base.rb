@@ -21,6 +21,7 @@ module Delorean
     split:              [String, String],
     uniq:               [Array],
     sum:                [Array],
+    transpose:          [Array],
     zip:                [Array, [Array, Array, Array]],
     index:              [Array, [Object]],
     product:            [Array, Array],
