@@ -501,7 +501,7 @@ eof
   it "should handle invalid expression evaluation" do
     # Should handle errors on expression such as -[] or -"xxx" or ("x"
     # + []) better. Currently, it raises NoMethodError.
-    pending
+    skip 'handle errors on expressions such as -[] or -"xxx"'
   end
 
   it "should eval lists" do

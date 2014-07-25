@@ -767,7 +767,7 @@ describe "Delorean" do
   end
 
   it "should disallow import loops" do
-    pending
+    skip 'not implemented yet'
     sset.merge({
                  "BBB" =>
                  defn("import AAA",

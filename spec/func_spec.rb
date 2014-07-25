@@ -163,6 +163,7 @@ describe "Delorean" do
     # FIXME: this is actually a Delorean design issue.  How do
     # whitelisted functions interact with attrs?  In this case, we
     # return nil since there is no Delorean 'length' attr in the hash.
+    skip 'Delorean design issue to be resolved'
 
     engine.parse defn("A:",
                       "    n = {}.length",
