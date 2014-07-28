@@ -456,6 +456,20 @@ describe "Delorean" do
     exc.line.should == 2
   end
 
+  it "correctly report error line during parse" do
+    begin
+      engine.parse defn("A:",
+                        "    b = [yyy",
+                        "        ]",
+                        "B:",
+                        )
+    rescue => exc
+    end
+
+    exc.module_name.should == "YYY"
+    exc.line.should == 2
+  end
+
   it "should raise error on malformed string" do
     lambda {
       engine.parse defn("A:",

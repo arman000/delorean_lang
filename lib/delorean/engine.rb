@@ -271,8 +271,8 @@ module Delorean
             t = parser.parse(multi_line)
             err(ParseError, "syntax error") unless t
 
-            multi_line, @multi_no = nil, nil
             generate(t)
+            multi_line, @multi_no = nil, nil
           end
         end
 
