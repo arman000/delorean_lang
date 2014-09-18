@@ -22,6 +22,7 @@ module Delorean
     uniq:               [Array],
     sum:                [Array],
     transpose:          [Array],
+    join:               [Array, String],
     zip:                [Array, [Array, Array, Array]],
     index:              [Array, [Object]],
     product:            [Array, Array],
@@ -39,7 +40,7 @@ module Delorean
     hour:               [[Date, Time, ActiveSupport::TimeWithZone]],
     min:                [[Date, Time, ActiveSupport::TimeWithZone, Array]],
     sec:                [[Date, Time, ActiveSupport::TimeWithZone]],
-    to_date:            [[Date, Time, ActiveSupport::TimeWithZone]],
+    to_date:            [[Date, Time, ActiveSupport::TimeWithZone, String]],
 
     month:              [[Date, Time, ActiveSupport::TimeWithZone]],
     day:                [[Date, Time, ActiveSupport::TimeWithZone]],
@@ -147,7 +148,7 @@ module Delorean
             obj.instance_of?(NodeCall) || obj.instance_of?(Class)
           raise InvalidIndex unless args.length == 1
           _get_attr(obj, args[0], _e)
-        elsif obj.instance_of?(Array)
+        elsif obj.instance_of?(Array) || obj.instance_of?(String)
           raise InvalidIndex unless args.length <= 2
           raise InvalidIndex unless
             args[0].is_a?(Fixnum) && (!args[1] || args[1].is_a?(Fixnum))

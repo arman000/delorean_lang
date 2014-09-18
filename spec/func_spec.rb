@@ -76,12 +76,13 @@ describe "Delorean" do
                       "    m = p.min()",
                       "    s = p.sec()",
                       "    d = p.to_date()",
+                      "    e = p.to_date.to_s.to_date",
                       )
 
     p = Time.now
     params = {"p" => p}
-    r = engine.evaluate_attrs("A", %w{h m s d}, params)
-    r.should == [p.hour, p.min, p.sec, p.to_date]
+    r = engine.evaluate_attrs("A", %w{h m s d e}, params)
+    r.should == [p.hour, p.min, p.sec, p.to_date, p.to_date]
 
     # Non time argument should raise an error
     expect { engine.evaluate_attrs("A", ["m"], {"p" => 123}) }.to raise_error
