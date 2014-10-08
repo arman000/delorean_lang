@@ -16,8 +16,8 @@ Gem::Specification.new do |gem|
   gem.licenses      = ['MIT']
 
 
-  gem.add_dependency "treetop", "~> 1.4.8"
+  gem.add_dependency "treetop", "~> 1.4"
   gem.add_dependency "activerecord", ">= 3.2"
-  gem.add_development_dependency "rspec", '>= 2.1'
+  gem.add_development_dependency "rspec", '~> 2.1'
   gem.add_development_dependency "sqlite3", '~> 1.3'
 end
