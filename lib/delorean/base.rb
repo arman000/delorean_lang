@@ -37,6 +37,7 @@ module Delorean
     downcase:           [String],
     match:              [String, [String], [nil, Fixnum]],
 
+    iso8601:            [[Date, Time, ActiveSupport::TimeWithZone]],
     hour:               [[Date, Time, ActiveSupport::TimeWithZone]],
     min:                [[Date, Time, ActiveSupport::TimeWithZone, Array]],
     sec:                [[Date, Time, ActiveSupport::TimeWithZone]],
