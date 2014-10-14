@@ -23,7 +23,7 @@ module Delorean
     if node_cache[:line].has_key?(index)
       cached = node_cache[:line][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:line][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -42,9 +42,9 @@ module Delorean
       s0 << r2
       if r2
         i5, s5 = index, []
-        if has_terminal?('#', false, index)
-          r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?('#', false, index))
+          r6 = true
+          @index += match_len
         else
           terminal_parse_failure('#')
           r6 = nil
@@ -54,7 +54,7 @@ module Delorean
           s7, i7 = [], index
           loop do
             if index < input_length
-              r8 = instantiate_node(SyntaxNode,input, index...(index + 1))
+              r8 = true
               @index += 1
             else
               terminal_parse_failure("any character")
@@ -179,7 +179,7 @@ module Delorean
     if node_cache[:formula].has_key?(index)
       cached = node_cache[:formula][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:formula][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -201,9 +201,9 @@ module Delorean
         end
         s1 << r4
         if r4
-          if has_terminal?('=?', false, index)
-            r6 = instantiate_node(SyntaxNode,input, index...(index + 2))
-            @index += 2
+          if (match_len = has_terminal?('=?', false, index))
+            r6 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+            @index += match_len
           else
             terminal_parse_failure('=?')
             r6 = nil
@@ -233,6 +233,7 @@ module Delorean
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i10, s10 = index, []
@@ -250,9 +251,9 @@ module Delorean
           end
           s10 << r13
           if r13
-            if has_terminal?('=?', false, index)
-              r15 = instantiate_node(SyntaxNode,input, index...(index + 2))
-              @index += 2
+            if (match_len = has_terminal?('=?', false, index))
+              r15 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+              @index += match_len
             else
               terminal_parse_failure('=?')
               r15 = nil
@@ -269,6 +270,7 @@ module Delorean
         r10 = nil
       end
       if r10
+        r10 = SyntaxNode.new(input, (index-1)...index) if r10 == true
         r0 = r10
       else
         i16, s16 = index, []
@@ -286,9 +288,9 @@ module Delorean
             end
             s16 << r19
             if r19
-              if has_terminal?('=', false, index)
-                r21 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                @index += 1
+              if (match_len = has_terminal?('=', false, index))
+                r21 = true
+                @index += match_len
               else
                 terminal_parse_failure('=')
                 r21 = nil
@@ -318,15 +320,16 @@ module Delorean
           r16 = nil
         end
         if r16
+          r16 = SyntaxNode.new(input, (index-1)...index) if r16 == true
           r0 = r16
         else
           i25, s25 = index, []
           r26 = _nt_class_name
           s25 << r26
           if r26
-            if has_terminal?(':', false, index)
-              r27 = instantiate_node(SyntaxNode,input, index...(index + 1))
-              @index += 1
+            if (match_len = has_terminal?(':', false, index))
+              r27 = true
+              @index += match_len
             else
               terminal_parse_failure(':')
               r27 = nil
@@ -345,9 +348,9 @@ module Delorean
                 r32 = _nt_class_name
                 s31 << r32
                 if r32
-                  if has_terminal?('::', false, index)
-                    r33 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                    @index += 2
+                  if (match_len = has_terminal?('::', false, index))
+                    r33 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                    @index += match_len
                   else
                     terminal_parse_failure('::')
                     r33 = nil
@@ -382,15 +385,16 @@ module Delorean
             r25 = nil
           end
           if r25
+            r25 = SyntaxNode.new(input, (index-1)...index) if r25 == true
             r0 = r25
           else
             i35, s35 = index, []
             r36 = _nt_class_name
             s35 << r36
             if r36
-              if has_terminal?(':', false, index)
-                r37 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                @index += 1
+              if (match_len = has_terminal?(':', false, index))
+                r37 = true
+                @index += match_len
               else
                 terminal_parse_failure(':')
                 r37 = nil
@@ -405,12 +409,13 @@ module Delorean
               r35 = nil
             end
             if r35
+              r35 = SyntaxNode.new(input, (index-1)...index) if r35 == true
               r0 = r35
             else
               i38, s38 = index, []
-              if has_terminal?('import', false, index)
-                r39 = instantiate_node(SyntaxNode,input, index...(index + 6))
-                @index += 6
+              if (match_len = has_terminal?('import', false, index))
+                r39 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                @index += match_len
               else
                 terminal_parse_failure('import')
                 r39 = nil
@@ -432,6 +437,7 @@ module Delorean
                 r38 = nil
               end
               if r38
+                r38 = SyntaxNode.new(input, (index-1)...index) if r38 == true
                 r0 = r38
               else
                 @index = i0
@@ -456,27 +462,29 @@ module Delorean
     if node_cache[:class_name].has_key?(index)
       cached = node_cache[:class_name][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:class_name][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
     i0, s0 = index, []
-    if has_terminal?('\G[A-Z]', true, index)
+    if has_terminal?(@regexps[gr = '\A[A-Z]'] ||= Regexp.new(gr), :regexp, index)
       r1 = true
       @index += 1
     else
+      terminal_parse_failure('[A-Z]')
       r1 = nil
     end
     s0 << r1
     if r1
       s2, i2 = [], index
       loop do
-        if has_terminal?('\G[a-zA-Z0-9_]', true, index)
+        if has_terminal?(@regexps[gr = '\A[a-zA-Z0-9_]'] ||= Regexp.new(gr), :regexp, index)
           r3 = true
           @index += 1
         else
+          terminal_parse_failure('[a-zA-Z0-9_]')
           r3 = nil
         end
         if r3
@@ -551,7 +559,7 @@ module Delorean
     if node_cache[:expression].has_key?(index)
       cached = node_cache[:expression][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:expression][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -559,9 +567,9 @@ module Delorean
 
     i0 = index
     i1, s1 = index, []
-    if has_terminal?('ERR(', false, index)
-      r2 = instantiate_node(SyntaxNode,input, index...(index + 4))
-      @index += 4
+    if (match_len = has_terminal?('ERR(', false, index))
+      r2 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('ERR(')
       r2 = nil
@@ -587,9 +595,9 @@ module Delorean
           end
           s1 << r6
           if r6
-            if has_terminal?(')', false, index)
-              r8 = instantiate_node(SyntaxNode,input, index...(index + 1))
-              @index += 1
+            if (match_len = has_terminal?(')', false, index))
+              r8 = true
+              @index += match_len
             else
               terminal_parse_failure(')')
               r8 = nil
@@ -607,6 +615,7 @@ module Delorean
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i9, s9 = index, []
@@ -633,12 +642,13 @@ module Delorean
         r9 = nil
       end
       if r9
+        r9 = SyntaxNode.new(input, (index-1)...index) if r9 == true
         r0 = r9
       else
         i14, s14 = index, []
-        if has_terminal?('if', false, index)
-          r15 = instantiate_node(SyntaxNode,input, index...(index + 2))
-          @index += 2
+        if (match_len = has_terminal?('if', false, index))
+          r15 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+          @index += match_len
         else
           terminal_parse_failure('if')
           r15 = nil
@@ -664,9 +674,9 @@ module Delorean
               end
               s14 << r19
               if r19
-                if has_terminal?('then', false, index)
-                  r21 = instantiate_node(SyntaxNode,input, index...(index + 4))
-                  @index += 4
+                if (match_len = has_terminal?('then', false, index))
+                  r21 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                  @index += match_len
                 else
                   terminal_parse_failure('then')
                   r21 = nil
@@ -692,9 +702,9 @@ module Delorean
                       end
                       s14 << r25
                       if r25
-                        if has_terminal?('else', false, index)
-                          r27 = instantiate_node(SyntaxNode,input, index...(index + 4))
-                          @index += 4
+                        if (match_len = has_terminal?('else', false, index))
+                          r27 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                          @index += match_len
                         else
                           terminal_parse_failure('else')
                           r27 = nil
@@ -729,6 +739,7 @@ module Delorean
           r14 = nil
         end
         if r14
+          r14 = SyntaxNode.new(input, (index-1)...index) if r14 == true
           r0 = r14
         else
           i31, s31 = index, []
@@ -768,10 +779,12 @@ module Delorean
             r31 = nil
           end
           if r31
+            r31 = SyntaxNode.new(input, (index-1)...index) if r31 == true
             r0 = r31
           else
             r39 = _nt_getattr_exp
             if r39
+              r39 = SyntaxNode.new(input, (index-1)...index) if r39 == true
               r0 = r39
             else
               @index = i0
@@ -802,7 +815,7 @@ module Delorean
     if node_cache[:getattr_exp].has_key?(index)
       cached = node_cache[:getattr_exp][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:getattr_exp][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -824,10 +837,12 @@ module Delorean
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       r4 = _nt_value
       if r4
+        r4 = SyntaxNode.new(input, (index-1)...index) if r4 == true
         r0 = r4
       else
         @index = i0
@@ -855,7 +870,7 @@ module Delorean
     if node_cache[:dotted].has_key?(index)
       cached = node_cache[:dotted][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:dotted][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -922,7 +937,7 @@ module Delorean
     if node_cache[:dot_exp].has_key?(index)
       cached = node_cache[:dot_exp][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:dot_exp][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -930,9 +945,9 @@ module Delorean
 
     i0 = index
     i1, s1 = index, []
-    if has_terminal?('[', false, index)
-      r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
-      @index += 1
+    if (match_len = has_terminal?('[', false, index))
+      r2 = true
+      @index += match_len
     else
       terminal_parse_failure('[')
       r2 = nil
@@ -958,9 +973,9 @@ module Delorean
           end
           s1 << r6
           if r6
-            if has_terminal?(']', false, index)
-              r8 = instantiate_node(SyntaxNode,input, index...(index + 1))
-              @index += 1
+            if (match_len = has_terminal?(']', false, index))
+              r8 = true
+              @index += match_len
             else
               terminal_parse_failure(']')
               r8 = nil
@@ -978,12 +993,13 @@ module Delorean
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i9, s9 = index, []
-      if has_terminal?('(', false, index)
-        r10 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?('(', false, index))
+        r10 = true
+        @index += match_len
       else
         terminal_parse_failure('(')
         r10 = nil
@@ -1014,9 +1030,9 @@ module Delorean
             end
             s9 << r15
             if r15
-              if has_terminal?(')', false, index)
-                r17 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                @index += 1
+              if (match_len = has_terminal?(')', false, index))
+                r17 = true
+                @index += match_len
               else
                 terminal_parse_failure(')')
                 r17 = nil
@@ -1034,12 +1050,13 @@ module Delorean
         r9 = nil
       end
       if r9
+        r9 = SyntaxNode.new(input, (index-1)...index) if r9 == true
         r0 = r9
       else
         i18, s18 = index, []
-        if has_terminal?('.', false, index)
-          r19 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?('.', false, index))
+          r19 = true
+          @index += match_len
         else
           terminal_parse_failure('.')
           r19 = nil
@@ -1057,9 +1074,9 @@ module Delorean
             r22 = _nt_identifier
             s18 << r22
             if r22
-              if has_terminal?('(', false, index)
-                r23 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                @index += 1
+              if (match_len = has_terminal?('(', false, index))
+                r23 = true
+                @index += match_len
               else
                 terminal_parse_failure('(')
                 r23 = nil
@@ -1090,9 +1107,9 @@ module Delorean
                     end
                     s18 << r28
                     if r28
-                      if has_terminal?(')', false, index)
-                        r30 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                        @index += 1
+                      if (match_len = has_terminal?(')', false, index))
+                        r30 = true
+                        @index += match_len
                       else
                         terminal_parse_failure(')')
                         r30 = nil
@@ -1113,12 +1130,13 @@ module Delorean
           r18 = nil
         end
         if r18
+          r18 = SyntaxNode.new(input, (index-1)...index) if r18 == true
           r0 = r18
         else
           i31, s31 = index, []
-          if has_terminal?('.', false, index)
-            r32 = instantiate_node(SyntaxNode,input, index...(index + 1))
-            @index += 1
+          if (match_len = has_terminal?('.', false, index))
+            r32 = true
+            @index += match_len
           else
             terminal_parse_failure('.')
             r32 = nil
@@ -1136,10 +1154,12 @@ module Delorean
               i35 = index
               r36 = _nt_identifier
               if r36
+                r36 = SyntaxNode.new(input, (index-1)...index) if r36 == true
                 r35 = r36
               else
                 r37 = _nt_integer
                 if r37
+                  r37 = SyntaxNode.new(input, (index-1)...index) if r37 == true
                   r35 = r37
                 else
                   @index = i35
@@ -1157,6 +1177,7 @@ module Delorean
             r31 = nil
           end
           if r31
+            r31 = SyntaxNode.new(input, (index-1)...index) if r31 == true
             r0 = r31
           else
             @index = i0
@@ -1192,7 +1213,7 @@ module Delorean
     if node_cache[:unpack_args].has_key?(index)
       cached = node_cache[:unpack_args][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:unpack_args][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -1211,9 +1232,9 @@ module Delorean
       end
       s3 << r4
       if r4
-        if has_terminal?(',', false, index)
-          r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?(',', false, index))
+          r6 = true
+          @index += match_len
         else
           terminal_parse_failure(',')
           r6 = nil
@@ -1323,27 +1344,28 @@ module Delorean
     if node_cache[:list_expr].has_key?(index)
       cached = node_cache[:list_expr][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:list_expr][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
     i0 = index
-    if has_terminal?('[]', false, index)
-      r1 = instantiate_node(ListExpr,input, index...(index + 2))
-      @index += 2
+    if (match_len = has_terminal?('[]', false, index))
+      r1 = instantiate_node(ListExpr,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('[]')
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i2, s2 = index, []
-      if has_terminal?('[', false, index)
-        r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?('[', false, index))
+        r3 = true
+        @index += match_len
       else
         terminal_parse_failure('[')
         r3 = nil
@@ -1364,9 +1386,9 @@ module Delorean
             r7 = _nt_sp
             s2 << r7
             if r7
-              if has_terminal?('for', false, index)
-                r8 = instantiate_node(SyntaxNode,input, index...(index + 3))
-                @index += 3
+              if (match_len = has_terminal?('for', false, index))
+                r8 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                @index += match_len
               else
                 terminal_parse_failure('for')
                 r8 = nil
@@ -1382,9 +1404,9 @@ module Delorean
                     r11 = _nt_sp
                     s2 << r11
                     if r11
-                      if has_terminal?('in', false, index)
-                        r12 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                        @index += 2
+                      if (match_len = has_terminal?('in', false, index))
+                        r12 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                        @index += match_len
                       else
                         terminal_parse_failure('in')
                         r12 = nil
@@ -1406,9 +1428,9 @@ module Delorean
                             s2 << r15
                             if r15
                               i18, s18 = index, []
-                              if has_terminal?('if', false, index)
-                                r19 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                                @index += 2
+                              if (match_len = has_terminal?('if', false, index))
+                                r19 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                                @index += match_len
                               else
                                 terminal_parse_failure('if')
                                 r19 = nil
@@ -1445,9 +1467,9 @@ module Delorean
                               end
                               s2 << r17
                               if r17
-                                if has_terminal?(']', false, index)
-                                  r24 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                                  @index += 1
+                                if (match_len = has_terminal?(']', false, index))
+                                  r24 = true
+                                  @index += match_len
                                 else
                                   terminal_parse_failure(']')
                                   r24 = nil
@@ -1474,12 +1496,13 @@ module Delorean
         r2 = nil
       end
       if r2
+        r2 = SyntaxNode.new(input, (index-1)...index) if r2 == true
         r0 = r2
       else
         i25, s25 = index, []
-        if has_terminal?('[', false, index)
-          r26 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?('[', false, index))
+          r26 = true
+          @index += match_len
         else
           terminal_parse_failure('[')
           r26 = nil
@@ -1505,9 +1528,9 @@ module Delorean
               end
               s25 << r30
               if r30
-                if has_terminal?(']', false, index)
-                  r32 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                  @index += 1
+                if (match_len = has_terminal?(']', false, index))
+                  r32 = true
+                  @index += match_len
                 else
                   terminal_parse_failure(']')
                   r32 = nil
@@ -1525,6 +1548,7 @@ module Delorean
           r25 = nil
         end
         if r25
+          r25 = SyntaxNode.new(input, (index-1)...index) if r25 == true
           r0 = r25
         else
           @index = i0
@@ -1596,27 +1620,28 @@ module Delorean
     if node_cache[:set_expr].has_key?(index)
       cached = node_cache[:set_expr][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:set_expr][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
     i0 = index
-    if has_terminal?('{-}', false, index)
-      r1 = instantiate_node(SetExpr,input, index...(index + 3))
-      @index += 3
+    if (match_len = has_terminal?('{-}', false, index))
+      r1 = instantiate_node(SetExpr,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('{-}')
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i2, s2 = index, []
-      if has_terminal?('{', false, index)
-        r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?('{', false, index))
+        r3 = true
+        @index += match_len
       else
         terminal_parse_failure('{')
         r3 = nil
@@ -1637,9 +1662,9 @@ module Delorean
             r7 = _nt_sp
             s2 << r7
             if r7
-              if has_terminal?('for', false, index)
-                r8 = instantiate_node(SyntaxNode,input, index...(index + 3))
-                @index += 3
+              if (match_len = has_terminal?('for', false, index))
+                r8 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                @index += match_len
               else
                 terminal_parse_failure('for')
                 r8 = nil
@@ -1655,9 +1680,9 @@ module Delorean
                     r11 = _nt_sp
                     s2 << r11
                     if r11
-                      if has_terminal?('in', false, index)
-                        r12 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                        @index += 2
+                      if (match_len = has_terminal?('in', false, index))
+                        r12 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                        @index += match_len
                       else
                         terminal_parse_failure('in')
                         r12 = nil
@@ -1679,9 +1704,9 @@ module Delorean
                             s2 << r15
                             if r15
                               i18, s18 = index, []
-                              if has_terminal?('if', false, index)
-                                r19 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                                @index += 2
+                              if (match_len = has_terminal?('if', false, index))
+                                r19 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                                @index += match_len
                               else
                                 terminal_parse_failure('if')
                                 r19 = nil
@@ -1718,9 +1743,9 @@ module Delorean
                               end
                               s2 << r17
                               if r17
-                                if has_terminal?('}', false, index)
-                                  r24 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                                  @index += 1
+                                if (match_len = has_terminal?('}', false, index))
+                                  r24 = true
+                                  @index += match_len
                                 else
                                   terminal_parse_failure('}')
                                   r24 = nil
@@ -1747,12 +1772,13 @@ module Delorean
         r2 = nil
       end
       if r2
+        r2 = SyntaxNode.new(input, (index-1)...index) if r2 == true
         r0 = r2
       else
         i25, s25 = index, []
-        if has_terminal?('{', false, index)
-          r26 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?('{', false, index))
+          r26 = true
+          @index += match_len
         else
           terminal_parse_failure('{')
           r26 = nil
@@ -1778,9 +1804,9 @@ module Delorean
               end
               s25 << r30
               if r30
-                if has_terminal?('}', false, index)
-                  r32 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                  @index += 1
+                if (match_len = has_terminal?('}', false, index))
+                  r32 = true
+                  @index += match_len
                 else
                   terminal_parse_failure('}')
                   r32 = nil
@@ -1798,6 +1824,7 @@ module Delorean
           r25 = nil
         end
         if r25
+          r25 = SyntaxNode.new(input, (index-1)...index) if r25 == true
           r0 = r25
         else
           @index = i0
@@ -1873,27 +1900,28 @@ module Delorean
     if node_cache[:hash_expr].has_key?(index)
       cached = node_cache[:hash_expr][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:hash_expr][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
     i0 = index
-    if has_terminal?('{}', false, index)
-      r1 = instantiate_node(HashExpr,input, index...(index + 2))
-      @index += 2
+    if (match_len = has_terminal?('{}', false, index))
+      r1 = instantiate_node(HashExpr,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('{}')
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i2, s2 = index, []
-      if has_terminal?('{', false, index)
-        r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?('{', false, index))
+        r3 = true
+        @index += match_len
       else
         terminal_parse_failure('{')
         r3 = nil
@@ -1919,9 +1947,9 @@ module Delorean
             end
             s2 << r7
             if r7
-              if has_terminal?(':', false, index)
-                r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                @index += 1
+              if (match_len = has_terminal?(':', false, index))
+                r9 = true
+                @index += match_len
               else
                 terminal_parse_failure(':')
                 r9 = nil
@@ -1942,9 +1970,9 @@ module Delorean
                     r13 = _nt_sp
                     s2 << r13
                     if r13
-                      if has_terminal?('for', false, index)
-                        r14 = instantiate_node(SyntaxNode,input, index...(index + 3))
-                        @index += 3
+                      if (match_len = has_terminal?('for', false, index))
+                        r14 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                        @index += match_len
                       else
                         terminal_parse_failure('for')
                         r14 = nil
@@ -1960,9 +1988,9 @@ module Delorean
                             r17 = _nt_sp
                             s2 << r17
                             if r17
-                              if has_terminal?('in', false, index)
-                                r18 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                                @index += 2
+                              if (match_len = has_terminal?('in', false, index))
+                                r18 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                                @index += match_len
                               else
                                 terminal_parse_failure('in')
                                 r18 = nil
@@ -1984,9 +2012,9 @@ module Delorean
                                     s2 << r21
                                     if r21
                                       i24, s24 = index, []
-                                      if has_terminal?('if', false, index)
-                                        r25 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                                        @index += 2
+                                      if (match_len = has_terminal?('if', false, index))
+                                        r25 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                                        @index += match_len
                                       else
                                         terminal_parse_failure('if')
                                         r25 = nil
@@ -2023,9 +2051,9 @@ module Delorean
                                       end
                                       s2 << r23
                                       if r23
-                                        if has_terminal?('}', false, index)
-                                          r30 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                                          @index += 1
+                                        if (match_len = has_terminal?('}', false, index))
+                                          r30 = true
+                                          @index += match_len
                                         else
                                           terminal_parse_failure('}')
                                           r30 = nil
@@ -2056,12 +2084,13 @@ module Delorean
         r2 = nil
       end
       if r2
+        r2 = SyntaxNode.new(input, (index-1)...index) if r2 == true
         r0 = r2
       else
         i31, s31 = index, []
-        if has_terminal?('{', false, index)
-          r32 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?('{', false, index))
+          r32 = true
+          @index += match_len
         else
           terminal_parse_failure('{')
           r32 = nil
@@ -2087,9 +2116,9 @@ module Delorean
               end
               s31 << r36
               if r36
-                if has_terminal?('}', false, index)
-                  r38 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                  @index += 1
+                if (match_len = has_terminal?('}', false, index))
+                  r38 = true
+                  @index += match_len
                 else
                   terminal_parse_failure('}')
                   r38 = nil
@@ -2107,6 +2136,7 @@ module Delorean
           r31 = nil
         end
         if r31
+          r31 = SyntaxNode.new(input, (index-1)...index) if r31 == true
           r0 = r31
         else
           @index = i0
@@ -2125,171 +2155,187 @@ module Delorean
     if node_cache[:binary_op].has_key?(index)
       cached = node_cache[:binary_op][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:binary_op][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
     i0 = index
-    if has_terminal?('==', false, index)
-      r1 = instantiate_node(SyntaxNode,input, index...(index + 2))
-      @index += 2
+    if (match_len = has_terminal?('==', false, index))
+      r1 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('==')
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
-      if has_terminal?('!=', false, index)
-        r2 = instantiate_node(SyntaxNode,input, index...(index + 2))
-        @index += 2
+      if (match_len = has_terminal?('!=', false, index))
+        r2 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+        @index += match_len
       else
         terminal_parse_failure('!=')
         r2 = nil
       end
       if r2
+        r2 = SyntaxNode.new(input, (index-1)...index) if r2 == true
         r0 = r2
       else
-        if has_terminal?('>=', false, index)
-          r3 = instantiate_node(SyntaxNode,input, index...(index + 2))
-          @index += 2
+        if (match_len = has_terminal?('>=', false, index))
+          r3 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+          @index += match_len
         else
           terminal_parse_failure('>=')
           r3 = nil
         end
         if r3
+          r3 = SyntaxNode.new(input, (index-1)...index) if r3 == true
           r0 = r3
         else
-          if has_terminal?('<=', false, index)
-            r4 = instantiate_node(SyntaxNode,input, index...(index + 2))
-            @index += 2
+          if (match_len = has_terminal?('<=', false, index))
+            r4 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+            @index += match_len
           else
             terminal_parse_failure('<=')
             r4 = nil
           end
           if r4
+            r4 = SyntaxNode.new(input, (index-1)...index) if r4 == true
             r0 = r4
           else
-            if has_terminal?('&&', false, index)
-              r5 = instantiate_node(SyntaxNode,input, index...(index + 2))
-              @index += 2
+            if (match_len = has_terminal?('&&', false, index))
+              r5 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+              @index += match_len
             else
               terminal_parse_failure('&&')
               r5 = nil
             end
             if r5
+              r5 = SyntaxNode.new(input, (index-1)...index) if r5 == true
               r0 = r5
             else
-              if has_terminal?('||', false, index)
-                r6 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                @index += 2
+              if (match_len = has_terminal?('||', false, index))
+                r6 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                @index += match_len
               else
                 terminal_parse_failure('||')
                 r6 = nil
               end
               if r6
+                r6 = SyntaxNode.new(input, (index-1)...index) if r6 == true
                 r0 = r6
               else
-                if has_terminal?('>', false, index)
-                  r7 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                  @index += 1
+                if (match_len = has_terminal?('>', false, index))
+                  r7 = true
+                  @index += match_len
                 else
                   terminal_parse_failure('>')
                   r7 = nil
                 end
                 if r7
+                  r7 = SyntaxNode.new(input, (index-1)...index) if r7 == true
                   r0 = r7
                 else
-                  if has_terminal?('<', false, index)
-                    r8 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                    @index += 1
+                  if (match_len = has_terminal?('<', false, index))
+                    r8 = true
+                    @index += match_len
                   else
                     terminal_parse_failure('<')
                     r8 = nil
                   end
                   if r8
+                    r8 = SyntaxNode.new(input, (index-1)...index) if r8 == true
                     r0 = r8
                   else
-                    if has_terminal?('+', false, index)
-                      r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                      @index += 1
+                    if (match_len = has_terminal?('+', false, index))
+                      r9 = true
+                      @index += match_len
                     else
                       terminal_parse_failure('+')
                       r9 = nil
                     end
                     if r9
+                      r9 = SyntaxNode.new(input, (index-1)...index) if r9 == true
                       r0 = r9
                     else
-                      if has_terminal?('-', false, index)
-                        r10 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                        @index += 1
+                      if (match_len = has_terminal?('-', false, index))
+                        r10 = true
+                        @index += match_len
                       else
                         terminal_parse_failure('-')
                         r10 = nil
                       end
                       if r10
+                        r10 = SyntaxNode.new(input, (index-1)...index) if r10 == true
                         r0 = r10
                       else
-                        if has_terminal?('*', false, index)
-                          r11 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                          @index += 1
+                        if (match_len = has_terminal?('*', false, index))
+                          r11 = true
+                          @index += match_len
                         else
                           terminal_parse_failure('*')
                           r11 = nil
                         end
                         if r11
+                          r11 = SyntaxNode.new(input, (index-1)...index) if r11 == true
                           r0 = r11
                         else
-                          if has_terminal?('/', false, index)
-                            r12 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                            @index += 1
+                          if (match_len = has_terminal?('/', false, index))
+                            r12 = true
+                            @index += match_len
                           else
                             terminal_parse_failure('/')
                             r12 = nil
                           end
                           if r12
+                            r12 = SyntaxNode.new(input, (index-1)...index) if r12 == true
                             r0 = r12
                           else
-                            if has_terminal?('%', false, index)
-                              r13 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                              @index += 1
+                            if (match_len = has_terminal?('%', false, index))
+                              r13 = true
+                              @index += match_len
                             else
                               terminal_parse_failure('%')
                               r13 = nil
                             end
                             if r13
+                              r13 = SyntaxNode.new(input, (index-1)...index) if r13 == true
                               r0 = r13
                             else
-                              if has_terminal?('&', false, index)
-                                r14 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                                @index += 1
+                              if (match_len = has_terminal?('&', false, index))
+                                r14 = true
+                                @index += match_len
                               else
                                 terminal_parse_failure('&')
                                 r14 = nil
                               end
                               if r14
+                                r14 = SyntaxNode.new(input, (index-1)...index) if r14 == true
                                 r0 = r14
                               else
-                                if has_terminal?('^', false, index)
-                                  r15 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                                  @index += 1
+                                if (match_len = has_terminal?('^', false, index))
+                                  r15 = true
+                                  @index += match_len
                                 else
                                   terminal_parse_failure('^')
                                   r15 = nil
                                 end
                                 if r15
+                                  r15 = SyntaxNode.new(input, (index-1)...index) if r15 == true
                                   r0 = r15
                                 else
-                                  if has_terminal?('|', false, index)
-                                    r16 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                                    @index += 1
+                                  if (match_len = has_terminal?('|', false, index))
+                                    r16 = true
+                                    @index += match_len
                                   else
                                     terminal_parse_failure('|')
                                     r16 = nil
                                   end
                                   if r16
+                                    r16 = SyntaxNode.new(input, (index-1)...index) if r16 == true
                                     r0 = r16
                                   else
                                     @index = i0
@@ -2321,31 +2367,33 @@ module Delorean
     if node_cache[:unary_op].has_key?(index)
       cached = node_cache[:unary_op][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:unary_op][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
     i0 = index
-    if has_terminal?('!', false, index)
-      r1 = instantiate_node(SyntaxNode,input, index...(index + 1))
-      @index += 1
+    if (match_len = has_terminal?('!', false, index))
+      r1 = true
+      @index += match_len
     else
       terminal_parse_failure('!')
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
-      if has_terminal?('-', false, index)
-        r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?('-', false, index))
+        r2 = true
+        @index += match_len
       else
         terminal_parse_failure('-')
         r2 = nil
       end
       if r2
+        r2 = SyntaxNode.new(input, (index-1)...index) if r2 == true
         r0 = r2
       else
         @index = i0
@@ -2387,7 +2435,7 @@ module Delorean
     if node_cache[:value].has_key?(index)
       cached = node_cache[:value][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:value][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -2396,42 +2444,52 @@ module Delorean
     i0 = index
     r1 = _nt_decimal
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       r2 = _nt_integer
       if r2
+        r2 = SyntaxNode.new(input, (index-1)...index) if r2 == true
         r0 = r2
       else
         r3 = _nt_string
         if r3
+          r3 = SyntaxNode.new(input, (index-1)...index) if r3 == true
           r0 = r3
         else
           r4 = _nt_boolean
           if r4
+            r4 = SyntaxNode.new(input, (index-1)...index) if r4 == true
             r0 = r4
           else
             r5 = _nt_nil_val
             if r5
+              r5 = SyntaxNode.new(input, (index-1)...index) if r5 == true
               r0 = r5
             else
               r6 = _nt_identifier
               if r6
+                r6 = SyntaxNode.new(input, (index-1)...index) if r6 == true
                 r0 = r6
               else
                 r7 = _nt_self
                 if r7
+                  r7 = SyntaxNode.new(input, (index-1)...index) if r7 == true
                   r0 = r7
                 else
                   r8 = _nt_list_expr
                   if r8
+                    r8 = SyntaxNode.new(input, (index-1)...index) if r8 == true
                     r0 = r8
                   else
                     r9 = _nt_set_expr
                     if r9
+                      r9 = SyntaxNode.new(input, (index-1)...index) if r9 == true
                       r0 = r9
                     else
                       r10 = _nt_hash_expr
                       if r10
+                        r10 = SyntaxNode.new(input, (index-1)...index) if r10 == true
                         r0 = r10
                       else
                         i11, s11 = index, []
@@ -2439,9 +2497,9 @@ module Delorean
                         r14 = _nt_class_name
                         s13 << r14
                         if r14
-                          if has_terminal?('::', false, index)
-                            r15 = instantiate_node(SyntaxNode,input, index...(index + 2))
-                            @index += 2
+                          if (match_len = has_terminal?('::', false, index))
+                            r15 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                            @index += match_len
                           else
                             terminal_parse_failure('::')
                             r15 = nil
@@ -2473,12 +2531,13 @@ module Delorean
                           r11 = nil
                         end
                         if r11
+                          r11 = SyntaxNode.new(input, (index-1)...index) if r11 == true
                           r0 = r11
                         else
                           i17, s17 = index, []
-                          if has_terminal?('(', false, index)
-                            r18 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                            @index += 1
+                          if (match_len = has_terminal?('(', false, index))
+                            r18 = true
+                            @index += match_len
                           else
                             terminal_parse_failure('(')
                             r18 = nil
@@ -2504,9 +2563,9 @@ module Delorean
                                 end
                                 s17 << r22
                                 if r22
-                                  if has_terminal?(')', false, index)
-                                    r24 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                                    @index += 1
+                                  if (match_len = has_terminal?(')', false, index))
+                                    r24 = true
+                                    @index += match_len
                                   else
                                     terminal_parse_failure(')')
                                     r24 = nil
@@ -2524,6 +2583,7 @@ module Delorean
                             r17 = nil
                           end
                           if r17
+                            r17 = SyntaxNode.new(input, (index-1)...index) if r17 == true
                             r0 = r17
                           else
                             @index = i0
@@ -2567,7 +2627,7 @@ module Delorean
     if node_cache[:fn_args].has_key?(index)
       cached = node_cache[:fn_args][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:fn_args][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -2586,9 +2646,9 @@ module Delorean
       end
       s3 << r4
       if r4
-        if has_terminal?(',', false, index)
-          r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?(',', false, index))
+          r6 = true
+          @index += match_len
         else
           terminal_parse_failure(',')
           r6 = nil
@@ -2665,7 +2725,7 @@ module Delorean
     if node_cache[:hash_args].has_key?(index)
       cached = node_cache[:hash_args][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:hash_args][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -2683,9 +2743,9 @@ module Delorean
       end
       s0 << r2
       if r2
-        if has_terminal?(':', false, index)
-          r4 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?(':', false, index))
+          r4 = true
+          @index += match_len
         else
           terminal_parse_failure(':')
           r4 = nil
@@ -2712,9 +2772,9 @@ module Delorean
               end
               s9 << r10
               if r10
-                if has_terminal?(',', false, index)
-                  r12 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                  @index += 1
+                if (match_len = has_terminal?(',', false, index))
+                  r12 = true
+                  @index += match_len
                 else
                   terminal_parse_failure(',')
                   r12 = nil
@@ -2802,7 +2862,7 @@ module Delorean
     if node_cache[:kw_args].has_key?(index)
       cached = node_cache[:kw_args][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:kw_args][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -2821,9 +2881,9 @@ module Delorean
       end
       s2 << r4
       if r4
-        if has_terminal?('=', false, index)
-          r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?('=', false, index))
+          r6 = true
+          @index += match_len
         else
           terminal_parse_failure('=')
           r6 = nil
@@ -2866,9 +2926,9 @@ module Delorean
         end
         s11 << r12
         if r12
-          if has_terminal?(',', false, index)
-            r14 = instantiate_node(SyntaxNode,input, index...(index + 1))
-            @index += 1
+          if (match_len = has_terminal?(',', false, index))
+            r14 = true
+            @index += match_len
           else
             terminal_parse_failure(',')
             r14 = nil
@@ -2933,7 +2993,7 @@ module Delorean
     if node_cache[:decimal].has_key?(index)
       cached = node_cache[:decimal][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:decimal][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -2943,9 +3003,9 @@ module Delorean
     r1 = _nt_integer
     s0 << r1
     if r1
-      if has_terminal?('.', false, index)
-        r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?('.', false, index))
+        r2 = true
+        @index += match_len
       else
         terminal_parse_failure('.')
         r2 = nil
@@ -2954,10 +3014,11 @@ module Delorean
       if r2
         s3, i3 = [], index
         loop do
-          if has_terminal?('\G[0-9]', true, index)
+          if has_terminal?(@regexps[gr = '\A[0-9]'] ||= Regexp.new(gr), :regexp, index)
             r4 = true
             @index += 1
           else
+            terminal_parse_failure('[0-9]')
             r4 = nil
           end
           if r4
@@ -2996,38 +3057,41 @@ module Delorean
     if node_cache[:integer].has_key?(index)
       cached = node_cache[:integer][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:integer][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
     i0 = index
-    if has_terminal?('0', false, index)
-      r1 = instantiate_node(Literal,input, index...(index + 1))
-      @index += 1
+    if (match_len = has_terminal?('0', false, index))
+      r1 = instantiate_node(Literal,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('0')
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i2, s2 = index, []
-      if has_terminal?('\G[1-9]', true, index)
+      if has_terminal?(@regexps[gr = '\A[1-9]'] ||= Regexp.new(gr), :regexp, index)
         r3 = true
         @index += 1
       else
+        terminal_parse_failure('[1-9]')
         r3 = nil
       end
       s2 << r3
       if r3
         s4, i4 = [], index
         loop do
-          if has_terminal?('\G[0-9]', true, index)
+          if has_terminal?(@regexps[gr = '\A[0-9]'] ||= Regexp.new(gr), :regexp, index)
             r5 = true
             @index += 1
           else
+            terminal_parse_failure('[0-9]')
             r5 = nil
           end
           if r5
@@ -3047,6 +3111,7 @@ module Delorean
         r2 = nil
       end
       if r2
+        r2 = SyntaxNode.new(input, (index-1)...index) if r2 == true
         r0 = r2
       else
         @index = i0
@@ -3067,27 +3132,29 @@ module Delorean
     if node_cache[:identifier].has_key?(index)
       cached = node_cache[:identifier][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:identifier][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
     i0, s0 = index, []
-    if has_terminal?('\G[a-z]', true, index)
+    if has_terminal?(@regexps[gr = '\A[a-z]'] ||= Regexp.new(gr), :regexp, index)
       r1 = true
       @index += 1
     else
+      terminal_parse_failure('[a-z]')
       r1 = nil
     end
     s0 << r1
     if r1
       s2, i2 = [], index
       loop do
-        if has_terminal?('\G[a-zA-Z0-9_]', true, index)
+        if has_terminal?(@regexps[gr = '\A[a-zA-Z0-9_]'] ||= Regexp.new(gr), :regexp, index)
           r3 = true
           @index += 1
         else
+          terminal_parse_failure('[a-zA-Z0-9_]')
           r3 = nil
         end
         if r3
@@ -3117,31 +3184,33 @@ module Delorean
     if node_cache[:boolean].has_key?(index)
       cached = node_cache[:boolean][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:boolean][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
     i0 = index
-    if has_terminal?('true', false, index)
-      r1 = instantiate_node(Literal,input, index...(index + 4))
-      @index += 4
+    if (match_len = has_terminal?('true', false, index))
+      r1 = instantiate_node(Literal,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('true')
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
-      if has_terminal?('false', false, index)
-        r2 = instantiate_node(Literal,input, index...(index + 5))
-        @index += 5
+      if (match_len = has_terminal?('false', false, index))
+        r2 = instantiate_node(Literal,input, index...(index + match_len))
+        @index += match_len
       else
         terminal_parse_failure('false')
         r2 = nil
       end
       if r2
+        r2 = SyntaxNode.new(input, (index-1)...index) if r2 == true
         r0 = r2
       else
         @index = i0
@@ -3159,15 +3228,15 @@ module Delorean
     if node_cache[:self].has_key?(index)
       cached = node_cache[:self][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:self][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
-    if has_terminal?('_', false, index)
-      r0 = instantiate_node(Self,input, index...(index + 1))
-      @index += 1
+    if (match_len = has_terminal?('_', false, index))
+      r0 = instantiate_node(Self,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('_')
       r0 = nil
@@ -3183,15 +3252,15 @@ module Delorean
     if node_cache[:nil_val].has_key?(index)
       cached = node_cache[:nil_val][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:nil_val][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
-    if has_terminal?('nil', false, index)
-      r0 = instantiate_node(Literal,input, index...(index + 3))
-      @index += 3
+    if (match_len = has_terminal?('nil', false, index))
+      r0 = instantiate_node(Literal,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('nil')
       r0 = nil
@@ -3207,15 +3276,15 @@ module Delorean
     if node_cache[:sp4].has_key?(index)
       cached = node_cache[:sp4][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:sp4][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
     end
 
-    if has_terminal?('    ', false, index)
-      r0 = instantiate_node(SyntaxNode,input, index...(index + 4))
-      @index += 4
+    if (match_len = has_terminal?('    ', false, index))
+      r0 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('    ')
       r0 = nil
@@ -3231,7 +3300,7 @@ module Delorean
     if node_cache[:sp].has_key?(index)
       cached = node_cache[:sp][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:sp][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -3239,10 +3308,11 @@ module Delorean
 
     s0, i0 = [], index
     loop do
-      if has_terminal?('\G[\\s]', true, index)
+      if has_terminal?(@regexps[gr = '\A[\\s]'] ||= Regexp.new(gr), :regexp, index)
         r1 = true
         @index += 1
       else
+        terminal_parse_failure('[\\s]')
         r1 = nil
       end
       if r1
@@ -3277,7 +3347,7 @@ module Delorean
     if node_cache[:string].has_key?(index)
       cached = node_cache[:string][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:string][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -3285,9 +3355,9 @@ module Delorean
 
     i0 = index
     i1, s1 = index, []
-    if has_terminal?('"', false, index)
-      r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
-      @index += 1
+    if (match_len = has_terminal?('"', false, index))
+      r2 = true
+      @index += match_len
     else
       terminal_parse_failure('"')
       r2 = nil
@@ -3297,21 +3367,22 @@ module Delorean
       s3, i3 = [], index
       loop do
         i4 = index
-        if has_terminal?('\"', false, index)
-          r5 = instantiate_node(SyntaxNode,input, index...(index + 2))
-          @index += 2
+        if (match_len = has_terminal?('\"', false, index))
+          r5 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+          @index += match_len
         else
           terminal_parse_failure('\"')
           r5 = nil
         end
         if r5
+          r5 = SyntaxNode.new(input, (index-1)...index) if r5 == true
           r4 = r5
         else
           i6, s6 = index, []
           i7 = index
-          if has_terminal?('"', false, index)
-            r8 = instantiate_node(SyntaxNode,input, index...(index + 1))
-            @index += 1
+          if (match_len = has_terminal?('"', false, index))
+            r8 = true
+            @index += match_len
           else
             terminal_parse_failure('"')
             r8 = nil
@@ -3325,7 +3396,7 @@ module Delorean
           s6 << r7
           if r7
             if index < input_length
-              r9 = instantiate_node(SyntaxNode,input, index...(index + 1))
+              r9 = true
               @index += 1
             else
               terminal_parse_failure("any character")
@@ -3341,6 +3412,7 @@ module Delorean
             r6 = nil
           end
           if r6
+            r6 = SyntaxNode.new(input, (index-1)...index) if r6 == true
             r4 = r6
           else
             @index = i4
@@ -3356,9 +3428,9 @@ module Delorean
       r3 = instantiate_node(SyntaxNode,input, i3...index, s3)
       s1 << r3
       if r3
-        if has_terminal?('"', false, index)
-          r10 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?('"', false, index))
+          r10 = true
+          @index += match_len
         else
           terminal_parse_failure('"')
           r10 = nil
@@ -3374,12 +3446,13 @@ module Delorean
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i11, s11 = index, []
-      if has_terminal?("'", false, index)
-        r12 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?("'", false, index))
+        r12 = true
+        @index += match_len
       else
         terminal_parse_failure("'")
         r12 = nil
@@ -3388,10 +3461,11 @@ module Delorean
       if r12
         s13, i13 = [], index
         loop do
-          if has_terminal?('\G[^\']', true, index)
+          if has_terminal?(@regexps[gr = '\A[^\']'] ||= Regexp.new(gr), :regexp, index)
             r14 = true
             @index += 1
           else
+            terminal_parse_failure('[^\']')
             r14 = nil
           end
           if r14
@@ -3403,9 +3477,9 @@ module Delorean
         r13 = instantiate_node(SyntaxNode,input, i13...index, s13)
         s11 << r13
         if r13
-          if has_terminal?("'", false, index)
-            r15 = instantiate_node(SyntaxNode,input, index...(index + 1))
-            @index += 1
+          if (match_len = has_terminal?("'", false, index))
+            r15 = true
+            @index += match_len
           else
             terminal_parse_failure("'")
             r15 = nil
@@ -3421,6 +3495,7 @@ module Delorean
         r11 = nil
       end
       if r11
+        r11 = SyntaxNode.new(input, (index-1)...index) if r11 == true
         r0 = r11
       else
         @index = i0
