@@ -71,6 +71,7 @@ module Delorean
     to_s:               [Object],
     abs:                [Numeric],
     round:              [Numeric, [nil, Integer]],
+    ceil:               [Numeric],
   }
 
   module BaseModule
