@@ -177,7 +177,11 @@ eos
     end
 
     def rewrite(context)
-      v.rewrite(context) + " " + op.text_value + " " + e.rewrite(context)
+      if op.text_value.start_with? 'in'
+        "(#{e.rewrite(context)}).member?( #{v.rewrite(context)} )"
+      else
+        v.rewrite(context) + " #{op.text_value} " + e.rewrite(context)
+      end
     end
   end
 

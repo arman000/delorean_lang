@@ -781,6 +781,19 @@ eof
       ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, {"b"=>579}]
   end
 
+  it "should eval in expressions" do
+    engine.parse defn("A:",
+                      "    a = [1,2,3,33,44]",
+                      "    s = {22,33,44}",
+                      "    b = (1 in a) && (2 in {22,44})",
+                      "    c = (2 in a) && (22 in s)",
+                      "    d = [i*2 for i in s if i in a]",
+                      )
+
+    engine.evaluate_attrs("A", %w{b c d}).should ==
+      [false, true, [66, 88]]
+  end
+
   it "should eval imports" do
     engine.parse defn("import AAA",
                       "A:",

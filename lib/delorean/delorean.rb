@@ -2150,6 +2150,12 @@ module Delorean
     r0
   end
 
+  module BinaryOp0
+    def sp
+      elements[1]
+    end
+  end
+
   def _nt_binary_op
     start_index = index
     if node_cache[:binary_op].has_key?(index)
@@ -2338,8 +2344,33 @@ module Delorean
                                     r16 = SyntaxNode.new(input, (index-1)...index) if r16 == true
                                     r0 = r16
                                   else
-                                    @index = i0
-                                    r0 = nil
+                                    i17, s17 = index, []
+                                    if (match_len = has_terminal?('in', false, index))
+                                      r18 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                                      @index += match_len
+                                    else
+                                      terminal_parse_failure('in')
+                                      r18 = nil
+                                    end
+                                    s17 << r18
+                                    if r18
+                                      r19 = _nt_sp
+                                      s17 << r19
+                                    end
+                                    if s17.last
+                                      r17 = instantiate_node(SyntaxNode,input, i17...index, s17)
+                                      r17.extend(BinaryOp0)
+                                    else
+                                      @index = i17
+                                      r17 = nil
+                                    end
+                                    if r17
+                                      r17 = SyntaxNode.new(input, (index-1)...index) if r17 == true
+                                      r0 = r17
+                                    else
+                                      @index = i0
+                                      r0 = nil
+                                    end
                                   end
                                 end
                               end

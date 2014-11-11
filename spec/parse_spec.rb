@@ -159,6 +159,14 @@ describe "Delorean" do
                       )
   end
 
+  it "should allow in expressions" do
+    engine.parse defn("A:",
+                      "    int =? 1",
+                      "    a = if int>1 then int*2 else int/2",
+                      "    b = int in [1,2,3]",
+                      )
+  end
+
   it "should allow non-recursive code 1" do
     # this is not a recursion error
     engine.parse defn("A:",

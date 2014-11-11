@@ -100,7 +100,7 @@ grammar Delorean
   rule binary_op
     '==' / '!=' / '>=' / '<=' / '&&' / '||' /
     '>'  / '<'  / '+' / '-' / '*' / '/' / '%' /
-    '&'  / '^'  / '|'
+    '&'  / '^'  / '|' / 'in' sp
   end
 
   rule unary_op

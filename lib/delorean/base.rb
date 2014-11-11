@@ -14,7 +14,7 @@ module Delorean
     length:             [Enumerable],
     max:                [Array],
     member:             "member?",
-    member?:            [Array, [Object]],
+    member?:            [Enumerable, [Object]],
     reverse:            [Array],
     slice:              [Array, Fixnum, Fixnum],
     sort:               [Array],
