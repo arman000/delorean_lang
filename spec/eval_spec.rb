@@ -940,4 +940,12 @@ eof
     engine.evaluate_attrs("A", ["a", "z", "y"], {0 => 123, 1 => 456}).should ==
       [123-456, 40, ["x", "y", nil]]
   end
+
+  it "can call 0-arity functions in list comprehension" do
+    engine.parse defn("A:",
+                      '    b = [x.name for x in Dummy.all_of_me]',
+                      )
+    r = engine.evaluate("A", "b")
+    expect(r).to eq ["hello"]
+  end
 end

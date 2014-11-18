@@ -56,6 +56,10 @@ class Dummy < ActiveRecord::Base
 
   MISS_YOU_SO_BAD_SIG = [0, 0]
 
+  delorean_fn :all_of_me, sig: 0 do
+    self.all
+  end
+
   def self.i_threw_a_hash_in_the_well
     {a: 123, "a" => 456, b: 789}
   end
