@@ -15,8 +15,11 @@ module Delorean
     max:                [Array],
     member:             "member?",
     member?:            [Enumerable, [Object]],
+    empty:              "empty?",
+    empty?:             [Enumerable],
     reverse:            [Array],
     slice:              [Array, Fixnum, Fixnum],
+    each_slice:         [Array, Fixnum],
     sort:               [Array],
     split:              [String, String],
     uniq:               [Array],
@@ -69,6 +72,8 @@ module Delorean
     to_f:               [[Numeric, String]],
     to_d:               [[Numeric, String]],
     to_s:               [Object],
+    to_a:               [Object],
+    to_json:            [Object],
     abs:                [Numeric],
     round:              [Numeric, [nil, Integer]],
     ceil:               [Numeric],
@@ -84,8 +89,25 @@ module Delorean
         engine.evaluate(node, attr, params.clone)
       end
 
+      def /(args)
+        raise "non-array/string arg to /" unless
+          args.is_a?(Array) || args.is_a?(String)
+
+        begin
+          case args
+          when Array
+            engine.eval_to_hash(node, args, params.clone)
+          when String
+            engine.evaluate(node, args, params.clone)
+          end
+        rescue => exc
+          Delorean::Engine.grok_runtime_exception(exc)
+        end
+      end
+
+      # FIXME: % should also support string as args
       def %(args)
-        raise "bad arg to %" unless args.is_a?(Array)
+        raise "non-array arg to %" unless args.is_a?(Array)
 
         # FIXME: params.clone!!!!
         engine.eval_to_hash(node, args, params.clone)
@@ -133,9 +155,9 @@ module Delorean
 
         begin
           return _instance_call(obj, attr, [], _e)
-        rescue
+        rescue => exc
           raise InvalidGetAttribute,
-          "bad attribute lookup '#{attr}' on <#{obj.class}> #{obj}"
+          "attr lookup failed: '#{attr}' on <#{obj.class}> #{obj} - #{exc}"
         end
       end
 

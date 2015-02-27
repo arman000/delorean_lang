@@ -315,6 +315,16 @@ describe "Delorean" do
     engine.reset
 
     lambda {
+      engine.parse defn("D:",
+                        "    true_1 = false",
+                        "    false_1 = true_1",
+                        "    nil_1 = false_1",
+                        )
+    }.should_not raise_error
+
+    engine.reset
+
+    lambda {
       engine.parse defn("E:",
                         "    a = 1",
                         "    return=a",

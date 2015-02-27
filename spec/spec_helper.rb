@@ -67,7 +67,7 @@ class Dummy < ActiveRecord::Base
   I_THREW_A_HASH_IN_THE_WELL_SIG = [0, 0]
 
   def name2
-    "#{name}-#{number}"
+    "#{name}-#{number.round(4)}"
   end
 
   delorean_fn :one_or_two, sig: [1, 2] do

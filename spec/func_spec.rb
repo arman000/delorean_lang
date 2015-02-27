@@ -183,4 +183,18 @@ describe "Delorean" do
                       )
     engine.evaluate("A", "b").should == x.slice(0,4)
   end
+
+  it "should handle RUBY empty? function" do
+    engine.parse defn("A:",
+                      "    a0 = []",
+                      "    b0 = {}",
+                      "    c0 = {-}",
+                      "    a1 = [1,2,3]",
+                      "    b1 = {'a': 1, 'b':2}",
+                      "    c1 = {1,2,3}",
+                      "    res = [a0.empty, b0.empty(), c0.empty, a1.empty, b1.empty(), c1.empty]",
+                      )
+    engine.evaluate("A", "res").should == [true, true, true, false, false, false]
+  end
+
 end

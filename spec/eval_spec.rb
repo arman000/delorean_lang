@@ -277,7 +277,7 @@ describe "Delorean" do
   it "should be able to get attr on ActiveRecord objects using a.b syntax" do
     engine.parse defn("A:",
                       '    b = Dummy.i_just_met_you("this is crazy", 0.404)',
-                      "    c = b.number",
+                      "    c = b.number.to_f",
                       "    d = b.name",
                       "    e = b.foo",
                       )
@@ -885,6 +885,27 @@ eof
     r = engine.evaluate_attrs("A", ["a", "b", "c", "d"])
     r.should ==
       [1, {"x"=>123, "y"=>456}, {"a"=>1, "b"=>{"x"=>123, "y"=>456}}, -333]
+  end
+
+  it "can handle exceptions with / syntax" do
+    engine.parse defn("A:",
+                      "    a = 1",
+                      "    b = {'x' : 123, 'y': 456}",
+                      "    e = ERR('hello')",
+                      "    c = A() / ['a', 'b']",
+                      "    d = A() / ['a', 'e']",
+                      "    f = A() / 'a'",
+                      )
+    r = engine.evaluate_attrs("A", ["a", "b", "c"])
+    r.should ==
+      [1, {"x"=>123, "y"=>456}, {"a"=>1, "b"=>{"x"=>123, "y"=>456}}]
+
+    r = engine.evaluate_attrs("A", ["a", "d"])
+    r.should ==
+      [1, {"error"=>"hello", "backtrace"=>[["XXX", 4, "e"], ["XXX", 6, "d"]]}]
+
+    r = engine.evaluate_attrs("A", ["f"])
+    r.should == [1]
   end
 
   it "should properly eval overridden attrs" do
