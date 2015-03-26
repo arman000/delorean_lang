@@ -1,0 +1,8 @@
+Style/StringLiterals:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 80
+
+Style/TrailingComma:
+  Enabled: false

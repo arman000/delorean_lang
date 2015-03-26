@@ -1,15 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Delorean" do
-
   let(:sset) {
-    TestContainer.new({
-                        "AAA" =>
-                        defn("X:",
-                             "    a = 123",
-                             "    b = a",
-                             )
-                      })
+    TestContainer.new(
+                      "AAA" =>
+                      defn("X:",
+                           "    a = 123",
+                           "    b = a",
+                           )
+                      )
   }
 
   let(:engine) {
@@ -732,7 +731,7 @@ describe "Delorean" do
                         "         3];",
                         "    b = 456",
                         )
-      raise "fail"
+      fail
     rescue Delorean::ParseError => exc
       exc.line.should == 2
     end
@@ -745,7 +744,7 @@ describe "Delorean" do
                         "    a = 1 +",
                         "         2 +",
                         )
-      raise "fail"
+      fail
     rescue Delorean::ParseError => exc
       exc.line.should == 3
     end
@@ -759,7 +758,7 @@ describe "Delorean" do
                         "        for a in [1,2,3]",
                         "B:",
                         )
-      raise "fail"
+      fail
     rescue Delorean::ParseError => exc
       exc.line.should == 3
     end
@@ -772,7 +771,7 @@ describe "Delorean" do
                         "    2]",
                         "    b = 456",
                         )
-      raise "fail"
+      fail
     rescue Delorean::ParseError => exc
       exc.line.should == 2
     end
@@ -784,7 +783,7 @@ describe "Delorean" do
       engine.parse defn("A:",
                         '    d = "#{this is a test}"',
                         )
-      raise "fail"
+      fail
     rescue Delorean::ParseError => exc
       exc.line.should == 2
     end
@@ -800,16 +799,15 @@ describe "Delorean" do
 
   it "should disallow import loops" do
     skip 'not implemented yet'
-    sset.merge({
-                 "BBB" =>
-                 defn("import AAA",
-                      "import CCC",
-                      ),
-                 "CCC" =>
-                 defn("import BBB",
-                      ),
-               })
+    sset.merge(
+               "BBB" =>
+               defn("import AAA",
+                    "import CCC",
+                    ),
+               "CCC" =>
+               defn("import BBB",
+                    ),
+               )
     sset.get_engine("CCC")
   end
-
 end

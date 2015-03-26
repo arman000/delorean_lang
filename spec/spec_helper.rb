@@ -91,9 +91,9 @@ module M
 end
 
 Delorean::RUBY_WHITELIST.
-  merge!({
-           name2: [Dummy],
-         })
+  merge!(
+         name2: [Dummy],
+         )
 
 ######################################################################
 
