@@ -8,6 +8,8 @@ module Delorean
   # hash.  The whole whitelist mechanism should be eventually
   # rethought.
   RUBY_WHITELIST = {
+    between?:           [[Numeric, String],[Numeric, String],[Numeric, String]],
+    between:            "between?",
     compact:            [Array],
     to_set:             [Array],
     flatten:            [Array, [Fixnum, nil]],

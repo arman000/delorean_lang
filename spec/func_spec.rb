@@ -197,4 +197,13 @@ describe "Delorean" do
     engine.evaluate("A", "res").should == [true, true, true, false, false, false]
   end
 
+    it "should handle BETWEEN" do
+    engine.parse defn("A:",
+                      "    a = 1.23",
+                      "    b = [a.between(10,20), a.between(1,3)]",
+                      )
+
+    expect(engine.evaluate("A", "b")).to eq([false, true])
+  end
+
 end
