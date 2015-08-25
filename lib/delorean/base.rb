@@ -229,7 +229,13 @@ module Delorean
           return obj.send(msg, *args)
         end
 
-        sig = RUBY_WHITELIST[msg]
+        sig = begin
+          obj.class.delorean_instance_methods[msg]
+        rescue NoMethodError
+          nil
+        end
+
+        sig = RUBY_WHITELIST[msg] unless sig
 
         raise "no such method #{method}" unless sig
 

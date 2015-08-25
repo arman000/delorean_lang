@@ -308,6 +308,14 @@ describe "Delorean" do
     r.should == "CRJ-1.234"
   end
 
+  it "should be able to access delorean_instance_method fns using .x syntax" do
+    engine.parse defn("A:",
+                      '    b = Dummy.i_just_met_you("I Really Like You", 1.234).name3("Run Away with Me")',
+                      )
+    r = engine.evaluate("A", "b")
+    r.should == "I Really Like You-1.234-Run Away with Me"
+  end
+
   it "should be able to get attr on Hash objects using a.b syntax" do
     engine.parse defn("A:",
                       '    b = Dummy.i_threw_a_hash_in_the_well()',

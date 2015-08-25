@@ -77,6 +77,12 @@ class Dummy < ActiveRecord::Base
 
     [a, b]
   end
+
+  def name3 other_name
+    "#{name}-#{number.round(4)}-#{other_name}"
+  end
+
+  delorean_instance_method :name3, String
 end
 
 module M
