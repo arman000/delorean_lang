@@ -592,6 +592,14 @@ eof
     engine.evaluate("A", "b").should == [-1, 10]
   end
 
+  it "should handle list comprehension with conditions using loop var" do
+    skip "need to fix"
+    engine.parse defn("A:",
+                      "    b = [n for n in {'pt' : 1} if n[1]+1]",
+                      )
+    engine.evaluate("A", "b").should == [['pt', 1]]
+  end
+
   it "should eval hashes" do
     engine.parse defn("A:",
                       "    b = {}",
