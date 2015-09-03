@@ -229,10 +229,8 @@ module Delorean
           return obj.send(msg, *args)
         end
 
-        sig = begin
-          obj.class.delorean_instance_methods[msg]
-        rescue NoMethodError
-          nil
+        if obj.class.include?(Delorean::Model)
+          sig = obj.class.delorean_instance_methods[msg]
         end
 
         sig = RUBY_WHITELIST[msg] unless sig
