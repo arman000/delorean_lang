@@ -257,7 +257,7 @@ module Delorean
           raise "bad arg #{i}, method #{method}: #{ai}/#{ai.class} #{s}" if !ok
         }
 
-        obj.send(msg, *args)
+        obj.send(msg, *args).freeze
       end
 
       ######################################################################

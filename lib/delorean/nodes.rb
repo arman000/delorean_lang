@@ -234,7 +234,7 @@ eos
       raise "String interpolation not supported" if text_value =~ /\#\{.*\}/
 
       # FIXME: syntax check?
-      text_value
+      text_value + ".freeze"
     end
   end
 
@@ -242,7 +242,7 @@ eos
     def rewrite(context)
       # remove the quotes and requote.  We don't want the likes of #{}
       # evals to just pass through.
-      text_value[1..-2].inspect
+      text_value[1..-2].inspect + ".freeze"
     end
   end
 
@@ -404,7 +404,7 @@ eos
     end
 
     def rewrite(context)
-      "[" + (defined?(args) ? args.rewrite(context) : "") + "]"
+      "[" + (defined?(args) ? args.rewrite(context) : "") + "].freeze"
     end
   end
 
@@ -451,7 +451,7 @@ eos
 
       res += ".select{|#{args_str}|(#{ifexp.e3.rewrite(context)})}" if
         defined?(ifexp.e3)
-      res += ".map{|#{args_str}| (#{e2.rewrite(context)}) }"
+      res += ".map{|#{args_str}| (#{e2.rewrite(context)}) }.freeze"
       unpack_vars.each {|vname| context.parse_undef_var(vname)}
       res
     end
@@ -459,13 +459,13 @@ eos
 
   class SetExpr < ListExpr
     def rewrite(context)
-      "Set#{super}"
+      "Set#{super}.freeze"
     end
   end
 
   class SetComprehension < ListComprehension
     def rewrite(context)
-      "Set[*#{super}]"
+      "Set[*#{super}].freeze"
     end
   end
 
@@ -508,7 +508,7 @@ eos
       unpack_str = unpack_vars.count > 1 ? "(#{args_str})" : args_str
 
       res += ".each_with_object({}){|#{unpack_str}, _h#{hid}| " +
-        "_h#{hid}[#{el.rewrite(context)}]=(#{er.rewrite(context)})}"
+        "_h#{hid}[#{el.rewrite(context)}]=(#{er.rewrite(context)})}.freeze"
 
       unpack_vars.each {|vname| context.parse_undef_var(vname)}
       res
@@ -521,7 +521,7 @@ eos
     end
 
     def rewrite(context)
-      "{#{args.rewrite(context) if defined?(args)}}"
+      "{#{args.rewrite(context) if defined?(args)}}.freeze"
     end
   end
 
@@ -562,5 +562,4 @@ eos
          ", " + args_rest.al.rewrite(context) : "")
     end
   end
-
 end
