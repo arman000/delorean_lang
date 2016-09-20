@@ -8,4 +8,4 @@ require 'delorean/base'
 require 'delorean/error'
 require 'delorean/container'
 require 'delorean/model'
-
+require 'delorean/debug'

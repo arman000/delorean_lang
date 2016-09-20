@@ -102,10 +102,16 @@ eos
     end
 
     def rewrite(context)
+      dname = [context.module_name, context.last_node, i.text_value].join('.')
+      debug = Debug.debug_set.member?(dname)
+
       # an attr is defined as a class function on the node class.
       "class #{context.last_node}; " +
         "def self.#{i.text_value}#{POST}(_e); " +
-        "_e[self.name+'.#{i.text_value}'] ||= #{e.rewrite(context)}; end; end;"
+        (debug ? "_debug =" : '') +
+        "_e[self.name+'.#{i.text_value}'] ||= #{e.rewrite(context)};" +
+        (debug ? 'Delorean::Debug.log(_debug); _debug;' : '') +
+        "end; end;"
     end
   end
 
