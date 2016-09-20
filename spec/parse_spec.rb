@@ -673,7 +673,7 @@ describe "Delorean" do
     engine.reset
   end
 
-  it "should accept hash comprehension 2-var unpacking" do
+  it "should handle nested comprehension variables" do
     engine.parse defn("A:",
                       "    b = [ a+b for a, b in [] ]",
                       )

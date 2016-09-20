@@ -985,4 +985,14 @@ eof
     r = engine.evaluate("A", "b")
     expect(r).to eq ["hello"]
   end
+
+  it "node calls are not memoized/cached" do
+    engine.parse defn("A:",
+                      "    x = Dummy.side_effect",
+                      "B: A",
+                      "    x = (A() + _).x + (A() + _).x"
+                     )
+    r = engine.evaluate("B", "x")
+    expect(r).to eq 3
+  end
 end

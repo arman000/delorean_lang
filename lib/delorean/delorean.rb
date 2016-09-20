@@ -46,7 +46,7 @@ module Delorean
           r6 = true
           @index += match_len
         else
-          terminal_parse_failure('#')
+          terminal_parse_failure('\'#\'')
           r6 = nil
         end
         s5 << r6
@@ -205,7 +205,7 @@ module Delorean
             r6 = instantiate_node(SyntaxNode,input, index...(index + match_len))
             @index += match_len
           else
-            terminal_parse_failure('=?')
+            terminal_parse_failure('\'=?\'')
             r6 = nil
           end
           s1 << r6
@@ -255,7 +255,7 @@ module Delorean
               r15 = instantiate_node(SyntaxNode,input, index...(index + match_len))
               @index += match_len
             else
-              terminal_parse_failure('=?')
+              terminal_parse_failure('\'=?\'')
               r15 = nil
             end
             s10 << r15
@@ -292,7 +292,7 @@ module Delorean
                 r21 = true
                 @index += match_len
               else
-                terminal_parse_failure('=')
+                terminal_parse_failure('\'=\'')
                 r21 = nil
               end
               s16 << r21
@@ -331,7 +331,7 @@ module Delorean
               r27 = true
               @index += match_len
             else
-              terminal_parse_failure(':')
+              terminal_parse_failure('\':\'')
               r27 = nil
             end
             s25 << r27
@@ -352,7 +352,7 @@ module Delorean
                     r33 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                     @index += match_len
                   else
-                    terminal_parse_failure('::')
+                    terminal_parse_failure('\'::\'')
                     r33 = nil
                   end
                   s31 << r33
@@ -396,7 +396,7 @@ module Delorean
                 r37 = true
                 @index += match_len
               else
-                terminal_parse_failure(':')
+                terminal_parse_failure('\':\'')
                 r37 = nil
               end
               s35 << r37
@@ -417,7 +417,7 @@ module Delorean
                 r39 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                 @index += match_len
               else
-                terminal_parse_failure('import')
+                terminal_parse_failure('\'import\'')
                 r39 = nil
               end
               s38 << r39
@@ -571,7 +571,7 @@ module Delorean
       r2 = instantiate_node(SyntaxNode,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('ERR(')
+      terminal_parse_failure('\'ERR(\'')
       r2 = nil
     end
     s1 << r2
@@ -599,7 +599,7 @@ module Delorean
               r8 = true
               @index += match_len
             else
-              terminal_parse_failure(')')
+              terminal_parse_failure('\')\'')
               r8 = nil
             end
             s1 << r8
@@ -650,7 +650,7 @@ module Delorean
           r15 = instantiate_node(SyntaxNode,input, index...(index + match_len))
           @index += match_len
         else
-          terminal_parse_failure('if')
+          terminal_parse_failure('\'if\'')
           r15 = nil
         end
         s14 << r15
@@ -678,7 +678,7 @@ module Delorean
                   r21 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                   @index += match_len
                 else
-                  terminal_parse_failure('then')
+                  terminal_parse_failure('\'then\'')
                   r21 = nil
                 end
                 s14 << r21
@@ -706,7 +706,7 @@ module Delorean
                           r27 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                           @index += match_len
                         else
-                          terminal_parse_failure('else')
+                          terminal_parse_failure('\'else\'')
                           r27 = nil
                         end
                         s14 << r27
@@ -949,7 +949,7 @@ module Delorean
       r2 = true
       @index += match_len
     else
-      terminal_parse_failure('[')
+      terminal_parse_failure('\'[\'')
       r2 = nil
     end
     s1 << r2
@@ -977,7 +977,7 @@ module Delorean
               r8 = true
               @index += match_len
             else
-              terminal_parse_failure(']')
+              terminal_parse_failure('\']\'')
               r8 = nil
             end
             s1 << r8
@@ -1001,7 +1001,7 @@ module Delorean
         r10 = true
         @index += match_len
       else
-        terminal_parse_failure('(')
+        terminal_parse_failure('\'(\'')
         r10 = nil
       end
       s9 << r10
@@ -1034,7 +1034,7 @@ module Delorean
                 r17 = true
                 @index += match_len
               else
-                terminal_parse_failure(')')
+                terminal_parse_failure('\')\'')
                 r17 = nil
               end
               s9 << r17
@@ -1058,7 +1058,7 @@ module Delorean
           r19 = true
           @index += match_len
         else
-          terminal_parse_failure('.')
+          terminal_parse_failure('\'.\'')
           r19 = nil
         end
         s18 << r19
@@ -1078,7 +1078,7 @@ module Delorean
                 r23 = true
                 @index += match_len
               else
-                terminal_parse_failure('(')
+                terminal_parse_failure('\'(\'')
                 r23 = nil
               end
               s18 << r23
@@ -1111,7 +1111,7 @@ module Delorean
                         r30 = true
                         @index += match_len
                       else
-                        terminal_parse_failure(')')
+                        terminal_parse_failure('\')\'')
                         r30 = nil
                       end
                       s18 << r30
@@ -1138,7 +1138,7 @@ module Delorean
             r32 = true
             @index += match_len
           else
-            terminal_parse_failure('.')
+            terminal_parse_failure('\'.\'')
             r32 = nil
           end
           s31 << r32
@@ -1236,7 +1236,7 @@ module Delorean
           r6 = true
           @index += match_len
         else
-          terminal_parse_failure(',')
+          terminal_parse_failure('\',\'')
           r6 = nil
         end
         s3 << r6
@@ -1355,7 +1355,7 @@ module Delorean
       r1 = instantiate_node(ListExpr,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('[]')
+      terminal_parse_failure('\'[]\'')
       r1 = nil
     end
     if r1
@@ -1367,7 +1367,7 @@ module Delorean
         r3 = true
         @index += match_len
       else
-        terminal_parse_failure('[')
+        terminal_parse_failure('\'[\'')
         r3 = nil
       end
       s2 << r3
@@ -1390,7 +1390,7 @@ module Delorean
                 r8 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                 @index += match_len
               else
-                terminal_parse_failure('for')
+                terminal_parse_failure('\'for\'')
                 r8 = nil
               end
               s2 << r8
@@ -1408,7 +1408,7 @@ module Delorean
                         r12 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                         @index += match_len
                       else
-                        terminal_parse_failure('in')
+                        terminal_parse_failure('\'in\'')
                         r12 = nil
                       end
                       s2 << r12
@@ -1432,7 +1432,7 @@ module Delorean
                                 r19 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                                 @index += match_len
                               else
-                                terminal_parse_failure('if')
+                                terminal_parse_failure('\'if\'')
                                 r19 = nil
                               end
                               s18 << r19
@@ -1471,7 +1471,7 @@ module Delorean
                                   r24 = true
                                   @index += match_len
                                 else
-                                  terminal_parse_failure(']')
+                                  terminal_parse_failure('\']\'')
                                   r24 = nil
                                 end
                                 s2 << r24
@@ -1504,7 +1504,7 @@ module Delorean
           r26 = true
           @index += match_len
         else
-          terminal_parse_failure('[')
+          terminal_parse_failure('\'[\'')
           r26 = nil
         end
         s25 << r26
@@ -1532,7 +1532,7 @@ module Delorean
                   r32 = true
                   @index += match_len
                 else
-                  terminal_parse_failure(']')
+                  terminal_parse_failure('\']\'')
                   r32 = nil
                 end
                 s25 << r32
@@ -1631,7 +1631,7 @@ module Delorean
       r1 = instantiate_node(SetExpr,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('{-}')
+      terminal_parse_failure('\'{-}\'')
       r1 = nil
     end
     if r1
@@ -1643,7 +1643,7 @@ module Delorean
         r3 = true
         @index += match_len
       else
-        terminal_parse_failure('{')
+        terminal_parse_failure('\'{\'')
         r3 = nil
       end
       s2 << r3
@@ -1666,7 +1666,7 @@ module Delorean
                 r8 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                 @index += match_len
               else
-                terminal_parse_failure('for')
+                terminal_parse_failure('\'for\'')
                 r8 = nil
               end
               s2 << r8
@@ -1684,7 +1684,7 @@ module Delorean
                         r12 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                         @index += match_len
                       else
-                        terminal_parse_failure('in')
+                        terminal_parse_failure('\'in\'')
                         r12 = nil
                       end
                       s2 << r12
@@ -1708,7 +1708,7 @@ module Delorean
                                 r19 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                                 @index += match_len
                               else
-                                terminal_parse_failure('if')
+                                terminal_parse_failure('\'if\'')
                                 r19 = nil
                               end
                               s18 << r19
@@ -1747,7 +1747,7 @@ module Delorean
                                   r24 = true
                                   @index += match_len
                                 else
-                                  terminal_parse_failure('}')
+                                  terminal_parse_failure('\'}\'')
                                   r24 = nil
                                 end
                                 s2 << r24
@@ -1780,7 +1780,7 @@ module Delorean
           r26 = true
           @index += match_len
         else
-          terminal_parse_failure('{')
+          terminal_parse_failure('\'{\'')
           r26 = nil
         end
         s25 << r26
@@ -1808,7 +1808,7 @@ module Delorean
                   r32 = true
                   @index += match_len
                 else
-                  terminal_parse_failure('}')
+                  terminal_parse_failure('\'}\'')
                   r32 = nil
                 end
                 s25 << r32
@@ -1911,7 +1911,7 @@ module Delorean
       r1 = instantiate_node(HashExpr,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('{}')
+      terminal_parse_failure('\'{}\'')
       r1 = nil
     end
     if r1
@@ -1923,7 +1923,7 @@ module Delorean
         r3 = true
         @index += match_len
       else
-        terminal_parse_failure('{')
+        terminal_parse_failure('\'{\'')
         r3 = nil
       end
       s2 << r3
@@ -1951,7 +1951,7 @@ module Delorean
                 r9 = true
                 @index += match_len
               else
-                terminal_parse_failure(':')
+                terminal_parse_failure('\':\'')
                 r9 = nil
               end
               s2 << r9
@@ -1974,7 +1974,7 @@ module Delorean
                         r14 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                         @index += match_len
                       else
-                        terminal_parse_failure('for')
+                        terminal_parse_failure('\'for\'')
                         r14 = nil
                       end
                       s2 << r14
@@ -1992,7 +1992,7 @@ module Delorean
                                 r18 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                                 @index += match_len
                               else
-                                terminal_parse_failure('in')
+                                terminal_parse_failure('\'in\'')
                                 r18 = nil
                               end
                               s2 << r18
@@ -2016,7 +2016,7 @@ module Delorean
                                         r25 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                                         @index += match_len
                                       else
-                                        terminal_parse_failure('if')
+                                        terminal_parse_failure('\'if\'')
                                         r25 = nil
                                       end
                                       s24 << r25
@@ -2055,7 +2055,7 @@ module Delorean
                                           r30 = true
                                           @index += match_len
                                         else
-                                          terminal_parse_failure('}')
+                                          terminal_parse_failure('\'}\'')
                                           r30 = nil
                                         end
                                         s2 << r30
@@ -2092,7 +2092,7 @@ module Delorean
           r32 = true
           @index += match_len
         else
-          terminal_parse_failure('{')
+          terminal_parse_failure('\'{\'')
           r32 = nil
         end
         s31 << r32
@@ -2120,7 +2120,7 @@ module Delorean
                   r38 = true
                   @index += match_len
                 else
-                  terminal_parse_failure('}')
+                  terminal_parse_failure('\'}\'')
                   r38 = nil
                 end
                 s31 << r38
@@ -2172,7 +2172,7 @@ module Delorean
       r1 = instantiate_node(SyntaxNode,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('==')
+      terminal_parse_failure('\'==\'')
       r1 = nil
     end
     if r1
@@ -2183,7 +2183,7 @@ module Delorean
         r2 = instantiate_node(SyntaxNode,input, index...(index + match_len))
         @index += match_len
       else
-        terminal_parse_failure('!=')
+        terminal_parse_failure('\'!=\'')
         r2 = nil
       end
       if r2
@@ -2194,7 +2194,7 @@ module Delorean
           r3 = instantiate_node(SyntaxNode,input, index...(index + match_len))
           @index += match_len
         else
-          terminal_parse_failure('>=')
+          terminal_parse_failure('\'>=\'')
           r3 = nil
         end
         if r3
@@ -2205,7 +2205,7 @@ module Delorean
             r4 = instantiate_node(SyntaxNode,input, index...(index + match_len))
             @index += match_len
           else
-            terminal_parse_failure('<=')
+            terminal_parse_failure('\'<=\'')
             r4 = nil
           end
           if r4
@@ -2216,7 +2216,7 @@ module Delorean
               r5 = instantiate_node(SyntaxNode,input, index...(index + match_len))
               @index += match_len
             else
-              terminal_parse_failure('&&')
+              terminal_parse_failure('\'&&\'')
               r5 = nil
             end
             if r5
@@ -2227,7 +2227,7 @@ module Delorean
                 r6 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                 @index += match_len
               else
-                terminal_parse_failure('||')
+                terminal_parse_failure('\'||\'')
                 r6 = nil
               end
               if r6
@@ -2238,7 +2238,7 @@ module Delorean
                   r7 = true
                   @index += match_len
                 else
-                  terminal_parse_failure('>')
+                  terminal_parse_failure('\'>\'')
                   r7 = nil
                 end
                 if r7
@@ -2249,7 +2249,7 @@ module Delorean
                     r8 = true
                     @index += match_len
                   else
-                    terminal_parse_failure('<')
+                    terminal_parse_failure('\'<\'')
                     r8 = nil
                   end
                   if r8
@@ -2260,7 +2260,7 @@ module Delorean
                       r9 = true
                       @index += match_len
                     else
-                      terminal_parse_failure('+')
+                      terminal_parse_failure('\'+\'')
                       r9 = nil
                     end
                     if r9
@@ -2271,7 +2271,7 @@ module Delorean
                         r10 = true
                         @index += match_len
                       else
-                        terminal_parse_failure('-')
+                        terminal_parse_failure('\'-\'')
                         r10 = nil
                       end
                       if r10
@@ -2282,7 +2282,7 @@ module Delorean
                           r11 = true
                           @index += match_len
                         else
-                          terminal_parse_failure('*')
+                          terminal_parse_failure('\'*\'')
                           r11 = nil
                         end
                         if r11
@@ -2293,7 +2293,7 @@ module Delorean
                             r12 = true
                             @index += match_len
                           else
-                            terminal_parse_failure('/')
+                            terminal_parse_failure('\'/\'')
                             r12 = nil
                           end
                           if r12
@@ -2304,7 +2304,7 @@ module Delorean
                               r13 = true
                               @index += match_len
                             else
-                              terminal_parse_failure('%')
+                              terminal_parse_failure('\'%\'')
                               r13 = nil
                             end
                             if r13
@@ -2315,7 +2315,7 @@ module Delorean
                                 r14 = true
                                 @index += match_len
                               else
-                                terminal_parse_failure('&')
+                                terminal_parse_failure('\'&\'')
                                 r14 = nil
                               end
                               if r14
@@ -2326,7 +2326,7 @@ module Delorean
                                   r15 = true
                                   @index += match_len
                                 else
-                                  terminal_parse_failure('^')
+                                  terminal_parse_failure('\'^\'')
                                   r15 = nil
                                 end
                                 if r15
@@ -2337,7 +2337,7 @@ module Delorean
                                     r16 = true
                                     @index += match_len
                                   else
-                                    terminal_parse_failure('|')
+                                    terminal_parse_failure('\'|\'')
                                     r16 = nil
                                   end
                                   if r16
@@ -2349,7 +2349,7 @@ module Delorean
                                       r18 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                                       @index += match_len
                                     else
-                                      terminal_parse_failure('in')
+                                      terminal_parse_failure('\'in\'')
                                       r18 = nil
                                     end
                                     s17 << r18
@@ -2409,7 +2409,7 @@ module Delorean
       r1 = true
       @index += match_len
     else
-      terminal_parse_failure('!')
+      terminal_parse_failure('\'!\'')
       r1 = nil
     end
     if r1
@@ -2420,7 +2420,7 @@ module Delorean
         r2 = true
         @index += match_len
       else
-        terminal_parse_failure('-')
+        terminal_parse_failure('\'-\'')
         r2 = nil
       end
       if r2
@@ -2532,7 +2532,7 @@ module Delorean
                             r15 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                             @index += match_len
                           else
-                            terminal_parse_failure('::')
+                            terminal_parse_failure('\'::\'')
                             r15 = nil
                           end
                           s13 << r15
@@ -2570,7 +2570,7 @@ module Delorean
                             r18 = true
                             @index += match_len
                           else
-                            terminal_parse_failure('(')
+                            terminal_parse_failure('\'(\'')
                             r18 = nil
                           end
                           s17 << r18
@@ -2598,7 +2598,7 @@ module Delorean
                                     r24 = true
                                     @index += match_len
                                   else
-                                    terminal_parse_failure(')')
+                                    terminal_parse_failure('\')\'')
                                     r24 = nil
                                   end
                                   s17 << r24
@@ -2681,7 +2681,7 @@ module Delorean
           r6 = true
           @index += match_len
         else
-          terminal_parse_failure(',')
+          terminal_parse_failure('\',\'')
           r6 = nil
         end
         s3 << r6
@@ -2778,7 +2778,7 @@ module Delorean
           r4 = true
           @index += match_len
         else
-          terminal_parse_failure(':')
+          terminal_parse_failure('\':\'')
           r4 = nil
         end
         s0 << r4
@@ -2807,7 +2807,7 @@ module Delorean
                   r12 = true
                   @index += match_len
                 else
-                  terminal_parse_failure(',')
+                  terminal_parse_failure('\',\'')
                   r12 = nil
                 end
                 s9 << r12
@@ -2916,7 +2916,7 @@ module Delorean
           r6 = true
           @index += match_len
         else
-          terminal_parse_failure('=')
+          terminal_parse_failure('\'=\'')
           r6 = nil
         end
         s2 << r6
@@ -2961,7 +2961,7 @@ module Delorean
             r14 = true
             @index += match_len
           else
-            terminal_parse_failure(',')
+            terminal_parse_failure('\',\'')
             r14 = nil
           end
           s11 << r14
@@ -3038,7 +3038,7 @@ module Delorean
         r2 = true
         @index += match_len
       else
-        terminal_parse_failure('.')
+        terminal_parse_failure('\'.\'')
         r2 = nil
       end
       s0 << r2
@@ -3099,7 +3099,7 @@ module Delorean
       r1 = instantiate_node(Literal,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('0')
+      terminal_parse_failure('\'0\'')
       r1 = nil
     end
     if r1
@@ -3226,7 +3226,7 @@ module Delorean
       r1 = instantiate_node(Literal,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('true')
+      terminal_parse_failure('\'true\'')
       r1 = nil
     end
     if r1
@@ -3237,7 +3237,7 @@ module Delorean
         r2 = instantiate_node(Literal,input, index...(index + match_len))
         @index += match_len
       else
-        terminal_parse_failure('false')
+        terminal_parse_failure('\'false\'')
         r2 = nil
       end
       if r2
@@ -3269,7 +3269,7 @@ module Delorean
       r0 = instantiate_node(Self,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('_')
+      terminal_parse_failure('\'_\'')
       r0 = nil
     end
 
@@ -3293,7 +3293,7 @@ module Delorean
       r0 = instantiate_node(Literal,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('nil')
+      terminal_parse_failure('\'nil\'')
       r0 = nil
     end
 
@@ -3317,7 +3317,7 @@ module Delorean
       r0 = instantiate_node(SyntaxNode,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('    ')
+      terminal_parse_failure('\'    \'')
       r0 = nil
     end
 
@@ -3390,7 +3390,7 @@ module Delorean
       r2 = true
       @index += match_len
     else
-      terminal_parse_failure('"')
+      terminal_parse_failure('\'"\'')
       r2 = nil
     end
     s1 << r2
@@ -3402,7 +3402,7 @@ module Delorean
           r5 = instantiate_node(SyntaxNode,input, index...(index + match_len))
           @index += match_len
         else
-          terminal_parse_failure('\"')
+          terminal_parse_failure('\'\\"\'')
           r5 = nil
         end
         if r5
@@ -3415,12 +3415,15 @@ module Delorean
             r8 = true
             @index += match_len
           else
-            terminal_parse_failure('"')
+            terminal_parse_failure('\'"\'')
             r8 = nil
           end
           if r8
+            @index = i7
             r7 = nil
+            terminal_parse_failure('\'"\'', true)
           else
+            terminal_failures.pop
             @index = i7
             r7 = instantiate_node(SyntaxNode,input, index...index)
           end
@@ -3463,7 +3466,7 @@ module Delorean
           r10 = true
           @index += match_len
         else
-          terminal_parse_failure('"')
+          terminal_parse_failure('\'"\'')
           r10 = nil
         end
         s1 << r10
@@ -3485,7 +3488,7 @@ module Delorean
         r12 = true
         @index += match_len
       else
-        terminal_parse_failure("'")
+        terminal_parse_failure('"\'"')
         r12 = nil
       end
       s11 << r12
@@ -3512,7 +3515,7 @@ module Delorean
             r15 = true
             @index += match_len
           else
-            terminal_parse_failure("'")
+            terminal_parse_failure('"\'"')
             r15 = nil
           end
           s11 << r15

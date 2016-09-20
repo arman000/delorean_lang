@@ -26,7 +26,7 @@ ActiveRecord::Migration.create_table :dummies do |t|
   t.string :name
   t.decimal :number
   t.references :dummy
-  t.timestamps
+  t.timestamps null: true
 end
 
 class Dummy < ActiveRecord::Base
@@ -83,6 +83,11 @@ class Dummy < ActiveRecord::Base
   end
 
   delorean_instance_method :name3, String
+
+  @@foo = 0
+  delorean_fn :side_effect, sig: 0 do
+    @@foo += 1
+  end
 end
 
 module M
