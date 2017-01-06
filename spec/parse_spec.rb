@@ -727,6 +727,13 @@ describe "Delorean" do
                       )
   end
 
+  it "should parse multiline empty list" do
+    engine.parse defn("A:",
+                      "    a = [",
+                      "         ]",
+                      )
+  end
+
   it "should give proper errors on parse multiline attr defs" do
     begin
       engine.parse defn("A:",
