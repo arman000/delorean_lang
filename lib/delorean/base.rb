@@ -249,19 +249,15 @@ module Delorean
 
         arglist = [obj] + args
 
-        sig.each_with_index { |s, i|
+        sig.each_with_index do |s, i|
           s = [s] unless s.is_a?(Array)
 
-          ok, ai = false, arglist[i]
+          ai = arglist[i]
 
-          s.each { |sc|
-            if (sc.nil? && i>=arglist.length) || (sc && ai.class <= sc)
-              ok = true
-              break
-            end
-          }
-          raise "bad arg #{i}, method #{method}: #{ai}/#{ai.class} #{s}" if !ok
-        }
+          raise "bad arg #{i}, method #{method}: #{ai}/#{ai.class} #{s}" unless
+            (s.member?(nil) && i>=arglist.length) ||
+            s.detect {|sc| sc && ai.class <= sc}
+        end
 
         res = obj.send(msg, *args)
         # FIXME: can't freeze AR relations since then we can't chain
