@@ -7,6 +7,8 @@ module Delorean
   # FIXME: add string.gsub; Also, should be able to index regex
   # matches.  Need string.length.
 
+  DT_TYPES = [Date, Time, ActiveSupport::TimeWithZone]
+
   # FIXME: the whitelist is quite hacky.  It's currently difficult to
   # override it.  A user will likely want to directly modify this
   # hash.  The whole whitelist mechanism should be eventually
@@ -47,33 +49,25 @@ module Delorean
     downcase:           [String],
     match:              [String, [String], [nil, Fixnum]],
 
-    iso8601:            [[Date, Time, ActiveSupport::TimeWithZone]],
-    hour:               [[Date, Time, ActiveSupport::TimeWithZone]],
-    min:                [[Date, Time, ActiveSupport::TimeWithZone, Array]],
-    sec:                [[Date, Time, ActiveSupport::TimeWithZone]],
-    to_date:            [[Date, Time, ActiveSupport::TimeWithZone, String]],
+    iso8601:            [DT_TYPES],
+    hour:               [DT_TYPES],
+    min:                [DT_TYPES+[Array]],
+    sec:                [DT_TYPES],
+    to_date:            [DT_TYPES+[String]],
 
-    month:              [[Date, Time, ActiveSupport::TimeWithZone]],
-    day:                [[Date, Time, ActiveSupport::TimeWithZone]],
-    year:               [[Date, Time, ActiveSupport::TimeWithZone]],
+    month:              [DT_TYPES],
+    day:                [DT_TYPES],
+    year:               [DT_TYPES],
 
-    next_month:         [[Date, Time, ActiveSupport::TimeWithZone],
-                         [nil, Fixnum],
-                        ],
-    prev_month:         [[Date, Time, ActiveSupport::TimeWithZone],
-                         [nil, Fixnum],
-                        ],
+    next_month:         [DT_TYPES, [nil, Fixnum]],
+    prev_month:         [DT_TYPES, [nil, Fixnum]],
 
-    beginning_of_month: [[Date, Time, ActiveSupport::TimeWithZone]],
+    beginning_of_month: [DT_TYPES],
 
-    end_of_month:       [[Date, Time, ActiveSupport::TimeWithZone]],
+    end_of_month:       [DT_TYPES],
 
-    next_day:           [[Date, Time, ActiveSupport::TimeWithZone],
-                         [nil, Fixnum],
-                        ],
-    prev_day:           [[Date, Time, ActiveSupport::TimeWithZone],
-                         [nil, Fixnum],
-                        ],
+    next_day:           [DT_TYPES, [nil, Fixnum]],
+    prev_day:           [DT_TYPES, [nil, Fixnum]],
 
     to_i:               [[Numeric, String]],
     to_f:               [[Numeric, String]],
