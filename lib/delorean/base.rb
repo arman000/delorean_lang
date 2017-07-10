@@ -1,13 +1,18 @@
 require 'active_support/time'
+require 'active_record'
 require 'bigdecimal'
 
 module Delorean
+
+  # FIXME: add string.gsub; Also, should be able to index regex
+  # matches.  Need string.length.
 
   # FIXME: the whitelist is quite hacky.  It's currently difficult to
   # override it.  A user will likely want to directly modify this
   # hash.  The whole whitelist mechanism should be eventually
   # rethought.
   RUBY_WHITELIST = {
+    attributes:         [ActiveRecord::Base],
     between?:           [[Numeric, String],[Numeric, String],[Numeric, String]],
     between:            "between?",
     compact:            [Array],
@@ -31,8 +36,8 @@ module Delorean
     zip:                [Array, [Array, Array, Array]],
     index:              [Array, [Object]],
     product:            [Array, Array],
-    first:              [Enumerable, [nil, Fixnum]],
-    last:               [Enumerable, [nil, Fixnum]],
+    first:              [[ActiveRecord::Relation, Enumerable], [nil, Fixnum]],
+    last:               [[ActiveRecord::Relation, Enumerable], [nil, Fixnum]],
     intersection:       [Set, Enumerable],
     union:              [Set, Enumerable],
 
@@ -248,6 +253,7 @@ module Delorean
           s = [s] unless s.is_a?(Array)
 
           ok, ai = false, arglist[i]
+
           s.each { |sc|
             if (sc.nil? && i>=arglist.length) || (sc && ai.class <= sc)
               ok = true
@@ -257,7 +263,12 @@ module Delorean
           raise "bad arg #{i}, method #{method}: #{ai}/#{ai.class} #{s}" if !ok
         }
 
-        obj.send(msg, *args).freeze
+        res = obj.send(msg, *args)
+        # FIXME: can't freeze AR relations since then we can't chain
+        # calls (e.g. the chaining modifies the relation object.  Not
+        # sure what this side-effect means.  Delorean code which
+        # perform queries on queries seems to work.
+        ActiveRecord::Relation === res ? res : res.freeze
       end
 
       ######################################################################
