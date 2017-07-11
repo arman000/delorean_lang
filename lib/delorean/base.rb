@@ -9,6 +9,7 @@ module Delorean
 
   DT_TYPES = [Date, Time, ActiveSupport::TimeWithZone]
   NUM_OR_STR = [Numeric, String]
+  NUM_OR_NIL = [nil, Fixnum]
 
   # FIXME: the whitelist is quite hacky.  It's currently difficult to
   # override it.  A user will likely want to directly modify this
@@ -20,7 +21,7 @@ module Delorean
     between:            "between?",
     compact:            [Array],
     to_set:             [Array],
-    flatten:            [Array, [Fixnum, nil]],
+    flatten:            [Array, NUM_OR_NIL],
     length:             [Enumerable],
     max:                [Array],
     member:             "member?",
@@ -39,8 +40,8 @@ module Delorean
     zip:                [Array, [Array, Array, Array]],
     index:              [Array, [Object]],
     product:            [Array, Array],
-    first:              [[ActiveRecord::Relation, Enumerable], [nil, Fixnum]],
-    last:               [[ActiveRecord::Relation, Enumerable], [nil, Fixnum]],
+    first:              [[ActiveRecord::Relation, Enumerable], NUM_OR_NIL],
+    last:               [[ActiveRecord::Relation, Enumerable], NUM_OR_NIL],
     intersection:       [Set, Enumerable],
     union:              [Set, Enumerable],
 
@@ -48,7 +49,7 @@ module Delorean
     values:             [Hash],
     upcase:             [String],
     downcase:           [String],
-    match:              [String, [String], [nil, Fixnum]],
+    match:              [String, [String], NUM_OR_NIL],
 
     iso8601:            [DT_TYPES],
     hour:               [DT_TYPES],
@@ -60,15 +61,15 @@ module Delorean
     day:                [DT_TYPES],
     year:               [DT_TYPES],
 
-    next_month:         [DT_TYPES, [nil, Fixnum]],
-    prev_month:         [DT_TYPES, [nil, Fixnum]],
+    next_month:         [DT_TYPES, NUM_OR_NIL],
+    prev_month:         [DT_TYPES, NUM_OR_NIL],
 
     beginning_of_month: [DT_TYPES],
 
     end_of_month:       [DT_TYPES],
 
-    next_day:           [DT_TYPES, [nil, Fixnum]],
-    prev_day:           [DT_TYPES, [nil, Fixnum]],
+    next_day:           [DT_TYPES, NUM_OR_NIL],
+    prev_day:           [DT_TYPES, NUM_OR_NIL],
 
     to_i:               [NUM_OR_STR],
     to_f:               [NUM_OR_STR],
