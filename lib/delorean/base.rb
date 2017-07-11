@@ -128,30 +128,25 @@ module Delorean
 
     class BaseClass
       def self._get_attr(obj, attr, _e)
-        # FIXME: even Javascript which is superpermissive raises an
-        # exception on null getattr.
-        return nil if obj.nil?
-
         # NOTE: should keep this function consistent with _index
-
-        if obj.kind_of? ActiveRecord::Base
-          klass = obj.class
-
-          return obj.read_attribute(attr) if
-            klass.attribute_names.member? attr
-
-          return obj.send(attr.to_sym) if
-            klass.reflect_on_all_associations.map(&:name).member? attr.to_sym
-        elsif obj.instance_of?(NodeCall)
+        case obj
+        when nil
+          # FIXME: even Javascript which is superpermissive raises an
+          # exception on null getattr.
+          return nil
+        when ActiveRecord::Base
+          return obj.read_attribute(attr) if obj.has_attribute?(attr)
+          return obj.send(attr.to_sym) if obj.class.reflections[attr]
+        when NodeCall
           return obj.evaluate(attr)
-        elsif obj.instance_of?(Hash)
+        when Hash
           # FIXME: this implementation doesn't handle something like
           # {}.length.  i.e. length is a whitelisted function, but not
           # an attr. This implementation returns nil instead of 0.
           return obj[attr] if obj.member?(attr)
           return attr.is_a?(String) ? obj[attr.to_sym] : nil
-        elsif obj.instance_of?(Class) && (obj < BaseClass)
-          return obj.send((attr + POST).to_sym, _e)
+        when Class
+          return obj.send((attr + POST).to_sym, _e) if obj < BaseClass
         end
 
         begin
@@ -165,18 +160,19 @@ module Delorean
       ######################################################################
 
       def self._index(obj, args, _e)
-        return nil if obj.nil?
-
         # NOTE: should keep this function consistent with _get_attr
-
-        if obj.instance_of?(Hash) || obj.kind_of?(ActiveRecord::Base) ||
-            obj.instance_of?(NodeCall) || obj.instance_of?(Class)
+        case obj
+        when nil
+          # FIXME: even Javascript which is superpermissive raises an
+          # exception on null getattr.
+          return nil
+        when Hash, ActiveRecord::Base, NodeCall, Class
           raise InvalidIndex unless args.length == 1
           _get_attr(obj, args[0], _e)
-        elsif obj.instance_of?(Array) || obj.instance_of?(String)
-          raise InvalidIndex unless args.length <= 2
-          raise InvalidIndex unless
-            args[0].is_a?(Fixnum) && (!args[1] || args[1].is_a?(Fixnum))
+        when Array, String
+          raise InvalidIndex unless args.length <= 2 &&
+                                    args[0].is_a?(Fixnum) &&
+                                    (args[1].nil? || args[1].is_a?(Fixnum))
           obj[*args]
         else
           raise InvalidIndex
