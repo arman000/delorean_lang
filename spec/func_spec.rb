@@ -118,6 +118,21 @@ describe "Delorean" do
     engine.evaluate("A", "b").should == x.flatten + x.flatten(1)
   end
 
+  it "should handle ZIP" do
+    a = [1, 2]
+    b = [4, 5, 6]
+    c = [7, 8]
+
+    engine.parse defn("A:",
+                      "    a = #{a}",
+                      "    b = #{b}",
+                      "    c = #{c}",
+                      "    d = a.zip(b) + a.zip(b, c)",
+                      )
+
+    expect(engine.evaluate("A", "d")).to eq a.zip(b) + a.zip(b, c)
+  end
+
   it "should handle ERR" do
     engine.parse defn("A:",
                       "    a = ERR('hello')",
@@ -147,6 +162,7 @@ describe "Delorean" do
                       "    l = a.member(5)",
                       "    m = [a.member(5), a.member(55)]",
                       "    n = {'a':1, 'b':2, 'c':3}.length()",
+                      "    o = 'hello'.length",
                       )
 
     engine.evaluate("A", "c").should == x.flatten(1)
@@ -158,6 +174,7 @@ describe "Delorean" do
     engine.evaluate("A", "gg").should == x.length
     engine.evaluate("A", "m").should == [x.member?(5), x.member?(55)]
     engine.evaluate("A", "n").should == 3
+    engine.evaluate("A", "o").should == 5
   end
 
   it "should be able to call function on hash" do
@@ -206,4 +223,13 @@ describe "Delorean" do
     expect(engine.evaluate("A", "b")).to eq([false, true])
   end
 
+  it "should handle MATCH" do
+    engine.parse defn("A:",
+                      "    a = 'this is a test'.match('(.*)( is )(.*)')",
+                      "    b = [a[0], a[1], a[2], a[3], a[4]]",
+                      )
+
+    expect(engine.evaluate("A", "b")).
+      to eq(["this is a test", "this", " is ", "a test", nil])
+  end
 end

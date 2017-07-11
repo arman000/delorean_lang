@@ -4,9 +4,6 @@ require 'bigdecimal'
 
 module Delorean
 
-  # FIXME: add string.gsub; Also, should be able to index regex
-  # matches.  Need string.length.
-
   DT_TYPES = [Date, Time, ActiveSupport::TimeWithZone]
   NUM_OR_STR = [Numeric, String]
   NUM_OR_NIL = [nil, Fixnum]
@@ -22,7 +19,7 @@ module Delorean
     compact:            [Array],
     to_set:             [Array],
     flatten:            [Array, NUM_OR_NIL],
-    length:             [Enumerable],
+    length:             [[String, Enumerable]],
     max:                [Array],
     member:             "member?",
     member?:            [Enumerable, [Object]],
@@ -37,7 +34,7 @@ module Delorean
     sum:                [Array],
     transpose:          [Array],
     join:               [Array, String],
-    zip:                [Array, [Array, Array, Array]],
+    zip:                [Array, Array, [Array, nil], [Array, nil]],
     index:              [Array, [Object]],
     product:            [Array, Array],
     first:              [[ActiveRecord::Relation, Enumerable], NUM_OR_NIL],
@@ -65,7 +62,6 @@ module Delorean
     prev_month:         [DT_TYPES, NUM_OR_NIL],
 
     beginning_of_month: [DT_TYPES],
-
     end_of_month:       [DT_TYPES],
 
     next_day:           [DT_TYPES, NUM_OR_NIL],
@@ -93,15 +89,14 @@ module Delorean
       end
 
       def /(args)
-        raise "non-array/string arg to /" unless
-          args.is_a?(Array) || args.is_a?(String)
-
         begin
           case args
           when Array
             engine.eval_to_hash(node, args, params.clone)
           when String
             engine.evaluate(node, args, params.clone)
+          else
+            raise "non-array/string arg to /"
           end
         rescue => exc
           Delorean::Engine.grok_runtime_exception(exc)
@@ -171,7 +166,7 @@ module Delorean
         when Hash, ActiveRecord::Base, NodeCall, Class
           raise InvalidIndex unless args.length == 1
           _get_attr(obj, args[0], _e)
-        when Array, String
+        when Array, String, MatchData
           raise InvalidIndex unless args.length <= 2 &&
                                     args[0].is_a?(Fixnum) &&
                                     (args[1].nil? || args[1].is_a?(Fixnum))
