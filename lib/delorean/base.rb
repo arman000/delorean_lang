@@ -224,11 +224,9 @@ module Delorean
           return obj.send(msg, *args)
         end
 
-        if obj.class.include?(Delorean::Model)
-          sig = obj.class.delorean_instance_methods[msg]
-        end
-
-        sig = RUBY_WHITELIST[msg] unless sig
+        cls = obj.class
+        sig = (cls < Delorean::Model && cls.delorean_instance_methods[msg]) ||
+              RUBY_WHITELIST[msg]
 
         raise "no such method #{method}" unless sig
 
