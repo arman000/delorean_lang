@@ -2234,142 +2234,154 @@ module Delorean
                 r6 = SyntaxNode.new(input, (index-1)...index) if r6 == true
                 r0 = r6
               else
-                if (match_len = has_terminal?('>', false, index))
-                  r7 = true
+                if (match_len = has_terminal?('**', false, index))
+                  r7 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                   @index += match_len
                 else
-                  terminal_parse_failure('\'>\'')
+                  terminal_parse_failure('\'**\'')
                   r7 = nil
                 end
                 if r7
                   r7 = SyntaxNode.new(input, (index-1)...index) if r7 == true
                   r0 = r7
                 else
-                  if (match_len = has_terminal?('<', false, index))
+                  if (match_len = has_terminal?('>', false, index))
                     r8 = true
                     @index += match_len
                   else
-                    terminal_parse_failure('\'<\'')
+                    terminal_parse_failure('\'>\'')
                     r8 = nil
                   end
                   if r8
                     r8 = SyntaxNode.new(input, (index-1)...index) if r8 == true
                     r0 = r8
                   else
-                    if (match_len = has_terminal?('+', false, index))
+                    if (match_len = has_terminal?('<', false, index))
                       r9 = true
                       @index += match_len
                     else
-                      terminal_parse_failure('\'+\'')
+                      terminal_parse_failure('\'<\'')
                       r9 = nil
                     end
                     if r9
                       r9 = SyntaxNode.new(input, (index-1)...index) if r9 == true
                       r0 = r9
                     else
-                      if (match_len = has_terminal?('-', false, index))
+                      if (match_len = has_terminal?('+', false, index))
                         r10 = true
                         @index += match_len
                       else
-                        terminal_parse_failure('\'-\'')
+                        terminal_parse_failure('\'+\'')
                         r10 = nil
                       end
                       if r10
                         r10 = SyntaxNode.new(input, (index-1)...index) if r10 == true
                         r0 = r10
                       else
-                        if (match_len = has_terminal?('*', false, index))
+                        if (match_len = has_terminal?('-', false, index))
                           r11 = true
                           @index += match_len
                         else
-                          terminal_parse_failure('\'*\'')
+                          terminal_parse_failure('\'-\'')
                           r11 = nil
                         end
                         if r11
                           r11 = SyntaxNode.new(input, (index-1)...index) if r11 == true
                           r0 = r11
                         else
-                          if (match_len = has_terminal?('/', false, index))
+                          if (match_len = has_terminal?('*', false, index))
                             r12 = true
                             @index += match_len
                           else
-                            terminal_parse_failure('\'/\'')
+                            terminal_parse_failure('\'*\'')
                             r12 = nil
                           end
                           if r12
                             r12 = SyntaxNode.new(input, (index-1)...index) if r12 == true
                             r0 = r12
                           else
-                            if (match_len = has_terminal?('%', false, index))
+                            if (match_len = has_terminal?('/', false, index))
                               r13 = true
                               @index += match_len
                             else
-                              terminal_parse_failure('\'%\'')
+                              terminal_parse_failure('\'/\'')
                               r13 = nil
                             end
                             if r13
                               r13 = SyntaxNode.new(input, (index-1)...index) if r13 == true
                               r0 = r13
                             else
-                              if (match_len = has_terminal?('&', false, index))
+                              if (match_len = has_terminal?('%', false, index))
                                 r14 = true
                                 @index += match_len
                               else
-                                terminal_parse_failure('\'&\'')
+                                terminal_parse_failure('\'%\'')
                                 r14 = nil
                               end
                               if r14
                                 r14 = SyntaxNode.new(input, (index-1)...index) if r14 == true
                                 r0 = r14
                               else
-                                if (match_len = has_terminal?('^', false, index))
+                                if (match_len = has_terminal?('&', false, index))
                                   r15 = true
                                   @index += match_len
                                 else
-                                  terminal_parse_failure('\'^\'')
+                                  terminal_parse_failure('\'&\'')
                                   r15 = nil
                                 end
                                 if r15
                                   r15 = SyntaxNode.new(input, (index-1)...index) if r15 == true
                                   r0 = r15
                                 else
-                                  if (match_len = has_terminal?('|', false, index))
+                                  if (match_len = has_terminal?('^', false, index))
                                     r16 = true
                                     @index += match_len
                                   else
-                                    terminal_parse_failure('\'|\'')
+                                    terminal_parse_failure('\'^\'')
                                     r16 = nil
                                   end
                                   if r16
                                     r16 = SyntaxNode.new(input, (index-1)...index) if r16 == true
                                     r0 = r16
                                   else
-                                    i17, s17 = index, []
-                                    if (match_len = has_terminal?('in', false, index))
-                                      r18 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                                    if (match_len = has_terminal?('|', false, index))
+                                      r17 = true
                                       @index += match_len
                                     else
-                                      terminal_parse_failure('\'in\'')
-                                      r18 = nil
-                                    end
-                                    s17 << r18
-                                    if r18
-                                      r19 = _nt_sp
-                                      s17 << r19
-                                    end
-                                    if s17.last
-                                      r17 = instantiate_node(SyntaxNode,input, i17...index, s17)
-                                      r17.extend(BinaryOp0)
-                                    else
-                                      @index = i17
+                                      terminal_parse_failure('\'|\'')
                                       r17 = nil
                                     end
                                     if r17
                                       r17 = SyntaxNode.new(input, (index-1)...index) if r17 == true
                                       r0 = r17
                                     else
-                                      @index = i0
-                                      r0 = nil
+                                      i18, s18 = index, []
+                                      if (match_len = has_terminal?('in', false, index))
+                                        r19 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                                        @index += match_len
+                                      else
+                                        terminal_parse_failure('\'in\'')
+                                        r19 = nil
+                                      end
+                                      s18 << r19
+                                      if r19
+                                        r20 = _nt_sp
+                                        s18 << r20
+                                      end
+                                      if s18.last
+                                        r18 = instantiate_node(SyntaxNode,input, i18...index, s18)
+                                        r18.extend(BinaryOp0)
+                                      else
+                                        @index = i18
+                                        r18 = nil
+                                      end
+                                      if r18
+                                        r18 = SyntaxNode.new(input, (index-1)...index) if r18 == true
+                                        r0 = r18
+                                      else
+                                        @index = i0
+                                        r0 = nil
+                                      end
                                     end
                                   end
                                 end
@@ -3423,7 +3435,7 @@ module Delorean
             r7 = nil
             terminal_parse_failure('\'"\'', true)
           else
-            terminal_failures.pop
+            @terminal_failures.pop
             @index = i7
             r7 = instantiate_node(SyntaxNode,input, index...index)
           end

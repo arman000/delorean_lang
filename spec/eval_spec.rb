@@ -22,12 +22,15 @@ describe "Delorean" do
                       "    x = -(a * 2)",
                       "    b = -(a + 1)",
                       "    c = -a + 1",
+                      "    d = a ** 3 - 10*0.2",
                       )
 
     engine.evaluate_attrs("A", ["a"]).should == [123]
 
     r = engine.evaluate_attrs("A", ["x", "b"])
     r.should == [-246, -124]
+
+    expect(engine.evaluate("A", "d")).to eq 1860865.0
   end
 
   it "proper unary expression evaluation" do

@@ -98,7 +98,7 @@ grammar Delorean
   # NOTE: some operations such as << have side-effects (e.g. on
   # Arrays).  So, be cautious about which opertaions are added.
   rule binary_op
-    '==' / '!=' / '>=' / '<=' / '&&' / '||' /
+    '==' / '!=' / '>=' / '<=' / '&&' / '||' / '**' /
     '>'  / '<'  / '+' / '-' / '*' / '/' / '%' /
     '&'  / '^'  / '|' / 'in' sp
   end
