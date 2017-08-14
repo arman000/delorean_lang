@@ -125,6 +125,20 @@ module Delorean
 
     class BaseClass
       def self._get_attr(obj, attr, _e)
+        # REALLY FIXME: this really needs to be another "when" in the
+        # case statement below. However, Gemini appears to create Hash
+        # objects when running Delorean modules in delayed jobs that
+        # return true when we called obj.instance_of?(Hash) and do not
+        # work with the "case/when" matcher!!!  For now, this is a
+        # hacky workaround.  This is likely some sort of Ruby bug.
+        if obj.instance_of?(Hash)
+          # FIXME: this implementation doesn't handle something like
+          # {}.length.  i.e. length is a whitelisted function, but not
+          # an attr. This implementation returns nil instead of 0.
+          return obj[attr] if obj.member?(attr)
+          return attr.is_a?(String) ? obj[attr.to_sym] : nil
+        end
+
         # NOTE: should keep this function consistent with _index
         case obj
         when nil
@@ -136,12 +150,6 @@ module Delorean
           return obj.send(attr.to_sym) if obj.class.reflections[attr]
         when NodeCall
           return obj.evaluate(attr)
-        when Hash
-          # FIXME: this implementation doesn't handle something like
-          # {}.length.  i.e. length is a whitelisted function, but not
-          # an attr. This implementation returns nil instead of 0.
-          return obj[attr] if obj.member?(attr)
-          return attr.is_a?(String) ? obj[attr.to_sym] : nil
         when Class
           return obj.send((attr + POST).to_sym, _e) if obj < BaseClass
         end
