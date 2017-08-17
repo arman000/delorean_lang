@@ -22,7 +22,7 @@ grammar Delorean
   end
 
   rule expression
-    'ERR(' sp? args:fn_args sp? ')' <ErrorOp>
+    'ERR(' sp? args:fn_args? sp? ')' <ErrorOp>
     /
     op:unary_op sp? e:expression <UnOp>
     /

@@ -194,11 +194,11 @@ eos
   # hacky, for backwards compatibility
   class ErrorOp < SNode
     def check(context, *)
-      args.check(context)
+      args.text_value=='' ? [] : args.check(context)
     end
 
     def rewrite(context, *)
-      "_err(#{args.rewrite(context)})"
+      args.text_value!='' ? "_err(#{args.rewrite(context)})" : "binding.pry; 0"
     end
   end
 
