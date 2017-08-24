@@ -191,6 +191,14 @@ describe "Delorean" do
     engine.evaluate("A", "m").should == 100
   end
 
+  it "should be able to call hash except" do
+    engine.parse defn("A:",
+                      "    h = {'a': 1, 'b':2, 'c': 3}",
+                      "    e = h.except('a', 'c')",
+                      )
+    expect(engine.evaluate("A", "e")).to eq({"b"=>2})
+  end
+
   it "should handle RUBY slice function" do
     x = [[1, 2, [-3]], 4, [5, 6], -3, 4, 5, 0]
 

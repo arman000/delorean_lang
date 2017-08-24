@@ -25,6 +25,7 @@ module Delorean
     member?:            [Enumerable, [Object]],
     empty:              "empty?",
     empty?:             [Enumerable],
+    except:             [Hash, String] + [[nil, String]]*9,
     reverse:            [Array],
     slice:              [Array, Fixnum, Fixnum],
     each_slice:         [Array, Fixnum],
