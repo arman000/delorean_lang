@@ -727,7 +727,7 @@ describe "Delorean" do
                       )
   end
 
-  it "should parse multiline empty list" do
+  xit "should parse multiline empty list" do
     engine.parse defn("A:",
                       "    a = [",
                       "         ]",
@@ -805,6 +805,13 @@ describe "Delorean" do
                       "A:",
                       "    b = 456",
                       "B: AAA::X",
+                      )
+  end
+
+  xit "should parse ERR()" do
+    # pending ... wrapping with parens -- (ERR()) works
+    engine.parse defn("A:",
+                      "    b = ERR() && 123",
                       )
   end
 

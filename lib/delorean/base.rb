@@ -54,6 +54,7 @@ module Delorean
     min:                [DT_TYPES+[Array]],
     sec:                [DT_TYPES],
     to_date:            [DT_TYPES+[String]],
+    to_time:            [DT_TYPES+[String]],
 
     month:              [DT_TYPES],
     day:                [DT_TYPES],
