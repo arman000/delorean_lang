@@ -31,7 +31,7 @@ describe "Delorean" do
                       "    c = 12.3456.round()",
                       )
 
-    r = engine.evaluate_attrs("A", ["a", "b", "c"])
+    r = engine.evaluate("A", ["a", "b", "c"])
     r.should == [12.35, 12.3, 12]
   end
 
@@ -42,7 +42,7 @@ describe "Delorean" do
                       "    c = '12'.to_f()",
                       )
 
-    r = engine.evaluate_attrs("A", ["a", "b", "c"])
+    r = engine.evaluate("A", ["a", "b", "c"])
     r.should == [12.3456, 12.3456, 12]
   end
 
@@ -54,7 +54,7 @@ describe "Delorean" do
                       "    d = 0.abs()",
                       )
 
-    r = engine.evaluate_attrs("A", ["a", "b", "c", "d"])
+    r = engine.evaluate("A", ["a", "b", "c", "d"])
     r.should == [123, 1.1, 2.3, 0]
   end
 
@@ -65,7 +65,7 @@ describe "Delorean" do
                       "    c = [1,2,3].to_s()",
                       )
 
-    r = engine.evaluate_attrs("A", ["a", "b", "c"])
+    r = engine.evaluate("A", ["a", "b", "c"])
     r.should == ["hello", '12.3456', [1,2,3].to_s]
   end
 
@@ -81,11 +81,11 @@ describe "Delorean" do
 
     p = Time.now
     params = {"p" => p}
-    r = engine.evaluate_attrs("A", %w{h m s d e}, params)
+    r = engine.evaluate("A", %w{h m s d e}, params)
     r.should == [p.hour, p.min, p.sec, p.to_date, p.to_date]
 
     # Non time argument should raise an error
-    expect { engine.evaluate_attrs("A", ["m"], {"p" => 123}) }.to raise_error
+    expect { engine.evaluate("A", ["m"], {"p" => 123}) }.to raise_error
 
   end
 
@@ -98,12 +98,12 @@ describe "Delorean" do
                       )
 
     p = Date.today
-    r = engine.evaluate_attrs("A", ["y", "d", "m"], {"p" => p})
+    r = engine.evaluate("A", ["y", "d", "m"], {"p" => p})
     r.should == [p.year, p.day, p.month]
 
     # Non date argument should raise an error
     expect {
-      engine.evaluate_attrs("A", ["y", "d", "m"], {"p" => 123})
+      engine.evaluate("A", ["y", "d", "m"], {"p" => 123})
     }.to raise_error
   end
 

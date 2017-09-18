@@ -25,9 +25,9 @@ describe "Delorean" do
                       "    d = a ** 3 - 10*0.2",
                       )
 
-    engine.evaluate_attrs("A", ["a"]).should == [123]
+    engine.evaluate("A", ["a"]).should == [123]
 
-    r = engine.evaluate_attrs("A", ["x", "b"])
+    r = engine.evaluate("A", ["x", "b"])
     r.should == [-246, -124]
 
     expect(engine.evaluate("A", "d")).to eq 1860865.0
@@ -57,7 +57,7 @@ describe "Delorean" do
                       "    a = {'x':123, 'y':456, 'z':789}",
                       "    b = A.a.x * A.a.y - A.a.z",
                       )
-    engine.evaluate_attrs("A", ["b"]).should == [123*456-789]
+    engine.evaluate("A", ["b"]).should == [123*456-789]
   end
 
   it "should handle numeric getattr" do
@@ -65,7 +65,7 @@ describe "Delorean" do
                       "    a = {1:123, 0:456, 'z':789, 2: {'a':444}}",
                       "    b = A.a.1 * A.a.0 - A.a.z - A.a.2.a",
                       )
-    engine.evaluate_attrs("A", ["b"]).should == [123*456-789-444]
+    engine.evaluate("A", ["b"]).should == [123*456-789-444]
   end
 
   it "should be able to evaluate multiple node attrs" do
@@ -76,7 +76,7 @@ describe "Delorean" do
                       )
 
     h = {"a" => 16}
-    r = engine.evaluate_attrs("A", ["c", "b"], h)
+    r = engine.evaluate("A", ["c", "b"], h)
     r.should == [4, 5]
   end
 
@@ -117,8 +117,8 @@ describe "Delorean" do
                       "    a =? 2",
                       "    c = A.a",
                       )
-    engine.evaluate_attrs("B", %w{c a}).should == [1, 2]
-    engine.evaluate_attrs("B", %w{a c}).should == [2, 1]
+    engine.evaluate("B", %w{c a}).should == [1, 2]
+    engine.evaluate("B", %w{a c}).should == [2, 1]
   end
 
   it "params should behave properly with inheritance" do
@@ -131,9 +131,9 @@ describe "Delorean" do
                       "    b = B.a",
                       "    c = A.a",
                       )
-    engine.evaluate_attrs("C", %w{a b c}).should == [3, 2, 1]
-    engine.evaluate_attrs("C", %w{a b c}, {"a" => 4}).should == [4, 4, 4]
-    engine.evaluate_attrs("C", %w{c b a}).should == [1, 2, 3]
+    engine.evaluate("C", %w{a b c}).should == [3, 2, 1]
+    engine.evaluate("C", %w{a b c}, {"a" => 4}).should == [4, 4, 4]
+    engine.evaluate("C", %w{c b a}).should == [1, 2, 3]
   end
 
   it "should give error when param is undefined for eval" do
@@ -273,7 +273,7 @@ describe "Delorean" do
                       "    c = Dummy.call_me_maybe()",
                       "    d = Dummy.call_me_maybe(5) + b + c",
                       )
-    r = engine.evaluate_attrs("A", ["b", "c", "d"])
+    r = engine.evaluate("A", ["b", "c", "d"])
     r.should == [10, 0, 15]
   end
 
@@ -326,7 +326,7 @@ describe "Delorean" do
                       "    d = b.b",
                       "    e = b.this_is_crazy",
                       )
-    engine.evaluate_attrs("A", %w{c d e}).should == [456, 789, nil]
+    engine.evaluate("A", %w{c d e}).should == [456, 789, nil]
   end
 
   it "get attr on nil should return nil" do
@@ -335,7 +335,7 @@ describe "Delorean" do
                       '    c = b.gaga',
                       '    d = b.gaga || 55',
                       )
-    r = engine.evaluate_attrs("A", ["b", "c", "d"])
+    r = engine.evaluate("A", ["b", "c", "d"])
     r.should == [nil, nil, 55]
   end
 
@@ -354,7 +354,7 @@ describe "Delorean" do
                       "    b = A",
                       "    c = b.a * 2",
                       )
-    engine.evaluate_attrs("A", %w{a c}).should == [123, 123*2]
+    engine.evaluate("A", %w{a c}).should == [123, 123*2]
   end
 
   getattr_code = <<eoc
@@ -496,11 +496,11 @@ eof
                       "    d = 111",
                       )
 
-    engine.evaluate_attrs("A", ["a", "b"]).should == [123, 123*3]
-    engin2.evaluate_attrs("A", ["a", "b"]).should == [222.0, 222.0/5]
+    engine.evaluate("A", ["a", "b"]).should == [123, 123*3]
+    engin2.evaluate("A", ["a", "b"]).should == [222.0, 222.0/5]
 
-    engine.evaluate_attrs("B", ["a", "b", "c"]).should == [123, 123*3, 123*3*2]
-    engin2.evaluate_attrs("B", ["a", "b", "c"]).should ==
+    engine.evaluate("B", ["a", "b", "c"]).should == [123, 123*3, 123*3*2]
+    engin2.evaluate("B", ["a", "b", "c"]).should ==
       [222.0, 222.0/5, 222.0/5*3]
 
     engin2.evaluate("C", "d").should == 111
@@ -523,7 +523,7 @@ eof
                       "    e = [1, 1+1, 1+1+1, 1*2*4]",
                       )
 
-    engine.evaluate_attrs("A", %w{b c d e}).should ==
+    engine.evaluate("A", %w{b c d e}).should ==
       [[],
        [1, 2, 3],
        [[], [1, 2, 3], [], [1, 2, 3], 1, 2, "123", 1.1, -1.23],
@@ -538,7 +538,7 @@ eof
                       "    d = c*2",
                       )
 
-    engine.evaluate_attrs("A", %w{b c d}).should ==
+    engine.evaluate("A", %w{b c d}).should ==
       [[],
        [1, 2, 3],
        [1, 2, 3]*2,
@@ -551,7 +551,7 @@ eof
                       "    b = {i*5 for i in {1,2,3}}",
                       "    c = {1,2,3} | {4,5}",
                       )
-    engine.evaluate_attrs("A", ["a", "b", "c"]).should ==
+    engine.evaluate("A", ["a", "b", "c"]).should ==
       [Set[], Set[5,10,15], Set[1,2,3,4,5]]
   end
 
@@ -621,7 +621,7 @@ eof
                       "    g = {b:b, [b]:[1,23], []:345}",
                       )
 
-    engine.evaluate_attrs("A", %w{b c d e f g}).should ==
+    engine.evaluate("A", %w{b c d e f g}).should ==
       [{},
        {"a"=>1, "b"=>2, "c"=>3},
        {123*2=>-123, "b_b"=>2},
@@ -682,7 +682,7 @@ eof
                       "    f = e.d / e.a",
                       )
 
-    engine.evaluate_attrs("A", ["d", "f"]).should == [26, 2]
+    engine.evaluate("A", ["d", "f"]).should == [26, 2]
   end
 
   it "should eval multi-var hash comprehension" do
@@ -706,7 +706,7 @@ eof
                       "    j = d(a=6).aa",
                       )
 
-    engine.evaluate_attrs("A", ["g", "h", "j"]).should ==
+    engine.evaluate("A", ["g", "h", "j"]).should ==
       [3*2 + 4*2, 5*2, 6*2]
   end
 
@@ -717,7 +717,7 @@ eof
                       "    e = [d.a, d(a=4).a]",
                       )
 
-    engine.evaluate_attrs("A", ["e"]).should == [[3,4]]
+    engine.evaluate("A", ["e"]).should == [[3,4]]
   end
 
   it "should eval module calls 1" do
@@ -727,7 +727,7 @@ eof
                       "    d = n().a",
                       )
 
-    engine.evaluate_attrs("A", %w{d}).should == [123]
+    engine.evaluate("A", %w{d}).should == [123]
   end
 
   it "should eval module calls 2" do
@@ -740,7 +740,7 @@ eof
                       "    e = nil() % ['b']",
                       )
 
-    engine.evaluate_attrs("A", %w{n c d e}).should ==
+    engine.evaluate("A", %w{n c d e}).should ==
       ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, {"b"=>579}]
   end
 
@@ -752,7 +752,7 @@ eof
                       "    d = n().a",
                       )
 
-    engine.evaluate_attrs("B", %w{d}).should == [123]
+    engine.evaluate("B", %w{d}).should == [123]
   end
 
   it "should be possible to implement recursive calls" do
@@ -796,7 +796,7 @@ eof
                       "         ) % ['b']",
                       )
 
-    engine.evaluate_attrs("A", %w{n c d e}).should ==
+    engine.evaluate("A", %w{n c d e}).should ==
       ["A", {"a"=>123, "b"=>579}, {"a"=>123, "b"=>579}, {"b"=>579}]
   end
 
@@ -809,7 +809,7 @@ eof
                       "    d = [i*2 for i in s if i in a]",
                       )
 
-    engine.evaluate_attrs("A", %w{b c d}).should ==
+    engine.evaluate("A", %w{b c d}).should ==
       [false, true, [66, 88]]
   end
 
@@ -821,7 +821,7 @@ eof
                       "    a = 111",
                       "    c = AAA::X(a=456).b",
                       )
-    engine.evaluate_attrs("B", ["a", "b", "c"], {}).should ==
+    engine.evaluate("B", ["a", "b", "c"], {}).should ==
       [111, 222, 456*2]
   end
 
@@ -846,7 +846,7 @@ eof
 
     e2 = sset.get_engine("BBB")
 
-    e2.evaluate_attrs("B", ["a", "b", "c", "d"]).should ==
+    e2.evaluate("B", ["a", "b", "c", "d"]).should ==
       [111, 222, -2, 222]
 
     engine.parse defn("import BBB",
@@ -854,15 +854,15 @@ eof
                       "    e = d + 3",
                       )
 
-    engine.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should ==
+    engine.evaluate("B", ["a", "b", "c", "d", "e"]).should ==
       [111, 222, -2, 222, 225]
 
     e4 = sset.get_engine("CCC")
 
-    e4.evaluate_attrs("B", ["a", "b", "c", "d", "e"]).should ==
+    e4.evaluate("B", ["a", "b", "c", "d", "e"]).should ==
       [111, 222, -2, 222, 666]
 
-    e4.evaluate_attrs("C", ["a", "b", "d"]).should == [123, 123*2, 123*3*2]
+    e4.evaluate("C", ["a", "b", "d"]).should == [123, 123*2, 123*3*2]
   end
 
   it "should eval imports (3)" do
@@ -890,7 +890,7 @@ eof
                       "    e = d['b']",
                       "    f = a[1,2]",
                       )
-    r = engine.evaluate_attrs("A", ["b", "c", "e", "f"])
+    r = engine.evaluate("A", ["b", "c", "e", "f"])
     r.should == [2, 3, 456, [2,3]]
   end
 
@@ -901,7 +901,7 @@ eof
                       "    c = A() % ['a', 'b']",
                       "    d = c['b'].x * c['a'] - c['b'].y",
                       )
-    r = engine.evaluate_attrs("A", ["a", "b", "c", "d"])
+    r = engine.evaluate("A", ["a", "b", "c", "d"])
     r.should ==
       [1, {"x"=>123, "y"=>456}, {"a"=>1, "b"=>{"x"=>123, "y"=>456}}, -333]
   end
@@ -915,15 +915,15 @@ eof
                       "    d = A() / ['a', 'e']",
                       "    f = A() / 'a'",
                       )
-    r = engine.evaluate_attrs("A", ["a", "b", "c"])
+    r = engine.evaluate("A", ["a", "b", "c"])
     r.should ==
       [1, {"x"=>123, "y"=>456}, {"a"=>1, "b"=>{"x"=>123, "y"=>456}}]
 
-    r = engine.evaluate_attrs("A", ["a", "d"])
+    r = engine.evaluate("A", ["a", "d"])
     r.should ==
       [1, {"error"=>"hello", "backtrace"=>[["XXX", 4, "e"], ["XXX", 6, "d"]]}]
 
-    r = engine.evaluate_attrs("A", ["f"])
+    r = engine.evaluate("A", ["f"])
     r.should == [1]
   end
 
@@ -977,7 +977,7 @@ eof
                       "    z = B(10, 20, a=3, b=7).x",
                       "    y = B('x', 'y').y",
                       )
-    engine.evaluate_attrs("A", ["a", "z", "y"], {0 => 123, 1 => 456}).should ==
+    engine.evaluate("A", ["a", "z", "y"], {0 => 123, 1 => 456}).should ==
       [123-456, 40, ["x", "y", nil]]
   end
 

@@ -29,7 +29,7 @@ Or add it to your `Gemfile`, etc.
     
     engine.parse my_code
     
-    engine.evaluate_attrs("NodeB", %w{attr1 attr2 attr3})
+    engine.evaluate("NodeB", %w{attr1 attr2 attr3})
 
 ## The Delorean Language
 
