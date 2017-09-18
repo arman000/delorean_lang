@@ -346,18 +346,9 @@ module Delorean
     # Runtime
     ######################################################################
 
-    def evaluate(node, attr, params={})
-      evaluate_attrs(node, [attr], params)[0]
-    end
-
-    def eval_to_hash(node, attrs, params={})
-      res = evaluate_attrs(node, attrs, params)
-      Hash[* attrs.zip(res).flatten(1)]
-    end
-
-    def evaluate_attrs(node, attrs, params={})
+    def evaluate(node, attrs, params={})
       raise "bad params" unless params.is_a?(Hash)
-
+      
       if node.is_a?(Class)
         klass = node
       else
@@ -372,10 +363,19 @@ module Delorean
 
       params[:_engine] = self
 
-      attrs.map { |attr|
+      type_arr = attrs.is_a?(Array)
+      attrs = [attrs] unless type_arr
+      
+      res = attrs.map { |attr|
         raise "bad attribute '#{attr}'" unless attr =~ /^[a-z][A-Za-z0-9_]*$/
         klass.send("#{attr}#{POST}".to_sym, params)
       }
+      type_arr ? res : res[0]
+    end
+
+    def eval_to_hash(node, attrs, params={})
+      res = evaluate(node, attrs, params)
+      Hash[* attrs.zip(res).flatten(1)]
     end
 
     def self.grok_runtime_exception(exc)
