@@ -6,7 +6,7 @@ module Delorean
 
   DT_TYPES = [Date, Time, ActiveSupport::TimeWithZone]
   NUM_OR_STR = [Numeric, String]
-  NUM_OR_NIL = [nil, Fixnum]
+  NUM_OR_NIL = [nil, Integer]
 
   # FIXME: the whitelist is quite hacky.  It's currently difficult to
   # override it.  A user will likely want to directly modify this
@@ -27,8 +27,8 @@ module Delorean
     empty?:             [Enumerable],
     except:             [Hash, String] + [[nil, String]]*9,
     reverse:            [Array],
-    slice:              [Array, Fixnum, Fixnum],
-    each_slice:         [Array, Fixnum],
+    slice:              [Array, Integer, Integer],
+    each_slice:         [Array, Integer],
     sort:               [Array],
     split:              [String, String],
     uniq:               [Array],
@@ -179,8 +179,8 @@ module Delorean
           _get_attr(obj, args[0], _e)
         when Array, String, MatchData
           raise InvalidIndex unless args.length <= 2 &&
-                                    args[0].is_a?(Fixnum) &&
-                                    (args[1].nil? || args[1].is_a?(Fixnum))
+                                    args[0].is_a?(Integer) &&
+                                    (args[1].nil? || args[1].is_a?(Integer))
           obj[*args]
         else
           raise InvalidIndex
