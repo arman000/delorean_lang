@@ -279,6 +279,33 @@ describe "Delorean" do
     }.should raise_error(Delorean::UndefinedError)
   end
 
+  it "should not be possible to use a forward definition in hash" do
+    lambda {
+      engine.parse defn("A:",
+                        "    c = {'b': 1, 'd' : d}",
+                        "    d = 789",
+                        )
+    }.should raise_error(Delorean::UndefinedError)
+  end
+
+  it "should not be possible to use a forward definition in node call" do
+    lambda {
+      engine.parse defn("A:",
+                        "    c = A(b=1, d=d)",
+                        "    d = 789",
+                        )
+    }.should raise_error(Delorean::UndefinedError)
+  end
+
+  it "should not be possible to use a forward definition in array" do
+    lambda {
+      engine.parse defn("A:",
+                        "    c = [123, 456, d]",
+                        "    d = 789",
+                        )
+    }.should raise_error(Delorean::UndefinedError)
+  end
+
   it "should be able to use ruby keywords as identifier" do
     lambda {
       engine.parse defn("A:",

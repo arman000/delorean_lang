@@ -533,8 +533,9 @@ eos
 
   class KwArgs < SNode
     def check(context, *)
-      arg0.check(context) + (defined?(args_rest.args) ?
-                             args_rest.args.check(context) : [])
+      arg0.check(context) + (
+        defined?(args_rest.al) && !args_rest.al.empty? ?
+          args_rest.al.check(context) : [])
     end
 
     def rewrite(context)
@@ -559,7 +560,8 @@ eos
   class HashArgs < SNode
     def check(context, *)
       e0.check(context) + e1.check(context) +
-        (defined?(args_rest.args) ? args_rest.args.check(context) : [])
+        (defined?(args_rest.al) && !args_rest.al.empty? ?
+           args_rest.al.check(context) : [])
     end
 
     def rewrite(context)
