@@ -35,6 +35,15 @@ describe "Delorean" do
     r.should == [12.35, 12.3, 12]
   end
 
+  it "should handle FLOOR" do
+    engine.parse defn("A:",
+                      "    a = [12.3456.floor(), 13.7890.floor()]",
+                      )
+
+    r = engine.evaluate("A", "a")
+    r.should == [12, 13]
+  end
+
   it "should handle NUMBER" do
     engine.parse defn("A:",
                       "    a = 12.3456.to_f()",

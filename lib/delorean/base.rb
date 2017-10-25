@@ -78,6 +78,7 @@ module Delorean
     abs:                [Numeric],
     round:              [Numeric, [nil, Integer]],
     ceil:               [Numeric],
+    floor:              [Numeric],
   }
 
   module BaseModule

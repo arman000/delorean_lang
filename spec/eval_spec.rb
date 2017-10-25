@@ -998,4 +998,25 @@ eof
     r = engine.evaluate("B", "x")
     expect(r).to eq 3
   end
+
+  xit "can use nodes as continuations" do
+
+    # FIME: This is actually a trivial exmaple. Ideally we should be
+    # able to pass arguments to the nodes when evaluating ys.  If the
+    # arguments do not change the computation of "x" then "x" should
+    # not be recomputed.  This would need some flow analysis though.
+
+    engine.parse defn("A:",
+                      "    a =?",
+                      "    x = Dummy.side_effect",
+                      "    y = x*a",
+                      "B:",
+                      "    ns = [A(a=a) for a in [1, 1, 1]]",
+                      "    xs = [n.x for n in ns]",
+                      "    ys = [n.y for n in ns]",
+                      "    res = [xs, ys]",
+                     )
+    r = engine.evaluate("B", "res")
+    expect(r[1]).to eq r[0]
+  end
 end
