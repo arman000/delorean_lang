@@ -78,6 +78,18 @@ describe "Delorean" do
     r.should == ["hello", '12.3456', [1,2,3].to_s]
   end
 
+  it "should handle FETCH" do
+    engine.parse defn("A:",
+                      "    h = {'a':123, 1:111}",
+                      "    a = h.fetch('a')",
+                      "    b = h.fetch(1)",
+                      "    c = h.fetch('xxx', 456)",
+                      )
+
+    r = engine.evaluate("A", ["a", "b", "c"])
+    r.should == [123, 111, 456]
+  end
+
   it "should handle TIMEPART" do
     engine.parse defn("A:",
                       "    p =?",

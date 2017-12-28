@@ -45,6 +45,7 @@ module Delorean
 
     keys:               [Hash],
     values:             [Hash],
+    fetch:              [Hash, Object, [Object]],
     upcase:             [String],
     downcase:           [String],
     match:              [String, [String], NUM_OR_NIL],
