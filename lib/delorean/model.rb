@@ -17,7 +17,7 @@ module Delorean
         raise "no signature" unless sig
 
         if sig
-          sig = [sig, sig] if sig.is_a? Fixnum
+          sig = [sig, sig] if sig.is_a? Integer
           raise "Bad signature" unless (sig.is_a? Array and sig.length==2)
           self.const_set(name.to_s.upcase+Delorean::SIG, sig)
         end
