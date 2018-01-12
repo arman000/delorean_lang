@@ -24,7 +24,7 @@ module Delorean
       end
 
       def delorean_instance_method(name, sig = nil)
-        delorean_instance_methods[name.to_sym] = [self, *sig].compact
+        delorean_instance_methods[[self, name.to_sym]] = [self, *sig].compact
       end
 
       def delorean_instance_methods

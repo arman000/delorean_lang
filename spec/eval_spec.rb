@@ -319,6 +319,37 @@ describe "Delorean" do
     r.should == "I Really Like You-1.234-Run Away with Me"
   end
 
+  it "delorean_instance_fn inheritance test 1" do
+    engine.parse defn("A:",
+                   '    b = DummyChild.hello.name3("child calling parent\'s dim")',
+                      )
+    r = engine.evaluate("A", "b")
+    r.should == "child-99999.0-child calling parent's dim"
+  end
+  it "delorean_instance_fn inheritance test 2" do
+    engine.parse defn("A:",
+                   '    b = DummyChild.hello.name4("child calling own dim")',
+                      )
+    r = engine.evaluate("A", "b")
+    r.should == "#4 child-99999.0-child calling own dim"
+  end
+  it "delorean_instance_fn inheritance test 3" do
+    # calling unrelated dim
+    engine.parse defn("A:",
+                      "    b = M::LittleDummy.sup.foob",
+                      )
+    r = engine.evaluate("A", "b")
+    r.should == "bar"
+  end
+  it "delorean_instance_fn inheritance test 4" do
+    # parent calling its own dim (that a child also has)
+    engine.parse defn("A:",
+                   '    b = Dummy.i_just_met_you("Foo",321).name4("Bar")',
+                      )
+    r = engine.evaluate("A", "b")
+    r.should == "Four Foo-321.0-Bar"
+  end
+
   it "should be able to get attr on Hash objects using a.b syntax" do
     engine.parse defn("A:",
                       '    b = Dummy.i_threw_a_hash_in_the_well()',
