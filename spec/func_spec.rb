@@ -15,6 +15,16 @@ describe "Delorean" do
     r.should == 3
   end
 
+  it "should handle COMPACT" do
+    engine.parse defn("A:",
+                      "    a = [1, 2, nil, -3, 4].compact",
+                      "    b = {'a': 1, 'b': nil, 'c': nil}.compact()",
+                      )
+
+    expect(engine.evaluate("A", "a")).to eq([1, 2, -3, 4])
+    expect(engine.evaluate("A", "b")).to eq({"a" => 1})
+  end
+
   it "should handle MIN" do
     engine.parse defn("A:",
                       "    a = [1, 2, -3, 4].min()",

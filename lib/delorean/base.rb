@@ -4,7 +4,7 @@ require 'bigdecimal'
 
 module Delorean
 
-  DT_TYPES = [Date, Time, ActiveSupport::TimeWithZone]
+  DT_TYPES   = [Date, Time, ActiveSupport::TimeWithZone]
   NUM_OR_STR = [Numeric, String]
   NUM_OR_NIL = [nil, Integer]
 
@@ -16,7 +16,7 @@ module Delorean
     attributes:         [ActiveRecord::Base],
     between?:           [NUM_OR_STR, NUM_OR_STR, NUM_OR_STR],
     between:            "between?",
-    compact:            [Array],
+    compact:            [[Array, Hash]],
     to_set:             [Array],
     flatten:            [Array, NUM_OR_NIL],
     length:             [[String, Enumerable]],
