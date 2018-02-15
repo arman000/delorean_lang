@@ -80,6 +80,7 @@ module Delorean
     round:              [Numeric, [nil, Integer]],
     ceil:               [Numeric],
     floor:              [Numeric],
+    truncate:           [Numeric, [nil, Integer]],
   }
 
   module BaseModule
