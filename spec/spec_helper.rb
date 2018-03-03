@@ -94,6 +94,10 @@ class Dummy < ActiveRecord::Base
   delorean_fn :side_effect, sig: 0 do
     @@foo += 1
   end
+
+  delorean_fn :returns_openstruct, sig: 0 do
+    OpenStruct.new({"abc"=>"def"})
+  end
 end
 
 class DummyChild < Dummy
