@@ -264,7 +264,7 @@ module Delorean
         # calls (e.g. the chaining modifies the relation object.  Not
         # sure what this side-effect means.  Delorean code which
         # perform queries on queries seems to work.
-        ActiveRecord::Relation === res ? res : res.freeze
+        (ActiveRecord::Relation === res || Class === res) ? res : res.freeze
       end
 
       ######################################################################
