@@ -155,6 +155,8 @@ module Delorean
           return obj.send(attr.to_sym) if obj.class.reflections[attr]
         when NodeCall
           return obj.evaluate(attr)
+        when OpenStruct
+          return obj[attr.to_sym]
         when Class
           return obj.send((attr + POST).to_sym, _e) if obj < BaseClass
         end
@@ -176,7 +178,7 @@ module Delorean
           # FIXME: even Javascript which is superpermissive raises an
           # exception on null getattr.
           return nil
-        when Hash, ActiveRecord::Base, NodeCall, Class
+        when Hash, ActiveRecord::Base, NodeCall, Class, OpenStruct
           raise InvalidIndex unless args.length == 1
           _get_attr(obj, args[0], _e)
         when Array, String, MatchData

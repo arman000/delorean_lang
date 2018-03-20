@@ -1,5 +1,4 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-
 describe "Delorean" do
 
   let(:sset) {
@@ -1028,6 +1027,18 @@ eof
                      )
     r = engine.evaluate("B", "x")
     expect(r).to eq 3
+  end
+
+  it "understands openstructs" do
+    engine.parse defn("A:",
+                      "    os = Dummy.returns_openstruct",
+                      "    abc = os.abc",
+                      "    not_found = os.not_found"
+                     )
+    r = engine.evaluate("A", ["os", "abc", "not_found"])
+    expect(r[0].abc).to eq("def")
+    expect(r[1]).to eq("def")
+    expect(r[2]).to be_nil
   end
 
   xit "can use nodes as continuations" do
