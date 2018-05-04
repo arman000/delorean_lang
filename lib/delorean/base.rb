@@ -4,7 +4,8 @@ require 'bigdecimal'
 
 module Delorean
 
-  DT_TYPES   = [Date, Time, ActiveSupport::TimeWithZone]
+  TI_TYPES   = [Time, ActiveSupport::TimeWithZone]
+  DT_TYPES   = [Date] + TI_TYPES
   NUM_OR_STR = [Numeric, String]
   NUM_OR_NIL = [nil, Integer]
 
@@ -70,8 +71,8 @@ module Delorean
     next_day:           [DT_TYPES, NUM_OR_NIL],
     prev_day:           [DT_TYPES, NUM_OR_NIL],
 
-    to_i:               [NUM_OR_STR],
-    to_f:               [NUM_OR_STR],
+    to_i:               [NUM_OR_STR + TI_TYPES],
+    to_f:               [NUM_OR_STR + TI_TYPES],
     to_d:               [NUM_OR_STR],
     to_s:               [Object],
     to_a:               [Object],

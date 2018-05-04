@@ -65,15 +65,16 @@ describe "Delorean" do
     r.should == [12, 13]
   end
 
-  it "should handle NUMBER" do
+  it "should handle TO_F" do
     engine.parse defn("A:",
                       "    a = 12.3456.to_f()",
                       "    b = '12.3456'.to_f()",
                       "    c = '12'.to_f()",
+                      "    d = '2018-05-04 10:56:27 -0700'.to_time.to_f",
                       )
 
-    r = engine.evaluate("A", ["a", "b", "c"])
-    r.should == [12.3456, 12.3456, 12]
+    r = engine.evaluate("A", ["a", "b", "c", "d"])
+    r.should == [12.3456, 12.3456, 12, 1525456587.0]
   end
 
   it "should handle ABS" do
