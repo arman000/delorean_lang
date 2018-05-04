@@ -70,8 +70,8 @@ module Delorean
     next_day:           [DT_TYPES, NUM_OR_NIL],
     prev_day:           [DT_TYPES, NUM_OR_NIL],
 
-    to_i:               [NUM_OR_STR],
-    to_f:               [NUM_OR_STR],
+    to_i:               [NUM_OR_STR + DT_TYPES],
+    to_f:               [NUM_OR_STR + DT_TYPES],
     to_d:               [NUM_OR_STR],
     to_s:               [Object],
     to_a:               [Object],
