@@ -663,6 +663,13 @@ describe "Delorean" do
 
   end
 
+  xit "should parse cross list comprehension" do
+    engine.parse defn("A:",
+                      "    b = [a+c for c in [4,5] for a in [1,2,3]]",
+                      )
+
+  end
+
   it "should accept list comprehension variable override" do
     engine.parse defn("A:",
                       "    b = [b+1 for b in [1,2,3]]",
