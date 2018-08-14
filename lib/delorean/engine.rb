@@ -348,7 +348,7 @@ module Delorean
 
     def evaluate(node, attrs, params={})
       raise "bad params" unless params.is_a?(Hash)
-      
+
       if node.is_a?(Class)
         klass = node
       else
@@ -365,7 +365,7 @@ module Delorean
 
       type_arr = attrs.is_a?(Array)
       attrs = [attrs] unless type_arr
-      
+
       res = attrs.map { |attr|
         raise "bad attribute '#{attr}'" unless attr =~ /^[a-z][A-Za-z0-9_]*$/
         klass.send("#{attr}#{POST}".to_sym, params)

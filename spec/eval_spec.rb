@@ -276,32 +276,6 @@ describe "Delorean" do
     r.should == [10, 0, 15]
   end
 
-  it "should be able to get attr on ActiveRecord objects using a.b syntax" do
-    engine.parse defn("A:",
-                      '    b = Dummy.i_just_met_you("this is crazy", 0.404)',
-                      "    c = b.number.to_f",
-                      "    d = b.name",
-                      "    e = b.foo",
-                      )
-    r = engine.evaluate("A", "c")
-    r.should == 0.404
-
-    r = engine.evaluate("A", "d")
-    r.should == "this is crazy"
-
-    lambda {
-      r = engine.evaluate("A", "e")
-    }.should raise_error(Delorean::InvalidGetAttribute)
-  end
-
-  it "should be able to get attr on AR objs using Class.method().attr syntax" do
-    engine.parse defn("A:",
-                      '    b = Dummy.i_just_met_you("CRJ", 1.234).name',
-                      )
-    r = engine.evaluate("A", "b")
-    r.should == "CRJ"
-  end
-
   it "should be able to access ActiveRecord whitelisted fns using .x syntax" do
     engine.parse defn("A:",
                       '    b = Dummy.i_just_met_you("CRJ", 1.234).name2',
@@ -361,21 +335,12 @@ describe "Delorean" do
 
   it "get attr on nil should return nil" do
     engine.parse defn("A:",
-                      '    b = Dummy.i_just_met_you("CRJ", 1.234).dummy',
+                      '    b = nil',
                       '    c = b.gaga',
                       '    d = b.gaga || 55',
                       )
     r = engine.evaluate("A", ["b", "c", "d"])
     r.should == [nil, nil, 55]
-  end
-
-  it "should be able to get assoc attr on ActiveRecord objects" do
-    engine.parse defn("A:",
-                      '    b = Dummy.miss_you_so_bad()',
-                      '    c = b.dummy',
-                      )
-    r = engine.evaluate("A", "c")
-    r.name.should == "hello"
   end
 
   it "should be able to get attr on node" do
