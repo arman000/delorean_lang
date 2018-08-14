@@ -14,7 +14,8 @@ module Delorean
   # hash.  The whole whitelist mechanism should be eventually
   # rethought.
   RUBY_WHITELIST = {
-    attributes:         [ActiveRecord::Base],
+    # FIXME: hack -- Relation.attributes currently implemented in marty
+    attributes:         [[ActiveRecord::Base, ActiveRecord::Relation]],
     between?:           [NUM_OR_STR, NUM_OR_STR, NUM_OR_STR],
     between:            "between?",
     compact:            [[Array, Hash]],
@@ -151,9 +152,6 @@ module Delorean
           # FIXME: even Javascript which is superpermissive raises an
           # exception on null getattr.
           return nil
-        when ActiveRecord::Base
-          return obj.read_attribute(attr) if obj.has_attribute?(attr)
-          return obj.send(attr.to_sym) if obj.class.reflections[attr]
         when NodeCall
           return obj.evaluate(attr)
         when OpenStruct
@@ -179,7 +177,7 @@ module Delorean
           # FIXME: even Javascript which is superpermissive raises an
           # exception on null getattr.
           return nil
-        when Hash, ActiveRecord::Base, NodeCall, Class, OpenStruct
+        when Hash, NodeCall, Class, OpenStruct
           raise InvalidIndex unless args.length == 1
           _get_attr(obj, args[0], _e)
         when Array, String, MatchData
