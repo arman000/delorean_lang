@@ -22,14 +22,6 @@ module Delorean
           self.const_set(name.to_s.upcase+Delorean::SIG, sig)
         end
       end
-
-      def delorean_instance_method(name, sig = nil)
-        delorean_instance_methods[[self, name.to_sym]] = [self, *sig].compact
-      end
-
-      def delorean_instance_methods
-        @@delorean_instance_methods ||= {}
-      end
     end
   end
 end
