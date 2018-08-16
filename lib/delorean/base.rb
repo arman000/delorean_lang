@@ -236,10 +236,7 @@ module Delorean
         end
 
         cls = obj.class
-        sig = cls < Delorean::Model &&
-              cls.ancestors.lazy.map do |an|
-          cls.delorean_instance_methods[[an, msg]]
-        end.find{|i|i} || RUBY_WHITELIST[msg]
+        sig = RUBY_WHITELIST[msg]
 
         raise "no such method #{method}" unless sig
 

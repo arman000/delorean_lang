@@ -78,18 +78,6 @@ class Dummy < ActiveRecord::Base
     [a, b]
   end
 
-  def name3 other_name
-    "#{name}-#{number.round(4)}-#{other_name}"
-  end
-
-  delorean_instance_method :name3, String
-
-  def name4 other_name
-    "Four #{name}-#{number.round(4)}-#{other_name}"
-  end
-
-  delorean_instance_method :name4, String
-
   @@foo = 0
   delorean_fn :side_effect, sig: 0 do
     @@foo += 1
@@ -105,11 +93,6 @@ class DummyChild < Dummy
     DummyChild.new(name: "child", number: 99999)
   end
   HELLO_SIG = [0, 0]
-  def name4 other_name
-    "#4 #{name}-#{number.round(4)}-#{other_name}"
-  end
-
-  delorean_instance_method :name4, String
 end
 
 module M
@@ -124,12 +107,7 @@ module M
       LittleDummy.new
     end
     SUP_SIG = [0, 0]
-    def foob
-      "bar"
-    end
-    delorean_instance_method :foob
   end
-
 end
 
 Delorean::RUBY_WHITELIST.
