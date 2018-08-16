@@ -1,3 +1,3 @@
 module Delorean
-  VERSION = "0.4.01"
+  VERSION = "0.4.1"
 end
