@@ -20,25 +20,6 @@ describe "Delorean" do
     engine.enumerate_nodes.should == SortedSet.new(["A", "X", "XX", "Y"])
   end
 
-  it "can enumerate all attrs" do
-    engine.parse defn("X:",
-                      "    a = 123",
-                      "    b = a",
-                      "Y: X",
-                      "Z:",
-                      "XX: Y",
-                      "    a = 11",
-                      "    c =?",
-                      "    d = 456",
-                      )
-    engine.enumerate_attrs.should == {
-      "X"=>["a", "b"],
-      "Y"=>["a", "b"],
-      "Z"=>[],
-      "XX"=>["a", "c", "d", "b"],
-    }
-  end
-
   it "can enumerate attrs by node" do
     engine.parse defn("X:",
                       "    a = 123",
@@ -50,10 +31,23 @@ describe "Delorean" do
                       "    c =?",
                       "    d = 456",
                       )
-    engine.enumerate_attrs_by_node("X").should == ["a", "b"]
-    engine.enumerate_attrs_by_node("Y").should == ["a", "b"]
-    engine.enumerate_attrs_by_node("Z").should == []
-    engine.enumerate_attrs_by_node("XX").should == ["a", "c", "d", "b"]
+
+    exp = {
+      "X"  => ["a", "b"],
+      "Y"  => ["a", "b"],
+      "Z"  => [],
+      "XX" => ["a", "b", "c", "d"],
+    }
+    res = engine.enumerate_attrs
+
+    res.keys.sort.should == exp.keys.sort
+
+    exp.each {
+      |k, v|
+
+      engine.enumerate_attrs_by_node(k).sort.should == v
+      res[k].sort.should == v
+    }
   end
 
   it "can enumerate params" do
