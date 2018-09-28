@@ -967,7 +967,7 @@ eof
     expect(r[2]).to be_nil
   end
 
-  xit "can use nodes as continuations" do
+  it "can use nodes as continuations" do
 
     # FIME: This is actually a trivial exmaple. Ideally we should be
     # able to pass arguments to the nodes when evaluating ys.  If the
@@ -986,5 +986,22 @@ eof
                      )
     r = engine.evaluate("B", "res")
     expect(r[1]).to eq r[0]
+  end
+
+  it "can use nodes as continuations -- simple" do
+    engine.parse defn("A:",
+                      "    x = Dummy.side_effect",
+                      "    y = x",
+                      "B:",
+                      "    ns = A()",
+                      "    res = [ns.x, ns.y]",
+                      "    res2 = ns % ['x', 'y']",
+                     )
+    r = engine.evaluate("B", "res")
+    expect(r[1]).to eq r[0]
+
+    # this one works as expected
+    r2 = engine.evaluate("B", "res2")
+    expect(r2.values.uniq.length).to eq 1
   end
 end

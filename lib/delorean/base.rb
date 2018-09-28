@@ -86,22 +86,28 @@ module Delorean
   }
 
   module BaseModule
+    # _e is used by Marty promise_jobs to pass promise-related
+    # information
     class NodeCall < Struct.new(:_e, :engine, :node, :params)
-      def evaluate(attr)
+      def cloned_params
         # FIXME: evaluate() modifies params! => need to clone it.
         # This is pretty awful.  NOTE: can't sanitize params as Marty
         # patches NodeCall and modifies params to send _parent_id.
         # This whole thing needs to be redone.
-        engine.evaluate(node, attr, params.clone)
+        @cp ||= params.clone
+      end
+
+      def evaluate(attr)
+        engine.evaluate(node, attr, cloned_params)
       end
 
       def /(args)
         begin
           case args
           when Array
-            engine.eval_to_hash(node, args, params.clone)
+            engine.eval_to_hash(node, args, cloned_params)
           when String
-            engine.evaluate(node, args, params.clone)
+            self.evaluate(args)
           else
             raise "non-array/string arg to /"
           end
@@ -114,8 +120,7 @@ module Delorean
       def %(args)
         raise "non-array arg to %" unless args.is_a?(Array)
 
-        # FIXME: params.clone!!!!
-        engine.eval_to_hash(node, args, params.clone)
+        engine.eval_to_hash(node, args, cloned_params)
       end
 
       # add new arguments, results in a new NodeCall
@@ -123,10 +128,6 @@ module Delorean
         raise "bad arg to %" unless args.is_a?(Hash)
 
         NodeCall.new(_e, engine, node, params.merge(args))
-      end
-
-      def sanitized_params
-        BaseClass._sanitize_hash(params)
       end
     end
 
