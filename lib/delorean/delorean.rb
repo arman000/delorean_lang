@@ -2749,12 +2749,23 @@ module Delorean
   end
 
   module HashArgs0
+    def sp
+      elements[1]
+    end
+
+    def e3
+      elements[2]
+    end
+
+  end
+
+  module HashArgs1
     def al
       elements[3]
     end
   end
 
-  module HashArgs1
+  module HashArgs2
     def e0
       elements[0]
     end
@@ -2763,8 +2774,12 @@ module Delorean
       elements[4]
     end
 
+    def ifexp
+      elements[6]
+    end
+
     def args_rest
-      elements[5]
+      elements[7]
     end
   end
 
@@ -2811,55 +2826,105 @@ module Delorean
             r7 = _nt_expression
             s0 << r7
             if r7
-              i9, s9 = index, []
-              r11 = _nt_sp
-              if r11
-                r10 = r11
-              else
-                r10 = instantiate_node(SyntaxNode,input, index...index)
-              end
-              s9 << r10
-              if r10
-                if (match_len = has_terminal?(',', false, index))
-                  r12 = true
-                  @index += match_len
-                else
-                  terminal_parse_failure('\',\'')
-                  r12 = nil
-                end
-                s9 << r12
-                if r12
-                  r14 = _nt_sp
-                  if r14
-                    r13 = r14
-                  else
-                    r13 = instantiate_node(SyntaxNode,input, index...index)
-                  end
-                  s9 << r13
-                  if r13
-                    r16 = _nt_hash_args
-                    if r16
-                      r15 = r16
-                    else
-                      r15 = instantiate_node(SyntaxNode,input, index...index)
-                    end
-                    s9 << r15
-                  end
-                end
-              end
-              if s9.last
-                r9 = instantiate_node(SyntaxNode,input, i9...index, s9)
-                r9.extend(HashArgs0)
-              else
-                @index = i9
-                r9 = nil
-              end
+              r9 = _nt_sp
               if r9
                 r8 = r9
               else
                 r8 = instantiate_node(SyntaxNode,input, index...index)
               end
               s0 << r8
+              if r8
+                i11, s11 = index, []
+                if (match_len = has_terminal?('if', false, index))
+                  r12 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                  @index += match_len
+                else
+                  terminal_parse_failure('\'if\'')
+                  r12 = nil
+                end
+                s11 << r12
+                if r12
+                  r13 = _nt_sp
+                  s11 << r13
+                  if r13
+                    r14 = _nt_expression
+                    s11 << r14
+                    if r14
+                      r16 = _nt_sp
+                      if r16
+                        r15 = r16
+                      else
+                        r15 = instantiate_node(SyntaxNode,input, index...index)
+                      end
+                      s11 << r15
+                    end
+                  end
+                end
+                if s11.last
+                  r11 = instantiate_node(SyntaxNode,input, i11...index, s11)
+                  r11.extend(HashArgs0)
+                else
+                  @index = i11
+                  r11 = nil
+                end
+                if r11
+                  r10 = r11
+                else
+                  r10 = instantiate_node(SyntaxNode,input, index...index)
+                end
+                s0 << r10
+                if r10
+                  i18, s18 = index, []
+                  r20 = _nt_sp
+                  if r20
+                    r19 = r20
+                  else
+                    r19 = instantiate_node(SyntaxNode,input, index...index)
+                  end
+                  s18 << r19
+                  if r19
+                    if (match_len = has_terminal?(',', false, index))
+                      r21 = true
+                      @index += match_len
+                    else
+                      terminal_parse_failure('\',\'')
+                      r21 = nil
+                    end
+                    s18 << r21
+                    if r21
+                      r23 = _nt_sp
+                      if r23
+                        r22 = r23
+                      else
+                        r22 = instantiate_node(SyntaxNode,input, index...index)
+                      end
+                      s18 << r22
+                      if r22
+                        r25 = _nt_hash_args
+                        if r25
+                          r24 = r25
+                        else
+                          r24 = instantiate_node(SyntaxNode,input, index...index)
+                        end
+                        s18 << r24
+                      end
+                    end
+                  end
+                  if s18.last
+                    r18 = instantiate_node(SyntaxNode,input, i18...index, s18)
+                    r18.extend(HashArgs1)
+                  else
+                    @index = i18
+                    r18 = nil
+                  end
+                  if r18
+                    r17 = r18
+                  else
+                    r17 = instantiate_node(SyntaxNode,input, index...index)
+                  end
+                  s0 << r17
+                end
+              end
             end
           end
         end
@@ -2867,7 +2932,7 @@ module Delorean
     end
     if s0.last
       r0 = instantiate_node(HashArgs,input, i0...index, s0)
-      r0.extend(HashArgs1)
+      r0.extend(HashArgs2)
     else
       @index = i0
       r0 = nil

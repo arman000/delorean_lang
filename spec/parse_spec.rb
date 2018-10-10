@@ -614,6 +614,13 @@ describe "Delorean" do
     }.should raise_error(Delorean::ParseError)
   end
 
+  it "should be able to parse conditional hash literals" do
+    engine.parse defn("A:",
+                      "    a = {}",
+                      "    c = {'a':a if a, 'b': 2, 'c':-3 if 123}",
+                      )
+  end
+
   it "should handle trailing ',' with hashes" do
     engine.parse defn("A:",
                       "    b = {-1:1,}",

@@ -527,7 +527,9 @@ eos
     end
 
     def rewrite(context)
-      "{#{args.rewrite(context) if defined?(args)}}.freeze"
+      return "{}.freeze" unless defined?(args)
+      var = "_h#{context.hcount}"
+      "(#{var}={}; " + args.rewrite(context, var) + "; #{var}).freeze"
     end
   end
 
@@ -560,14 +562,18 @@ eos
   class HashArgs < SNode
     def check(context, *)
       e0.check(context) + e1.check(context) +
+        (defined?(ifexp.ei) ? ifexp.ei.check(context) : []) +
         (defined?(args_rest.al) && !args_rest.al.empty? ?
            args_rest.al.check(context) : [])
     end
 
-    def rewrite(context)
-      e0.rewrite(context) + " => " + e1.rewrite(context) +
-        (defined?(args_rest.al) && !args_rest.al.text_value.empty? ?
-         ", " + args_rest.al.rewrite(context) : "")
+    def rewrite(context, var)
+      res = "#{var}[#{e0.rewrite(context)}]=(#{e1.rewrite(context)})"
+      res += " if (#{ifexp.e3.rewrite(context)})" if defined?(ifexp.e3)
+      res += ";"
+      res += args_rest.al.rewrite(context, var) if
+        defined?(args_rest.al) && !args_rest.al.text_value.empty?
+      res
     end
   end
 end

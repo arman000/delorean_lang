@@ -27,6 +27,13 @@ module Delorean
       @param_set = Set.new
 
       @imports = {}
+
+      @hcount = 0
+    end
+
+    # used in counting literal hashes
+    def hcount
+      @hcount += 1
     end
 
     def curr_line

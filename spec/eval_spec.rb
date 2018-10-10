@@ -587,6 +587,21 @@ eof
       ]
   end
 
+  it "handles literal hashes with conditionals" do
+    engine.parse defn("A:",
+                      "    a = {'a':1 if 123, 'b':'x' if nil}",
+                      "    b = {'a':a if a, 2: a if true, 'c':nil if 2*2}",
+                      "    c = 1>2",
+                      "    d = {1: {1: 2 if b}, 3: 3 if c, 2: {2: 3 if a}}",
+                      )
+
+    engine.evaluate("A", %w{a b d}).should == [
+      {"a"=>1},
+      {"a"=>{"a"=>1}, 2=>{"a"=>1}, "c"=>nil},
+      {1=>{1=>2}, 2=>{2=>3}},
+    ]
+  end
+
   it "should eval hash comprehension" do
     engine.parse defn("A:",
                       "    b = {i*5 :i for i in [1,2,3]}",
