@@ -94,7 +94,7 @@ module Delorean
         # This is pretty awful.  NOTE: can't sanitize params as Marty
         # patches NodeCall and modifies params to send _parent_id.
         # This whole thing needs to be redone.
-        @cp ||= params.clone
+        @cp ||= Hash[params]
       end
 
       def evaluate(attr)
