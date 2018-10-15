@@ -379,6 +379,14 @@ describe "Delorean" do
     }.should_not raise_error
   end
 
+  it "keyword args not supported yet" do
+    lambda {
+      engine.parse defn("A:",
+                        "    b = Dummy.i_just_met_you(a='CRJ', b=123)"
+                        )
+    }.should raise_error
+  end
+
   it "should be able to call class methods on ActiveRecord classes" do
     engine.parse defn("A:",
                       "    b = Dummy.call_me_maybe()",
@@ -750,6 +758,20 @@ describe "Delorean" do
   it "should allow positional args to node calls" do
     engine.parse defn("A:",
                       "    d = A(1, 2, 3, a=123, b=456)",
+                      )
+  end
+
+  it "allow double splats in node calls" do
+    engine.parse defn("A:",
+                      "    a =?",
+                      "    d = A(**a, **(a+a), a=123, b=456)",
+                      )
+  end
+
+  it "allow double splats in literal hashes" do
+    engine.parse defn("A:",
+                      "    a =?",
+                      "    d = {'a':1, 2:2, **a, **(a+a)}",
                       )
   end
 

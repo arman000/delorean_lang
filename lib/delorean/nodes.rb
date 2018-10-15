@@ -240,7 +240,7 @@ eos
       raise "String interpolation not supported" if text_value =~ /\#\{.*\}/
 
       # FIXME: syntax check?
-      text_value + ".freeze"
+      text_value
     end
   end
 
@@ -248,7 +248,7 @@ eos
     def rewrite(context)
       # remove the quotes and requote.  We don't want the likes of #{}
       # evals to just pass through.
-      text_value[1..-2].inspect + ".freeze"
+      text_value[1..-2].inspect
     end
   end
 
@@ -345,13 +345,15 @@ eos
     end
 
     def rewrite(context, node_name)
-      args, kw = al.text_value.empty? ? [[], {}] : al.rewrite(context)
+      args, kw, dsplat = al.text_value.empty? ? [[], {}, []] : al.rewrite(context)
 
       kw_str =
         (kw.map {|k, v| "'#{k}' => #{v}"} +
          args.reverse.each_with_index.map {|v, i| "#{i} => #{v}"}).join(',')
 
-      "_node_call(#{node_name}, _e, {#{kw_str}})"
+      splat_str = dsplat.map {|v| ".merge!(#{v})"}.join
+
+      "_node_call(#{node_name}, _e, {#{kw_str}}#{splat_str})"
     end
   end
 
@@ -410,7 +412,7 @@ eos
     end
 
     def rewrite(context)
-      "[" + (defined?(args) ? args.rewrite(context) : "") + "].freeze"
+      "[" + (defined?(args) ? args.rewrite(context) : "") + "]"
     end
   end
 
@@ -457,7 +459,7 @@ eos
 
       res += ".select{|#{args_str}|(#{ifexp.e3.rewrite(context)})}" if
         defined?(ifexp.e3)
-      res += ".map{|#{args_str}| (#{e2.rewrite(context)}) }.freeze"
+      res += ".map{|#{args_str}| (#{e2.rewrite(context)}) }"
       unpack_vars.each {|vname| context.parse_undef_var(vname)}
       res
     end
@@ -465,13 +467,13 @@ eos
 
   class SetExpr < ListExpr
     def rewrite(context)
-      "Set#{super}.freeze"
+      "Set#{super}"
     end
   end
 
   class SetComprehension < ListComprehension
     def rewrite(context)
-      "Set[*#{super}].freeze"
+      "Set[*#{super}]"
     end
   end
 
@@ -514,7 +516,7 @@ eos
       unpack_str = unpack_vars.count > 1 ? "(#{args_str})" : args_str
 
       res += ".each_with_object({}){|#{unpack_str}, _h#{hid}| " +
-        "_h#{hid}[#{el.rewrite(context)}]=(#{er.rewrite(context)})}.freeze"
+        "_h#{hid}[#{el.rewrite(context)}]=(#{er.rewrite(context)})}"
 
       unpack_vars.each {|vname| context.parse_undef_var(vname)}
       res
@@ -527,9 +529,9 @@ eos
     end
 
     def rewrite(context)
-      return "{}.freeze" unless defined?(args)
+      return "{}" unless defined?(args)
       var = "_h#{context.hcount}"
-      "(#{var}={}; " + args.rewrite(context, var) + "; #{var}).freeze"
+      "(#{var}={}; " + args.rewrite(context, var) + "; #{var})"
     end
   end
 
@@ -544,31 +546,39 @@ eos
       arg0_rw = arg0.rewrite(context)
 
       if defined?(args_rest.al) && !args_rest.al.text_value.empty?
-        args, kw = args_rest.al.rewrite(context)
+        args, kw, dsplat = args_rest.al.rewrite(context)
       else
-        args, kw = [], {}
+        args, kw, dsplat = [], {}, []
       end
 
       if defined?(k.i)
         kw[k.i.text_value] = arg0_rw
+      elsif defined?(splat)
+        dsplat << arg0_rw
       else
         args << arg0_rw
       end
 
-      [args, kw]
+      [args, kw, dsplat]
     end
   end
 
   class HashArgs < SNode
     def check(context, *)
-      e0.check(context) + e1.check(context) +
-        (defined?(ifexp.ei) ? ifexp.ei.check(context) : []) +
-        (defined?(args_rest.al) && !args_rest.al.empty? ?
-           args_rest.al.check(context) : [])
+      [e0.check(context),
+       (e1.check(context) unless defined?(splat)),
+       (ifexp.ei.check(context) if defined?(ifexp.ei)),
+       (args_rest.al.check(context) if
+         defined?(args_rest.al) && !args_rest.al.empty?),
+      ].compact.sum
     end
 
     def rewrite(context, var)
-      res = "#{var}[#{e0.rewrite(context)}]=(#{e1.rewrite(context)})"
+      if defined?(splat)
+        res = "#{var}.merge!(#{e0.rewrite(context)})"
+      else
+        res = "#{var}[#{e0.rewrite(context)}]=(#{e1.rewrite(context)})"
+      end
       res += " if (#{ifexp.e3.rewrite(context)})" if defined?(ifexp.e3)
       res += ";"
       res += args_rest.al.rewrite(context, var) if

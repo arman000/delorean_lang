@@ -127,12 +127,18 @@ grammar Delorean
   end
 
   rule hash_args
-    e0:expression sp? ':' sp? e1:expression sp? ifexp:('if' sp e3:expression sp?)?
+    splat:('**') e0:expression sp?
+    ifexp:('if' sp e3:expression sp?)?
+    args_rest:(sp? ',' sp? al:hash_args?)? <HashArgs>
+    /
+    e0:expression sp? ':' sp? e1:expression sp?
+    ifexp:('if' sp e3:expression sp?)?
     args_rest:(sp? ',' sp? al:hash_args?)? <HashArgs>
   end
 
   rule kw_args
-    k:(i:identifier sp? '=' sp?)? arg0:expression
+    splat:('**') arg0:expression args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
+    / k:(i:identifier sp? '=' sp?)? arg0:expression
     args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
   end
 
