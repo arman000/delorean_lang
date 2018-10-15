@@ -929,12 +929,17 @@ eof
                       "    x = _.a * _.b",
                       "    y = a && _",
                       "    z = (B() + _).x",
+                      "    w = B(**_).x",
+                      "    v = {**_, 'a': 123}",
                       )
 
     engine.evaluate("A", "x", {"a"=>3, "b"=>5}).should == 15
     h = {"a"=>1, "b"=>2, "c"=>3}
     engine.evaluate("A", "y", {"a"=>1, "b"=>2, "c"=>3}).should == h
     engine.evaluate("A", "z", {"a"=>1, "b"=>2, "c"=>3}).should == -1
+    engine.evaluate("A", "w", {"a"=>4, "b"=>5, "c"=>3}).should == -1
+    engine.evaluate("A", "v", {"a"=>4, "b"=>5, "c"=>3}).should == {
+      "a"=>123, "b"=>5, "c"=>3}
   end
 
   it "implements positional args in node calls" do
