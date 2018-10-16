@@ -914,19 +914,19 @@ module Delorean
   end
 
   module DotExp1
-    def al
-      elements[2]
-    end
-
-  end
-
-  module DotExp2
     def i
       elements[2]
     end
 
     def al
       elements[5]
+    end
+
+  end
+
+  module DotExp2
+    def al
+      elements[2]
     end
 
   end
@@ -1002,11 +1002,11 @@ module Delorean
       r0 = r1
     else
       i9, s9 = index, []
-      if (match_len = has_terminal?('(', false, index))
+      if (match_len = has_terminal?('.', false, index))
         r10 = true
         @index += match_len
       else
-        terminal_parse_failure('\'(\'')
+        terminal_parse_failure('\'.\'')
         r10 = nil
       end
       s9 << r10
@@ -1019,36 +1019,59 @@ module Delorean
         end
         s9 << r11
         if r11
-          r14 = _nt_kw_args
-          if r14
-            r13 = r14
-          else
-            r13 = instantiate_node(SyntaxNode,input, index...index)
-          end
+          r13 = _nt_identifier
           s9 << r13
           if r13
-            r16 = _nt_sp
-            if r16
-              r15 = r16
+            if (match_len = has_terminal?('(', false, index))
+              r14 = true
+              @index += match_len
             else
-              r15 = instantiate_node(SyntaxNode,input, index...index)
+              terminal_parse_failure('\'(\'')
+              r14 = nil
             end
-            s9 << r15
-            if r15
-              if (match_len = has_terminal?(')', false, index))
-                r17 = true
-                @index += match_len
+            s9 << r14
+            if r14
+              r16 = _nt_sp
+              if r16
+                r15 = r16
               else
-                terminal_parse_failure('\')\'')
-                r17 = nil
+                r15 = instantiate_node(SyntaxNode,input, index...index)
               end
-              s9 << r17
+              s9 << r15
+              if r15
+                r18 = _nt_fn_args
+                if r18
+                  r17 = r18
+                else
+                  r17 = instantiate_node(SyntaxNode,input, index...index)
+                end
+                s9 << r17
+                if r17
+                  r20 = _nt_sp
+                  if r20
+                    r19 = r20
+                  else
+                    r19 = instantiate_node(SyntaxNode,input, index...index)
+                  end
+                  s9 << r19
+                  if r19
+                    if (match_len = has_terminal?(')', false, index))
+                      r21 = true
+                      @index += match_len
+                    else
+                      terminal_parse_failure('\')\'')
+                      r21 = nil
+                    end
+                    s9 << r21
+                  end
+                end
+              end
             end
           end
         end
       end
       if s9.last
-        r9 = instantiate_node(NodeCall,input, i9...index, s9)
+        r9 = instantiate_node(Call,input, i9...index, s9)
         r9.extend(DotExp1)
       else
         @index = i9
@@ -1058,85 +1081,62 @@ module Delorean
         r9 = SyntaxNode.new(input, (index-1)...index) if r9 == true
         r0 = r9
       else
-        i18, s18 = index, []
-        if (match_len = has_terminal?('.', false, index))
-          r19 = true
+        i22, s22 = index, []
+        if (match_len = has_terminal?('(', false, index))
+          r23 = true
           @index += match_len
         else
-          terminal_parse_failure('\'.\'')
-          r19 = nil
+          terminal_parse_failure('\'(\'')
+          r23 = nil
         end
-        s18 << r19
-        if r19
-          r21 = _nt_sp
-          if r21
-            r20 = r21
+        s22 << r23
+        if r23
+          r25 = _nt_sp
+          if r25
+            r24 = r25
           else
-            r20 = instantiate_node(SyntaxNode,input, index...index)
+            r24 = instantiate_node(SyntaxNode,input, index...index)
           end
-          s18 << r20
-          if r20
-            r22 = _nt_identifier
-            s18 << r22
-            if r22
-              if (match_len = has_terminal?('(', false, index))
-                r23 = true
-                @index += match_len
+          s22 << r24
+          if r24
+            r27 = _nt_kw_args
+            if r27
+              r26 = r27
+            else
+              r26 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s22 << r26
+            if r26
+              r29 = _nt_sp
+              if r29
+                r28 = r29
               else
-                terminal_parse_failure('\'(\'')
-                r23 = nil
+                r28 = instantiate_node(SyntaxNode,input, index...index)
               end
-              s18 << r23
-              if r23
-                r25 = _nt_sp
-                if r25
-                  r24 = r25
+              s22 << r28
+              if r28
+                if (match_len = has_terminal?(')', false, index))
+                  r30 = true
+                  @index += match_len
                 else
-                  r24 = instantiate_node(SyntaxNode,input, index...index)
+                  terminal_parse_failure('\')\'')
+                  r30 = nil
                 end
-                s18 << r24
-                if r24
-                  r27 = _nt_kw_args
-                  if r27
-                    r26 = r27
-                  else
-                    r26 = instantiate_node(SyntaxNode,input, index...index)
-                  end
-                  s18 << r26
-                  if r26
-                    r29 = _nt_sp
-                    if r29
-                      r28 = r29
-                    else
-                      r28 = instantiate_node(SyntaxNode,input, index...index)
-                    end
-                    s18 << r28
-                    if r28
-                      if (match_len = has_terminal?(')', false, index))
-                        r30 = true
-                        @index += match_len
-                      else
-                        terminal_parse_failure('\')\'')
-                        r30 = nil
-                      end
-                      s18 << r30
-                    end
-                  end
-                end
+                s22 << r30
               end
             end
           end
         end
-        if s18.last
-          r18 = instantiate_node(Call,input, i18...index, s18)
-          r18.extend(DotExp2)
+        if s22.last
+          r22 = instantiate_node(NodeCall,input, i22...index, s22)
+          r22.extend(DotExp2)
         else
-          @index = i18
-          r18 = nil
+          @index = i22
+          r22 = nil
         end
-        if r18
-          r18 = SyntaxNode.new(input, (index-1)...index) if r18 == true
-          r0 = r18
+        if r22
+          r22 = SyntaxNode.new(input, (index-1)...index) if r22 == true
+          r0 = r22
         else
           i31, s31 = index, []
           if (match_len = has_terminal?('.', false, index))
@@ -3113,12 +3113,23 @@ module Delorean
   end
 
   module KwArgs0
+    def sp
+      elements[1]
+    end
+
+    def e3
+      elements[2]
+    end
+
+  end
+
+  module KwArgs1
     def al
       elements[3]
     end
   end
 
-  module KwArgs1
+  module KwArgs2
     def splat
       elements[0]
     end
@@ -3127,25 +3138,40 @@ module Delorean
       elements[1]
     end
 
+    def ifexp
+      elements[3]
+    end
+
     def args_rest
-      elements[2]
+      elements[4]
     end
   end
 
-  module KwArgs2
+  module KwArgs3
     def i
       elements[0]
     end
 
   end
 
-  module KwArgs3
+  module KwArgs4
+    def sp
+      elements[1]
+    end
+
+    def e3
+      elements[2]
+    end
+
+  end
+
+  module KwArgs5
     def al
       elements[3]
     end
   end
 
-  module KwArgs4
+  module KwArgs6
     def k
       elements[0]
     end
@@ -3154,8 +3180,12 @@ module Delorean
       elements[1]
     end
 
+    def ifexp
+      elements[3]
+    end
+
     def args_rest
-      elements[2]
+      elements[4]
     end
   end
 
@@ -3184,60 +3214,110 @@ module Delorean
       r3 = _nt_expression
       s1 << r3
       if r3
-        i5, s5 = index, []
-        r7 = _nt_sp
-        if r7
-          r6 = r7
-        else
-          r6 = instantiate_node(SyntaxNode,input, index...index)
-        end
-        s5 << r6
-        if r6
-          if (match_len = has_terminal?(',', false, index))
-            r8 = true
-            @index += match_len
-          else
-            terminal_parse_failure('\',\'')
-            r8 = nil
-          end
-          s5 << r8
-          if r8
-            r10 = _nt_sp
-            if r10
-              r9 = r10
-            else
-              r9 = instantiate_node(SyntaxNode,input, index...index)
-            end
-            s5 << r9
-            if r9
-              r12 = _nt_kw_args
-              if r12
-                r11 = r12
-              else
-                r11 = instantiate_node(SyntaxNode,input, index...index)
-              end
-              s5 << r11
-            end
-          end
-        end
-        if s5.last
-          r5 = instantiate_node(SyntaxNode,input, i5...index, s5)
-          r5.extend(KwArgs0)
-        else
-          @index = i5
-          r5 = nil
-        end
+        r5 = _nt_sp
         if r5
           r4 = r5
         else
           r4 = instantiate_node(SyntaxNode,input, index...index)
         end
         s1 << r4
+        if r4
+          i7, s7 = index, []
+          if (match_len = has_terminal?('if', false, index))
+            r8 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+            @index += match_len
+          else
+            terminal_parse_failure('\'if\'')
+            r8 = nil
+          end
+          s7 << r8
+          if r8
+            r9 = _nt_sp
+            s7 << r9
+            if r9
+              r10 = _nt_expression
+              s7 << r10
+              if r10
+                r12 = _nt_sp
+                if r12
+                  r11 = r12
+                else
+                  r11 = instantiate_node(SyntaxNode,input, index...index)
+                end
+                s7 << r11
+              end
+            end
+          end
+          if s7.last
+            r7 = instantiate_node(SyntaxNode,input, i7...index, s7)
+            r7.extend(KwArgs0)
+          else
+            @index = i7
+            r7 = nil
+          end
+          if r7
+            r6 = r7
+          else
+            r6 = instantiate_node(SyntaxNode,input, index...index)
+          end
+          s1 << r6
+          if r6
+            i14, s14 = index, []
+            r16 = _nt_sp
+            if r16
+              r15 = r16
+            else
+              r15 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s14 << r15
+            if r15
+              if (match_len = has_terminal?(',', false, index))
+                r17 = true
+                @index += match_len
+              else
+                terminal_parse_failure('\',\'')
+                r17 = nil
+              end
+              s14 << r17
+              if r17
+                r19 = _nt_sp
+                if r19
+                  r18 = r19
+                else
+                  r18 = instantiate_node(SyntaxNode,input, index...index)
+                end
+                s14 << r18
+                if r18
+                  r21 = _nt_kw_args
+                  if r21
+                    r20 = r21
+                  else
+                    r20 = instantiate_node(SyntaxNode,input, index...index)
+                  end
+                  s14 << r20
+                end
+              end
+            end
+            if s14.last
+              r14 = instantiate_node(SyntaxNode,input, i14...index, s14)
+              r14.extend(KwArgs1)
+            else
+              @index = i14
+              r14 = nil
+            end
+            if r14
+              r13 = r14
+            else
+              r13 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s1 << r13
+          end
+        end
       end
     end
     if s1.last
       r1 = instantiate_node(KwArgs,input, i1...index, s1)
-      r1.extend(KwArgs1)
+      r1.extend(KwArgs2)
     else
       @index = i1
       r1 = nil
@@ -3246,116 +3326,166 @@ module Delorean
       r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
-      i13, s13 = index, []
-      i15, s15 = index, []
-      r16 = _nt_identifier
-      s15 << r16
-      if r16
-        r18 = _nt_sp
-        if r18
-          r17 = r18
+      i22, s22 = index, []
+      i24, s24 = index, []
+      r25 = _nt_identifier
+      s24 << r25
+      if r25
+        r27 = _nt_sp
+        if r27
+          r26 = r27
         else
-          r17 = instantiate_node(SyntaxNode,input, index...index)
+          r26 = instantiate_node(SyntaxNode,input, index...index)
         end
-        s15 << r17
-        if r17
+        s24 << r26
+        if r26
           if (match_len = has_terminal?('=', false, index))
-            r19 = true
+            r28 = true
             @index += match_len
           else
             terminal_parse_failure('\'=\'')
-            r19 = nil
+            r28 = nil
           end
-          s15 << r19
-          if r19
-            r21 = _nt_sp
-            if r21
-              r20 = r21
+          s24 << r28
+          if r28
+            r30 = _nt_sp
+            if r30
+              r29 = r30
             else
-              r20 = instantiate_node(SyntaxNode,input, index...index)
+              r29 = instantiate_node(SyntaxNode,input, index...index)
             end
-            s15 << r20
+            s24 << r29
           end
         end
       end
-      if s15.last
-        r15 = instantiate_node(SyntaxNode,input, i15...index, s15)
-        r15.extend(KwArgs2)
+      if s24.last
+        r24 = instantiate_node(SyntaxNode,input, i24...index, s24)
+        r24.extend(KwArgs3)
       else
-        @index = i15
-        r15 = nil
+        @index = i24
+        r24 = nil
       end
-      if r15
-        r14 = r15
+      if r24
+        r23 = r24
       else
-        r14 = instantiate_node(SyntaxNode,input, index...index)
+        r23 = instantiate_node(SyntaxNode,input, index...index)
       end
-      s13 << r14
-      if r14
-        r22 = _nt_expression
-        s13 << r22
-        if r22
-          i24, s24 = index, []
-          r26 = _nt_sp
-          if r26
-            r25 = r26
+      s22 << r23
+      if r23
+        r31 = _nt_expression
+        s22 << r31
+        if r31
+          r33 = _nt_sp
+          if r33
+            r32 = r33
           else
-            r25 = instantiate_node(SyntaxNode,input, index...index)
+            r32 = instantiate_node(SyntaxNode,input, index...index)
           end
-          s24 << r25
-          if r25
-            if (match_len = has_terminal?(',', false, index))
-              r27 = true
+          s22 << r32
+          if r32
+            i35, s35 = index, []
+            if (match_len = has_terminal?('if', false, index))
+              r36 = instantiate_node(SyntaxNode,input, index...(index + match_len))
               @index += match_len
             else
-              terminal_parse_failure('\',\'')
-              r27 = nil
+              terminal_parse_failure('\'if\'')
+              r36 = nil
             end
-            s24 << r27
-            if r27
-              r29 = _nt_sp
-              if r29
-                r28 = r29
-              else
-                r28 = instantiate_node(SyntaxNode,input, index...index)
-              end
-              s24 << r28
-              if r28
-                r31 = _nt_kw_args
-                if r31
-                  r30 = r31
-                else
-                  r30 = instantiate_node(SyntaxNode,input, index...index)
+            s35 << r36
+            if r36
+              r37 = _nt_sp
+              s35 << r37
+              if r37
+                r38 = _nt_expression
+                s35 << r38
+                if r38
+                  r40 = _nt_sp
+                  if r40
+                    r39 = r40
+                  else
+                    r39 = instantiate_node(SyntaxNode,input, index...index)
+                  end
+                  s35 << r39
                 end
-                s24 << r30
               end
             end
+            if s35.last
+              r35 = instantiate_node(SyntaxNode,input, i35...index, s35)
+              r35.extend(KwArgs4)
+            else
+              @index = i35
+              r35 = nil
+            end
+            if r35
+              r34 = r35
+            else
+              r34 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s22 << r34
+            if r34
+              i42, s42 = index, []
+              r44 = _nt_sp
+              if r44
+                r43 = r44
+              else
+                r43 = instantiate_node(SyntaxNode,input, index...index)
+              end
+              s42 << r43
+              if r43
+                if (match_len = has_terminal?(',', false, index))
+                  r45 = true
+                  @index += match_len
+                else
+                  terminal_parse_failure('\',\'')
+                  r45 = nil
+                end
+                s42 << r45
+                if r45
+                  r47 = _nt_sp
+                  if r47
+                    r46 = r47
+                  else
+                    r46 = instantiate_node(SyntaxNode,input, index...index)
+                  end
+                  s42 << r46
+                  if r46
+                    r49 = _nt_kw_args
+                    if r49
+                      r48 = r49
+                    else
+                      r48 = instantiate_node(SyntaxNode,input, index...index)
+                    end
+                    s42 << r48
+                  end
+                end
+              end
+              if s42.last
+                r42 = instantiate_node(SyntaxNode,input, i42...index, s42)
+                r42.extend(KwArgs5)
+              else
+                @index = i42
+                r42 = nil
+              end
+              if r42
+                r41 = r42
+              else
+                r41 = instantiate_node(SyntaxNode,input, index...index)
+              end
+              s22 << r41
+            end
           end
-          if s24.last
-            r24 = instantiate_node(SyntaxNode,input, i24...index, s24)
-            r24.extend(KwArgs3)
-          else
-            @index = i24
-            r24 = nil
-          end
-          if r24
-            r23 = r24
-          else
-            r23 = instantiate_node(SyntaxNode,input, index...index)
-          end
-          s13 << r23
         end
       end
-      if s13.last
-        r13 = instantiate_node(KwArgs,input, i13...index, s13)
-        r13.extend(KwArgs4)
+      if s22.last
+        r22 = instantiate_node(KwArgs,input, i22...index, s22)
+        r22.extend(KwArgs6)
       else
-        @index = i13
-        r13 = nil
+        @index = i22
+        r22 = nil
       end
-      if r13
-        r13 = SyntaxNode.new(input, (index-1)...index) if r13 == true
-        r0 = r13
+      if r22
+        r22 = SyntaxNode.new(input, (index-1)...index) if r22 == true
+        r0 = r22
       else
         @index = i0
         r0 = nil

@@ -50,7 +50,7 @@ grammar Delorean
     /
     '(' sp? al:kw_args? sp? ')' <NodeCall>
     /
-    '.' sp? i:identifier '(' sp? al:kw_args? sp? ')' <Call>
+    '.' sp? i:identifier '(' sp? al:fn_args? sp? ')' <Call>
     /
     '.' sp? i:(identifier / integer) <GetAttr>
   end
@@ -137,8 +137,12 @@ grammar Delorean
   end
 
   rule kw_args
-    splat:('**') arg0:expression args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
-    / k:(i:identifier sp? '=' sp?)? arg0:expression
+    splat:('**') arg0:expression sp?
+    ifexp:('if' sp e3:expression sp?)?
+    args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
+    /
+    k:(i:identifier sp? '=' sp?)? arg0:expression sp?
+    ifexp:('if' sp e3:expression sp?)?
     args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
   end
 

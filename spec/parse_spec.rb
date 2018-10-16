@@ -379,14 +379,6 @@ describe "Delorean" do
     }.should_not raise_error
   end
 
-  it "keyword args not supported yet" do
-    lambda {
-      engine.parse defn("A:",
-                        "    b = Dummy.i_just_met_you(a='CRJ', b=123)"
-                        )
-    }.should raise_error
-  end
-
   it "should be able to call class methods on ActiveRecord classes" do
     engine.parse defn("A:",
                       "    b = Dummy.call_me_maybe()",
@@ -758,6 +750,12 @@ describe "Delorean" do
   it "should allow positional args to node calls" do
     engine.parse defn("A:",
                       "    d = A(1, 2, 3, a=123, b=456)",
+                      )
+  end
+
+  it "allow conditional args to node calls" do
+    engine.parse defn("A:",
+                      "    d = A(a=1, b=4 if true, c=4 if false)",
                       )
   end
 

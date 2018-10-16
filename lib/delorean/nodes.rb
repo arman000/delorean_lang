@@ -314,46 +314,36 @@ eos
 
   class Call < SNode
     def check(context, *)
-      al.check(context) unless al.text_value.empty?
-      []
+      al.text_value.empty? ? [] : al.check(context)
     end
 
     def rewrite(context, vcode)
-      args, kw = al.text_value.empty? ? [[], {}] : al.rewrite(context)
-
-      raise "Keyword arguments not supported" unless
-        kw.empty?
-
-      args_str = args.reverse.join(',')
+      if al.text_value.empty?
+        args_str, arg_count = "", 0
+      else
+        args_str, arg_count = al.rewrite(context), al.arg_count
+      end
 
       if vcode.is_a?(ClassText)
         # ruby class call
         class_name = vcode.text
-        context.parse_check_call_fn(i.text_value, args.count, class_name)
+        context.parse_check_call_fn(i.text_value, arg_count, class_name)
         "#{class_name}.#{i.text_value}(#{args_str})"
       else
         "_instance_call(#{vcode}, '#{i.text_value}', [#{args_str}], _e)"
       end
-
     end
   end
 
   class NodeCall < SNode
     def check(context, *)
-      al.check(context) unless al.text_value.empty?
-      []
+      al.text_value.empty? ? [] : al.check(context)
     end
 
     def rewrite(context, node_name)
-      args, kw, dsplat = al.text_value.empty? ? [[], {}, []] : al.rewrite(context)
-
-      kw_str =
-        (kw.map {|k, v| "'#{k}' => #{v}"} +
-         args.reverse.each_with_index.map {|v, i| "#{i} => #{v}"}).join(',')
-
-      splat_str = dsplat.map {|v| ".merge!(#{v})"}.join
-
-      "_node_call(#{node_name}, _e, {#{kw_str}}#{splat_str})"
+      var = "_h#{context.hcount}"
+      res = al.text_value.empty? ? "" : al.rewrite(context, var)
+      "(#{var}={}; #{res}; _node_call(#{node_name}, _e, #{var}))"
     end
   end
 
@@ -537,29 +527,29 @@ eos
 
   class KwArgs < SNode
     def check(context, *)
-      arg0.check(context) + (
-        defined?(args_rest.al) && !args_rest.al.empty? ?
-          args_rest.al.check(context) : [])
+      [arg0.check(context),
+       (ifexp.e3.check(context) if defined?(ifexp.e3)),
+       (args_rest.al.check(context) if
+         defined?(args_rest.al) && !args_rest.al.empty?)
+      ].compact.sum
     end
 
-    def rewrite(context)
+    def rewrite(context, var, i=0)
       arg0_rw = arg0.rewrite(context)
 
-      if defined?(args_rest.al) && !args_rest.al.text_value.empty?
-        args, kw, dsplat = args_rest.al.rewrite(context)
+      if defined?(splat)
+        res = "#{var}.merge!(#{arg0_rw})"
       else
-        args, kw, dsplat = [], {}, []
+        k_rw = defined?(k.i) ? "'#{k.i.text_value}'" : i.to_s
+        res = "#{var}[#{k_rw}]=(#{arg0_rw})"
+        i += 1 unless defined?(k.i)
       end
 
-      if defined?(k.i)
-        kw[k.i.text_value] = arg0_rw
-      elsif defined?(splat)
-        dsplat << arg0_rw
-      else
-        args << arg0_rw
-      end
-
-      [args, kw, dsplat]
+      res += " if (#{ifexp.e3.rewrite(context)})" if defined?(ifexp.e3)
+      res += ";"
+      res += args_rest.al.rewrite(context, var, i) if
+        defined?(args_rest.al) && !args_rest.al.text_value.empty?
+      res
     end
   end
 
@@ -567,7 +557,7 @@ eos
     def check(context, *)
       [e0.check(context),
        (e1.check(context) unless defined?(splat)),
-       (ifexp.ei.check(context) if defined?(ifexp.ei)),
+       (ifexp.e3.check(context) if defined?(ifexp.e3)),
        (args_rest.al.check(context) if
          defined?(args_rest.al) && !args_rest.al.empty?),
       ].compact.sum
