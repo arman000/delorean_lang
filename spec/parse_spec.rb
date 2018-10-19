@@ -753,6 +753,26 @@ describe "Delorean" do
                       )
   end
 
+  it "allow conditional args to node calls" do
+    engine.parse defn("A:",
+                      "    d = A(a=1, b=4 if true, c=4 if false)",
+                      )
+  end
+
+  it "allow double splats in node calls" do
+    engine.parse defn("A:",
+                      "    a =?",
+                      "    d = A(**a, **(a+a), a=123, b=456)",
+                      )
+  end
+
+  it "allow double splats in literal hashes" do
+    engine.parse defn("A:",
+                      "    a =?",
+                      "    d = {'a':1, 2:2, **a, **(a+a)}",
+                      )
+  end
+
   it "should parse instance calls" do
     engine.parse defn("A:",
                       "    a = [1,2,[4]].flatten(1)",

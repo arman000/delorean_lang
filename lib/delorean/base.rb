@@ -258,12 +258,7 @@ module Delorean
             s.detect {|sc| sc && ai.class <= sc}
         end
 
-        res = obj.send(msg, *args)
-        # FIXME: can't freeze AR relations since then we can't chain
-        # calls (e.g. the chaining modifies the relation object.  Not
-        # sure what this side-effect means.  Delorean code which
-        # perform queries on queries seems to work.
-        (ActiveRecord::Relation === res || Class === res) ? res : res.freeze
+        obj.send(msg, *args)
       end
 
       ######################################################################

@@ -929,12 +929,17 @@ eof
                       "    x = _.a * _.b",
                       "    y = a && _",
                       "    z = (B() + _).x",
+                      "    w = B(**_).x",
+                      "    v = {**_, 'a': 123}",
                       )
 
     engine.evaluate("A", "x", {"a"=>3, "b"=>5}).should == 15
     h = {"a"=>1, "b"=>2, "c"=>3}
     engine.evaluate("A", "y", {"a"=>1, "b"=>2, "c"=>3}).should == h
     engine.evaluate("A", "z", {"a"=>1, "b"=>2, "c"=>3}).should == -1
+    engine.evaluate("A", "w", {"a"=>4, "b"=>5, "c"=>3}).should == -1
+    engine.evaluate("A", "v", {"a"=>4, "b"=>5, "c"=>3}).should == {
+      "a"=>123, "b"=>5, "c"=>3}
   end
 
   it "implements positional args in node calls" do
@@ -968,6 +973,40 @@ eof
                      )
     r = engine.evaluate("B", "x")
     expect(r).to eq 3
+  end
+
+  it "node calls with double splats" do
+    engine.parse defn("A:",
+                      "    a =?",
+                      "    b =?",
+                      "    c = a+b",
+                      "    h = {'a': 123}",
+                      "    k = {'b': 456}",
+                      "    x = A(**h, **k).c"
+                     )
+    r = engine.evaluate("A", "x")
+    expect(r).to eq 579
+  end
+
+  it "hash literal with double splats" do
+    engine.parse defn("A:",
+                      "    a =?",
+                      "    b =?",
+                      "    h = {'a': 123, **a}",
+                      "    k = {'b': 456, **h, **a, **b}",
+                      "    l = {**k}",
+                      "    m = {**k, 1:1, 2:2, 3:33}",
+                      "    n = {**k if false, 1:1, 2:2, 3:33}",
+                     )
+    r = engine.evaluate("A", ["h", "k", "l", "m", "n"],
+                        {"a" => {3=>3, 4=>4}, "b" => {5=>5, "a" => "aa"}})
+    expect(r).to eq [
+                   {"a"=>123, 3=>3, 4=>4},
+                   {"b"=>456, "a"=>"aa", 3=>3, 4=>4, 5=>5},
+                   {"b"=>456, "a"=>"aa", 3=>3, 4=>4, 5=>5},
+                   {"b"=>456, "a"=>"aa", 3=>33, 4=>4, 5=>5, 1=>1, 2=>2},
+                   {1=>1, 2=>2, 3=>33},
+                 ]
   end
 
   it "understands openstructs" do
