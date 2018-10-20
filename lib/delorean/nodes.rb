@@ -367,19 +367,24 @@ eos
 
   class FnArgs < SNode
     def check(context, *)
-      arg0.check(context) +
-        (defined?(args_rest.args) && !args_rest.args.text_value.empty? ?
-         args_rest.args.check(context) : [])
+      [
+        arg0.check(context),
+        (args_rest.args.check(context) if
+          defined?(args_rest.args) && !args_rest.args.text_value.empty?)
+      ].compact.sum
     end
 
     def rewrite(context)
-      arg0.rewrite(context) +
-        (defined?(args_rest.args) && !args_rest.args.text_value.empty? ?
-         ", " + args_rest.args.rewrite(context) : "")
+      [
+        arg0.rewrite(context),
+        (", " + args_rest.args.rewrite(context) if
+          defined?(args_rest.args) && !args_rest.args.text_value.empty?),
+      ].compact.sum
     end
 
     def arg_count
-      defined?(args_rest.args) ? 1 + args_rest.args.arg_count : 1
+      defined?(args_rest.args) && !args_rest.args.text_value.empty? ?
+        1 + args_rest.args.arg_count : 1
     end
   end
 
@@ -391,8 +396,8 @@ eos
     end
 
     def rewrite(context)
-      "(" + v.rewrite(context) + ") ? (" +
-        e1.rewrite(context) + ") : (" + e2.rewrite(context) + ")"
+      "(#{v.rewrite(context)}) ? (#{e1.rewrite(context)}) :
+       (#{e2.rewrite(context)})"
     end
   end
 
@@ -442,16 +447,16 @@ eos
     end
 
     def rewrite(context)
-      res = "(#{e1.rewrite(context)})"
+      res = ["(#{e1.rewrite(context)})"]
       unpack_vars = args.check(context)
       unpack_vars.each {|vname| context.parse_define_var(vname)}
       args_str = args.rewrite(context)
 
-      res += ".select{|#{args_str}|(#{ifexp.e3.rewrite(context)})}" if
+      res << ".select{|#{args_str}|(#{ifexp.e3.rewrite(context)})}" if
         defined?(ifexp.e3)
-      res += ".map{|#{args_str}| (#{e2.rewrite(context)}) }"
+      res << ".map{|#{args_str}| (#{e2.rewrite(context)}) }"
       unpack_vars.each {|vname| context.parse_undef_var(vname)}
-      res
+      res.sum
     end
   end
 
@@ -493,23 +498,23 @@ eos
     end
 
     def rewrite(context)
-      res = "(#{e1.rewrite(context)})"
+      res = ["(#{e1.rewrite(context)})"]
       unpack_vars = args.check(context)
       unpack_vars.each {|vname| context.parse_define_var(vname)}
       args_str = args.rewrite(context)
 
       hid = @@comp_count += 1
 
-      res += ".select{|#{args_str}| (#{ifexp.ei.rewrite(context)}) }" if
+      res << ".select{|#{args_str}| (#{ifexp.ei.rewrite(context)}) }" if
         defined?(ifexp.ei)
 
       unpack_str = unpack_vars.count > 1 ? "(#{args_str})" : args_str
 
-      res += ".each_with_object({}){|#{unpack_str}, _h#{hid}| " +
+      res << ".each_with_object({}){|#{unpack_str}, _h#{hid}| " +
         "_h#{hid}[#{el.rewrite(context)}]=(#{er.rewrite(context)})}"
 
       unpack_vars.each {|vname| context.parse_undef_var(vname)}
-      res
+      res.sum
     end
   end
 
@@ -564,10 +569,10 @@ eos
     end
 
     def rewrite(context, var)
-      if defined?(splat)
-        res = "#{var}.merge!(#{e0.rewrite(context)})"
+      res = if defined?(splat)
+        "#{var}.merge!(#{e0.rewrite(context)})"
       else
-        res = "#{var}[#{e0.rewrite(context)}]=(#{e1.rewrite(context)})"
+        "#{var}[#{e0.rewrite(context)}]=(#{e1.rewrite(context)})"
       end
       res += " if (#{ifexp.e3.rewrite(context)})" if defined?(ifexp.e3)
       res += ";"
