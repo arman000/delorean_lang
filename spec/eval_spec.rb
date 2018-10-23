@@ -656,6 +656,19 @@ eof
     engine.evaluate("A", ["d", "f"]).should == [26, 2]
   end
 
+  it "allows node calls from attrs" do
+    engine.parse defn("A:",
+                      "    a =?",
+                      "    c =?",
+                      "    b = a**2",
+                      "    e = A(a=13)",
+                      "    d = e(a=4, **{'c': 5})",
+                      "    f = d.b + d.c + e().a",
+                      )
+
+    engine.evaluate("A", ["f"]).should == [16+5+13]
+  end
+
   it "should eval multi-var hash comprehension" do
     engine.parse defn("A:",
                       "    b = {k*5 : v+1 for k, v in {1:2, 7:-30}}",

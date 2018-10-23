@@ -753,6 +753,14 @@ describe "Delorean" do
                       )
   end
 
+  it "should allow node calls to attrs" do
+    engine.parse defn("A:",
+                      "    x=?",
+                      "    a = A(x=123)",
+                      "    d = a(x=456).x",
+                      )
+  end
+
   it "allow conditional args to node calls" do
     engine.parse defn("A:",
                       "    d = A(a=1, b=4 if true, c=4 if false)",
