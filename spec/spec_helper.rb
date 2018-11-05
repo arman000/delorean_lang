@@ -38,7 +38,7 @@ class Dummy < ActiveRecord::Base
     Dummy.new(name: name, number: number)
   end
 
-  I_JUST_MET_YOU_SIG = [2, 2]
+  I_JUST_MET_YOU_SIG = [1, 2]
 
   def self.call_me_maybe(*a)
     a.inject(0, :+)
