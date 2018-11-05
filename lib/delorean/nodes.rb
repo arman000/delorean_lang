@@ -132,6 +132,10 @@ eos
       @text = text
     end
 
+    def +(other)
+      self.to_s + other
+    end
+
     def to_s
       text
     end
@@ -375,11 +379,10 @@ eos
     end
 
     def rewrite(context)
-      [
-        arg0.rewrite(context),
-        (", " + args_rest.args.rewrite(context) if
-          defined?(args_rest.args) && !args_rest.args.text_value.empty?),
-      ].compact.sum
+      rest = ", " + args_rest.args.rewrite(context) if
+        defined?(args_rest.args) && !args_rest.args.text_value.empty?
+
+      [arg0.rewrite(context), rest].compact.sum
     end
 
     def arg_count

@@ -379,6 +379,14 @@ describe "Delorean" do
     }.should_not raise_error
   end
 
+  it "should be able to pass model class to model functions" do
+    lambda {
+      engine.parse defn("A:",
+                        "    b = Dummy.i_just_met_you(Dummy, 1)"
+                        )
+    }.should_not raise_error
+  end
+
   it "should be able to call class methods on ActiveRecord classes" do
     engine.parse defn("A:",
                       "    b = Dummy.call_me_maybe()",
@@ -388,7 +396,7 @@ describe "Delorean" do
   it "should get exception on arg count to class method call" do
     lambda {
       engine.parse defn("A:",
-                        '    b = Dummy.i_just_met_you("CRJ")',
+                        '    b = Dummy.i_just_met_you(1, 2, 3)',
                         )
     }.should raise_error(Delorean::BadCallError)
   end
