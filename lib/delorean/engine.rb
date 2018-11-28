@@ -91,13 +91,27 @@ module Delorean
       engine.parse_check_defined_node(pname, true)
     end
 
-    def parse_define_node(name, pname, mname=nil)
+    def parse_define_node(name, supers)
       parse_check_defined_node(name, false)
-      parse_check_defined_mod_node(pname, mname) if pname
 
-      sname = pname ? super_name(pname, mname) : 'Object'
+      snames = supers.map {
+        |pname, mname|
+        # super's mname can be nil
+        parse_check_defined_mod_node(pname, mname)
+        super_name(pname, mname)
+      }
 
-      @pm.module_eval("class #{name} < #{sname}; end")
+      cdef = [
+        "class #{name};",
+        "module X_;",
+        snames.map {|sname| "include #{sname}::X_;"},
+        "end;",
+        "extend X_;",
+        "end",
+      ].flatten.sum
+
+      # puts 'x'*30, cdef
+      @pm.module_eval(cdef)
 
       # latest defined node
       @last_node = name
@@ -157,9 +171,11 @@ module Delorean
         "_x.member?('#{n}') ? raise('#{n}') : #{a}#{POST}(_x + ['#{n}'])"
       }.join(';')
 
-      code =
-        "class #{@last_node}; def self.#{name}#{POST}(_x); #{checks}; end; end"
-
+      code = [
+        "class #{@last_node};",
+        "module X_; def #{name}#{POST}(_x); #{checks}; end; end;",
+        "extend X_; end",
+      ].sum
       # pp code
 
       @pm.module_eval(code)

@@ -10,11 +10,14 @@ grammar Delorean
     /
     sp4 i:identifier sp? '=' sp? e:expression <Formula>
     /
-    n:class_name ':' sp? mod:(m:class_name '::')? p:class_name <SubNode>
-    /
-    n:class_name ':' <BaseNode>
+    n:class_name ':' sp? args:sup_args? <BaseNode>
     /
     'import' sp n:class_name <Import>
+  end
+
+  rule sup_args
+    mod:(m:class_name '::')? p:class_name
+    args_rest:(sp args:sup_args?)? <SupArgs>
   end
 
   rule class_name
@@ -26,9 +29,9 @@ grammar Delorean
     /
     op:unary_op sp? e:expression <UnOp>
     /
-    'if'        sp? v:expression sp?
-    'then'      sp? e1:expression sp?
-    'else'      sp? e2:expression <IfElse>
+    'if'   sp? v:expression sp?
+    'then' sp? e1:expression sp?
+    'else' sp? e2:expression <IfElse>
     /
     v:getattr_exp sp? op:binary_op sp? e:expression <BinOp>
     /

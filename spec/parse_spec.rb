@@ -435,6 +435,43 @@ describe "Delorean" do
                       )
   end
 
+  it "handle multiple supers" do
+    engine.parse defn("A:",
+                      "    a =? 22",
+                      "B:",
+                      "    b = A.a * 123",
+                      "C: A B",
+                      "    c = a * b + 11",
+                      )
+  end
+
+  it "handle problem with supers" do
+    lambda {
+      engine.parse defn("A:",
+                        "    a =? 22",
+                        "B:",
+                        "    b = A.a * 123",
+                        "C: A B D",
+                        "    c = a * b + 11",
+                       )
+    }.should raise_error(Delorean::UndefinedError)
+
+    engine.reset
+
+    lambda {
+      engine.parse defn("A:",
+                        "    a =? 22",
+                        "B:",
+                        "    b = A.a * 123",
+                        "C: A B",
+                        "    c = a * b + 11",
+                        "D: A B",
+                        "    d = a * b + c",
+
+                       )
+    }.should raise_error(Delorean::UndefinedError)
+  end
+
   it "should not be able to access attrs not defined in ancestors" do
     lambda {
       engine.parse defn("A:",

@@ -30,9 +30,12 @@ module Delorean
 
 <<eos
       class #{cname}
-        def self.#{aname}#{POST}(_e)
+        module X_
+        def #{aname}#{POST}(_e)
             _e[self.name+'.#{aname}'] ||= _e.fetch('#{aname}') { #{not_found} }
         end
+        end
+        extend X_
       end
 eos
     end
@@ -65,34 +68,25 @@ eos
   class BaseNode < SNode
     # defines a base node
     def check(context, *)
-      context.parse_define_node(n.text_value, nil)
-    end
-
-    def def_class(context, base_name)
-      # Nodes are simply translated to classes.  Define our own
-      # self.name() since it's extremely slow in MRI 2.0.
-      "class #{n.text_value} < #{base_name}; " +
-        "def self.module_name; '#{context.module_name}'; end;" +
-        "def self.name; '#{n.text_value}'; end; end"
+      supers = args.text_value.blank? ? [] : args.check(context)
+      context.parse_define_node(n.text_value, supers)
     end
 
     def rewrite(context)
-      def_class(context, "BaseClass")
-    end
-  end
+      # list of supers' names
+      snames = args.text_value.blank? ? [] : args.rewrite(context)
 
-  class SubNode < BaseNode
-    def check(context, *)
-      mname = mod.m.text_value if defined?(mod.m)
-      context.parse_define_node(n.text_value, p.text_value, mname)
-    end
-
-    def rewrite(context)
-      mname = mod.m.text_value if defined?(mod.m)
-      sname = context.super_name(p.text_value, mname)
-
-      # A sub-node (derived node) is just a subclass.
-      def_class(context, sname)
+      # Nodes are simply translated to classes.
+      [
+        "class #{n.text_value} < BaseClass; ",
+        "module X_;",
+        snames.map {|sname| "include #{sname}::X_;"},
+        "end;",
+        "extend X_;",
+        # Define own self.name() since it's extremely slow in MRI 2.0.
+        "def self.module_name; '#{context.module_name}'; end;",
+        "def self.name; '#{n.text_value}'; end; end",
+      ].flatten.sum
     end
   end
 
@@ -103,15 +97,19 @@ eos
 
     def rewrite(context)
       dname = [context.module_name, context.last_node, i.text_value].join('.')
-      debug = Debug.debug_set.member?(dname)
+      debug = Debug.debug_set.member?(dname) || nil
 
       # an attr is defined as a class function on the node class.
-      "class #{context.last_node}; " +
-        "def self.#{i.text_value}#{POST}(_e); " +
-        (debug ? "_debug =" : '') +
-        "_e[self.name+'.#{i.text_value}'] ||= #{e.rewrite(context)};" +
-        (debug ? 'Delorean::Debug.log(_debug); _debug;' : '') +
+      [
+        "class #{context.last_node}; ",
+        "module X_;",
+        "def #{i.text_value}#{POST}(_e); ",
+        debug && "_debug =",
+        "_e[self.name+'.#{i.text_value}'] ||= #{e.rewrite(context)};",
+        debug && 'Delorean::Debug.log(_debug); _debug;',
+        "end; extend X_;",
         "end; end;"
+      ].compact.sum
     end
   end
 
@@ -366,6 +364,22 @@ eos
       attrs.shift
 
       attrs.inject(v.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}', _e)"}
+    end
+  end
+
+  class SupArgs < SNode
+    def check(context)
+      mname = mod.m.text_value if defined?(mod.m)
+      [[p.text_value, mname]] + (
+        defined?(args_rest.args) ? args_rest.args.check(context) : [])
+    end
+
+    def rewrite(context)
+      mname = mod.m.text_value if defined?(mod.m)
+      sname = context.super_name(p.text_value, mname)
+
+      [sname] + (defined?(args_rest.args) ?
+                   args_rest.args.rewrite(context) : [])
     end
   end
 

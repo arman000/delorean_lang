@@ -135,6 +135,66 @@ describe "Delorean" do
     engine.evaluate("C", %w{c b a}).should == [1, 2, 3]
   end
 
+  it "handles diamond multi inheritance" do
+    # this is default ruby behavior -- different from my expectation.
+    engine.parse defn("A:",
+                      "    a =? 1",
+                      "B: A",
+                      "    a =? 2",
+                      "C: B A",
+                      )
+    engine.evaluate("C", %w{a}).should == [2]
+  end
+
+  it "handles general multi inheritance" do
+    engine.parse defn("A:",
+                      "    a =? 1",
+                      "    aa = 7",
+                      "B: A",
+                      "    a =? 2",
+                      "    b = a**2",
+                      "C: B A",
+                      "    c = a + b + aa",
+                      "    d = 9",
+                      "D: B A",
+                      "    c = a - b",
+                      "    d = 11",
+                      "E: D C",
+                      "    e = c * 2",
+                      )
+    engine.evaluate("C", %w{a b c}).should == [2, 4, 13]
+    engine.evaluate("C", %w{a b c}, {"a" => 4}).should == [4, 16, 27]
+    engine.evaluate("C", %w{c b a}).should == [13, 4, 2]
+
+    engine.evaluate("D", %w{a b c d}).should == [2, 4, -2, 11]
+    engine.evaluate("D", %w{a b c d}, {"a" => 5}).should == [5, 25, -20, 11]
+
+    engine.evaluate("E", %w{a b c d e}).should == [2, 4, 13, 9, 26]
+    engine.evaluate("E", %w{a b c d e}, {"a" => -1}).should == [-1, 1, 7, 9, 14]
+  end
+
+  it "interface mechanism with multi inheritance" do
+    # Introduce some new interface (xx) from X to B and C.  A is some
+    # base model (e.g. base pricing).
+    engine.parse defn("X:",
+                      # FIXME: how do we avoid overriding a??? I just
+                      # want "a" to be defined for writing xx.
+                      "    a =?",
+                      "    xx = a**3",
+                      "A:",
+                      "    a =? 2",
+                      # xx is overriden by subclasses
+                      "    xx =?",
+                      "    b = a**2",
+                      "    c = b+3",
+                      "    d = c + xx",
+                      "B: A X",
+                      "C: A X",
+                      "    c = b+4",
+                      )
+    engine.evaluate("C", %w{a b c d}, {"a" => -1}).should == [-1, 1, 5, 4]
+  end
+
   it "should give error when param is undefined for eval" do
     engine.parse defn("A:",
                       "    a =?",
