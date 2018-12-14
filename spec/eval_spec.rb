@@ -1074,7 +1074,7 @@ eof
     expect(r2.values.uniq.length).to eq 1
   end
 
-  it "performs as expected" do
+  it "hash splat performance as expected" do
     perf_test = <<-DELOREAN
     A:
         x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -1104,8 +1104,55 @@ eof
       h[e.label] = e.stats.central_tendency
     }
 
-    diff = (h["ruby"] - h["delorean"]) / h["delorean"]
+    factor = h["ruby"]/h["delorean"]
 
-    expect(diff).to be < 0.03
+    p factor
+
+    expect(factor).to be < 1.10
+  end
+
+  it "array and node call performance as expected" do
+    perf_test = <<-DELOREAN
+    A:
+        i =? 0
+        max =?
+        range = if i>max then [] else A(i=i+1, max=max).range + [i]
+
+        res = [x*2 for x in range]
+        result = res.sum
+    DELOREAN
+
+    perf_test.gsub!(/^    /, '')
+
+    engine.parse perf_test
+
+    bm = Benchmark.ips do |x|
+      lim = 100
+
+      x.report ("delorean") { engine.evaluate("A", "result", {"max"=>lim}) }
+
+      x.report("ruby") {
+        def range(max, i=0)
+          i > max ? [] : range(max, i+1)
+        end
+
+        r = range(lim)
+        result = r.map {|x| x*2}.sum
+      }
+
+      x.compare!
+    end
+
+    # get iterations/sec for each report
+    h = bm.entries.each_with_object({}) {
+      |e, h|
+      h[e.label] = e.stats.central_tendency
+    }
+
+    factor = h["ruby"]/h["delorean"]
+
+    p factor
+
+    expect(factor).to be < 135
   end
 end
