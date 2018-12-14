@@ -1,6 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-describe "Delorean" do
+require 'benchmark/ips'
+require 'pry'
 
+describe "Delorean" do
   let(:sset) {
     TestContainer.new({
                         "AAA" =>
@@ -1070,5 +1072,40 @@ eof
     # this one works as expected
     r2 = engine.evaluate("B", "res2")
     expect(r2.values.uniq.length).to eq 1
+  end
+
+  it "performs as expected" do
+    perf_test = <<-DELOREAN
+    A:
+        x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        h = [[k, k.to_s] for k in x.product(x)].to_h
+        hh = {**h, "a":1, "b":2, **h, **h, **h, "c":3}
+    DELOREAN
+
+    perf_test.gsub!(/^    /, '')
+
+    engine.parse perf_test
+
+    bm = Benchmark.ips do |x|
+      x.report ("delorean") { engine.evaluate("A", "hh") }
+
+      x.report("ruby") {
+        x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        h = x.product(x).map { |x| [x, x.to_s]}.to_h
+        hh = h.merge("a"=>1, "b"=>2).merge(h).merge(h).merge(h).merge("c"=>3)
+      }
+
+      x.compare!
+    end
+
+    # get iterations/sec for each report
+    h = bm.entries.each_with_object({}) {
+      |e, h|
+      h[e.label] = e.stats.central_tendency
+    }
+
+    diff = (h["ruby"] - h["delorean"]) / h["delorean"]
+
+    expect(diff).to be < 0.03
   end
 end

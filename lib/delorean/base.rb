@@ -76,6 +76,7 @@ module Delorean
     to_f:               [NUM_OR_STR + TI_TYPES],
     to_d:               [NUM_OR_STR],
     to_s:               [Object],
+    to_h:               [Object],
     to_a:               [Object],
     to_json:            [Object],
     abs:                [Numeric],
