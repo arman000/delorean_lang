@@ -1111,6 +1111,51 @@ eof
     expect(factor).to be < 1.10
   end
 
+  it "hash splat performance (2) as expected" do
+    perf_test = <<-DELOREAN
+    A:
+        h =?
+        hh = {**h, **h, **h, **h}
+    DELOREAN
+
+    perf_test.gsub!(/^    /, '')
+
+    engine.parse perf_test
+
+    x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    h = x.product(x).map { |x| [x, x.to_s]}.to_h
+
+    bm = Benchmark.ips do |x|
+      x.report ("delorean") { engine.evaluate("A", "hh", {"h"=>h}) }
+
+      x.report("ruby") {
+        hh = h.merge(h).merge(h).merge(h)
+      }
+
+      x.report("ruby!") {
+        hh = {}
+        hh.merge!(h); hh.merge!(h); hh.merge!(h); hh.merge!(h);
+      }
+
+      x.compare!
+    end
+
+    # get iterations/sec for each report
+    h = bm.entries.each_with_object({}) {
+      |e, h|
+      h[e.label] = e.stats.central_tendency
+    }
+
+    factor = h["ruby!"]/h["delorean"]
+    p factor
+    expect(factor).to be_within(0.1).of(1.08)
+
+    # perf of mutable vs immutable hash ops are as expected
+    factor = h["ruby!"]/h["ruby"]
+    p factor
+    expect(factor).to be_within(0.2).of(1.45)
+  end
+
   it "array and node call performance as expected" do
     perf_test = <<-DELOREAN
     A:
