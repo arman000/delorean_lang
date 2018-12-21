@@ -26,9 +26,9 @@ Or add it to your `Gemfile`, etc.
     NodeB: NodeA
         attr3 = attr1 / NodeA.attr3
     eom
-    
+
     engine.parse my_code
-    
+
     engine.evaluate("NodeB", %w{attr1 attr2 attr3})
 
 ## The Delorean Language
@@ -73,7 +73,7 @@ Therefore, in the above example, `NodeA.attr2` evaluates to `246`.
 Delorean attribute definitions have the following form:
 
 	attr = expression
-	
+
 Where `attr` is an attribute name. Attribute names are required to
 match the following regular expression: `[a-z][a-zA-Z0-9_]*`. An
 attribute can only be specified once in a node.  Also, any attributes
@@ -111,7 +111,7 @@ nodes.  The following example shows the usage of inheritance:
 
     IndiaInfo: USInfo
 		teen_min = 10
-		
+
 In this example, node `USInfo` provides a definition of a
 `is_teenager` when provided with an `age` parameter. Node `IndiaInfo`
 is derived from `USInfo` and so it shares all of its attribute
@@ -134,6 +134,48 @@ TODO: provide details on the following topics:
 
 This implementation of Delorean "compiles" script code to
 Ruby.
+
+### Caching
+
+Delorean provides `cached_delorean_function` method that will cache result based on arguments.
+
+```ruby
+  cached_delorean_fn :returns_cached_openstruct, sig: 1 do |timestamp|
+    User.all
+  end
+
+```
+
+If a first argument is infinity (one of `[Float::INFINITY, 'infinity', 'Infinity']`) then caching will not be performed.
+By default cache keeps the last 1000 of the results per class. You can override it:
+
+```ruby
+
+  ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new(size_per_class: 10)
+
+```
+
+If you want use other caching method, you can use your own adapter:
+
+```ruby
+
+  ::Delorean::Cache.adapter = ::My::Custom::Cache::Adapter.new
+
+```
+
+Delorean expects it to have methods with following signatures:
+
+```ruby
+
+  cache_item(klass:, method_name:, args:)
+  fetch_item(klass:, method_name:, args:)
+  clear!(klass:)
+  clear_all!
+
+  # See lib/delorean/cache/adapters/base.rb
+
+```
+
 
 TODO: provide details
 

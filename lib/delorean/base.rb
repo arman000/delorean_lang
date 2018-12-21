@@ -1,8 +1,11 @@
 require 'active_support/time'
 require 'active_record'
 require 'bigdecimal'
+require 'delorean/cache'
 
 module Delorean
+
+  ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new(size_per_class: 1000)
 
   TI_TYPES   = [Time, ActiveSupport::TimeWithZone]
   DT_TYPES   = [Date] + TI_TYPES

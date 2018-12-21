@@ -4,6 +4,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rspec'
 require 'delorean_lang'
 require 'active_record'
+require 'pry'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
@@ -84,6 +85,10 @@ class Dummy < ActiveRecord::Base
   end
 
   delorean_fn :returns_openstruct, sig: 0 do
+    OpenStruct.new({"abc"=>"def"})
+  end
+
+  cached_delorean_fn :returns_cached_openstruct, sig: 1 do |ts = nil|
     OpenStruct.new({"abc"=>"def"})
   end
 end

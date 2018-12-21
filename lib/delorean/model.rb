@@ -22,6 +22,42 @@ module Delorean
           self.const_set(name.to_s.upcase+Delorean::SIG, sig)
         end
       end
+
+      # FIXME IDEA: we just make :cache an argument to delorean_fn.
+      # That way, we don't need the cached_ flavors.  It'll make all
+      # this code a lot simpler.  We should also just add the :private
+      # mechanism here.
+
+      # By default implements a VERY HACKY class-based (per process) caching
+      # mechanism for database lookup results.  Issues include: cached
+      # values are ActiveRecord objects.  Query results can be very
+      # large lists which we count as one item in the cache.  Caching
+      # mechanism will result in large processes.
+      def cached_delorean_fn(name, options = {}, &block)
+        delorean_fn(name, options) do |ts, *args|
+          # Don't cache if timestamp is infinity
+          next block.call(ts, *args) if ::Delorean::Support.is_infinity?(ts)
+
+          cache_key = ::Delorean::Cache.adapter.cache_key(method_name: name, args: [ts, *args])
+          cached_item = ::Delorean::Cache.adapter.fetch_item(klass: self, cache_key: cache_key)
+
+          next cached_item if cached_item
+
+          res = block.call(ts, *args)
+          ::Delorean::Cache.adapter.cache_item(klass: self, cache_key: cache_key, item: res)
+
+          # Since we're caching this object and don't want anyone
+          # changing it.  FIXME: ideally should freeze this object
+          # recursively.
+          res.freeze if res.respond_to?(:freeze)
+
+          res
+        end
+      end
+
+      def clear_lookup_cache!
+        ::Delorean::Cache.adapter.clear!(klass: self)
+      end
     end
   end
 end
