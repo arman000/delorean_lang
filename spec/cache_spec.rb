@@ -6,7 +6,9 @@ describe "Delorean cache" do
   end
 
   it 'allows to set adapter' do
-    ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new(size_per_class: 100)
+    ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new(
+      size_per_class: 100
+    )
     expect(::Delorean::Cache.adapter.size_per_class).to eq 100
   end
 
@@ -26,15 +28,6 @@ describe "Delorean cache" do
     Dummy.returns_cached_openstruct
   end
 
-  it "doesn't use cache with infinity" do
-    expect(OpenStruct).to receive(:new).twice.and_call_original
-
-    res1 = Dummy.returns_cached_openstruct(Float::INFINITY)
-    res2 = Dummy.returns_cached_openstruct(Float::INFINITY)
-
-    expect(res1).to eq res2
-  end
-
   it "doesn't use cache with different keys" do
     expect(OpenStruct).to receive(:new).twice.and_call_original
 
@@ -43,13 +36,23 @@ describe "Delorean cache" do
   end
 
   it 'removes outdated items from cache' do
-    ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new(size_per_class: 10)
+    ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new(
+      size_per_class: 10
+    )
 
     12.times do |t|
       Dummy.returns_cached_openstruct(t)
     end
 
-    expect(::Delorean::Cache.adapter.fetch_item(klass: Dummy, cache_key: [:returns_cached_openstruct, 10])).to be_present
-    expect(::Delorean::Cache.adapter.fetch_item(klass: Dummy, cache_key: [:returns_cached_openstruct, 2])).to_not be_present
+    item_2 = ::Delorean::Cache.adapter.fetch_item(
+      klass: Dummy, cache_key: [:returns_cached_openstruct, 2]
+    )
+
+    item_10 = ::Delorean::Cache.adapter.fetch_item(
+      klass: Dummy, cache_key: [:returns_cached_openstruct, 10]
+    )
+
+    expect(item_2).to_not be_present
+    expect(item_10).to be_present
   end
 end

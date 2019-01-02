@@ -34,17 +34,27 @@ module Delorean
       # large lists which we count as one item in the cache.  Caching
       # mechanism will result in large processes.
       def cached_delorean_fn(name, options = {}, &block)
-        delorean_fn(name, options) do |ts, *args|
-          # Don't cache if timestamp is infinity
-          next block.call(ts, *args) if ::Delorean::Support.is_infinity?(ts)
+        delorean_fn(name, options) do |args|
+          delorean_cache_adapter = ::Delorean::Cache.adapter
+          # Check if caching should be performed
+          next block.call(args) unless delorean_cache_adapter.cache_item?(
+            klass: self, method_name: name, args: args
+          )
 
-          cache_key = ::Delorean::Cache.adapter.cache_key(method_name: name, args: [ts, *args])
-          cached_item = ::Delorean::Cache.adapter.fetch_item(klass: self, cache_key: cache_key)
+          cache_key = delorean_cache_adapter.cache_key(
+            klass: self, method_name: name, args: [args]
+          )
+          cached_item = delorean_cache_adapter.fetch_item(
+            klass: self, cache_key: cache_key
+          )
 
           next cached_item if cached_item
 
-          res = block.call(ts, *args)
-          ::Delorean::Cache.adapter.cache_item(klass: self, cache_key: cache_key, item: res)
+          res = block.call(args)
+
+          delorean_cache_adapter.cache_item(
+            klass: self, cache_key: cache_key, item: res
+          )
 
           # Since we're caching this object and don't want anyone
           # changing it.  FIXME: ideally should freeze this object

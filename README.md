@@ -146,7 +146,8 @@ Delorean provides `cached_delorean_function` method that will cache result based
 
 ```
 
-If a first argument is infinity (one of `[Float::INFINITY, 'infinity', 'Infinity']`) then caching will not be performed.
+If `::Delorean::Cache.adapter.cache_item?(...)` returns `false` then caching will not be performed.
+
 By default cache keeps the last 1000 of the results per class. You can override it:
 
 ```ruby
@@ -167,10 +168,12 @@ Delorean expects it to have methods with following signatures:
 
 ```ruby
 
-  cache_item(klass:, method_name:, args:)
-  fetch_item(klass:, method_name:, args:)
+  cache_item(klass:, cache_key:, item:)
+  fetch_item(klass:, cache_key:)
+  cache_key(klass:, method_name:, args:)
   clear!(klass:)
   clear_all!
+  cache_item?(klass:, method_name:, args:)
 
   # See lib/delorean/cache/adapters/base.rb
 

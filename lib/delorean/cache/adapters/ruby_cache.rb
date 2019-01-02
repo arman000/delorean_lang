@@ -1,7 +1,9 @@
+require_relative './base'
+
 module Delorean
   module Cache
     module Adapters
-      class RubyCache
+      class RubyCache < ::Delorean::Cache::Adapters::Base
         attr_reader :lookup_cache, :size_per_class
 
         def initialize(size_per_class: 1000)
@@ -19,7 +21,7 @@ module Delorean
           lookup_cache.dig(klass, cache_key)
         end
 
-        def cache_key(method_name:, args:)
+        def cache_key(klass:, method_name:, args:)
           [method_name] + args.map do |arg|
             next arg.id if arg.respond_to?(:id)
             arg
@@ -42,7 +44,9 @@ module Delorean
           return if cache_object.count < size_per_class
 
           max_items = (size_per_class / 5).floor
-          cache_object.keys[0..max_items].each { |key| cache_object.delete(key) }
+          cache_object.keys[0..max_items].each do |key|
+            cache_object.delete(key)
+          end
         end
       end
     end
