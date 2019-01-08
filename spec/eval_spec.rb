@@ -1156,6 +1156,66 @@ eof
     expect(factor).to be_within(0.2).of(1.45)
   end
 
+  it "hash literal performance as expected" do
+    x=(1..10).to_a
+
+    hdef1 = x.map { |i| "'#{'xo'*i}' : #{i}" }.join(',')
+    hdef2 = x.map { |i| "'#{'yo'*i}' : #{i}" }.join(',')
+
+    perf_test = <<-DELOREAN
+    A:
+        v =?
+        h = { #{hdef1}, #{hdef2} }
+    DELOREAN
+
+    perf_test.gsub!(/^    /, '')
+
+    puts perf_test
+
+    engine.parse perf_test
+
+    bm = Benchmark.ips do |x|
+      x.report ("delorean") { engine.evaluate("A", "h", {}) }
+
+      x.report("ruby") {
+        h = {
+          'xo' => 1,
+          'xoxo' => 2,
+          'xoxoxo' => 3,
+          'xoxoxoxo' => 4,
+          'xoxoxoxoxo' => 5,
+          'xoxoxoxoxoxo' => 6,
+          'xoxoxoxoxoxoxo' => 7,
+          'xoxoxoxoxoxoxoxo' => 8,
+          'xoxoxoxoxoxoxoxoxo' => 9,
+          'xoxoxoxoxoxoxoxoxoxo' => 10,
+          'yo' => 1,
+          'yoyo' => 2,
+          'yoyoyo' => 3,
+          'yoyoyoyo' => 4,
+          'yoyoyoyoyo' => 5,
+          'yoyoyoyoyoyo' => 6,
+          'yoyoyoyoyoyoyo' => 7,
+          'yoyoyoyoyoyoyoyo' => 8,
+          'yoyoyoyoyoyoyoyoyo' => 9,
+          'yoyoyoyoyoyoyoyoyoyo' => 10,
+        }
+      }
+
+      x.compare!
+    end
+
+    # get iterations/sec for each report
+    h = bm.entries.each_with_object({}) {
+      |e, h|
+      h[e.label] = e.stats.central_tendency
+    }
+
+    factor = h["ruby"]/h["delorean"]
+    p factor
+    expect(factor).to be_within(0.5).of(5.1)
+  end
+
   it "array and node call performance as expected" do
     perf_test = <<-DELOREAN
     A:
