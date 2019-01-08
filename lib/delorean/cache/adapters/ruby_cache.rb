@@ -38,7 +38,7 @@ module Delorean
 
         private
 
-        def clear_outdated_items(klass: klass)
+        def clear_outdated_items(klass:)
           cache_object = lookup_cache[klass]
           return unless cache_object
           return if cache_object.count < size_per_class
