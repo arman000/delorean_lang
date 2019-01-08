@@ -1,6 +1,7 @@
 require "delorean/version"
 
 require 'treetop'
+require 'delorean/cache'
 require 'delorean/delorean'
 require 'delorean/nodes'
 require 'delorean/engine'
