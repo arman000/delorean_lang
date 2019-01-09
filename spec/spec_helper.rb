@@ -88,8 +88,8 @@ class Dummy < ActiveRecord::Base
     OpenStruct.new({"abc"=>"def"})
   end
 
-  cached_delorean_fn :returns_cached_openstruct, sig: 1 do |ts = nil|
-    OpenStruct.new({"abc"=>"def"})
+  cached_delorean_fn :returns_cached_openstruct, sig: 2 do |first, last|
+    OpenStruct.new({ first.to_s => last })
   end
 end
 
