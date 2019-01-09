@@ -268,11 +268,22 @@ describe "Delorean" do
   it "should handle BETWEEN" do
     engine.parse defn("A:",
                       "    a = 1.23",
-                      "    b = [a.between(10,20), a.between(1,3)]",
+                      "    number_between = [a.between(10,20), a.between(1,3)]",
+
+                      "    c = 'c'",
+                      "    string_between = [c.between('a', 'd'), c.between('d', 'e')]",
+
+                      "    types_mismatch1 = [a.between('a', 'd')]",
+                      "    types_mismatch2 = [c.between(1, 3)]"
                       )
 
-    expect(engine.evaluate("A", "b")).to eq([false, true])
+    expect(engine.evaluate("A", "number_between")).to eq([false, true])
+    expect(engine.evaluate("A", "string_between")).to eq([true, false])
+
+    expect { engine.evaluate("A", "types_mismatch1") }.to raise_error(/bad arg/)
+    expect { engine.evaluate("A", "types_mismatch2") }.to raise_error(/bad arg/)
   end
+
 
   it "should handle MATCH" do
     engine.parse defn("A:",
@@ -283,4 +294,5 @@ describe "Delorean" do
     expect(engine.evaluate("A", "b")).
       to eq(["this is a test", "this", " is ", "a test", nil])
   end
+
 end

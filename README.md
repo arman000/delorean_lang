@@ -135,6 +135,33 @@ TODO: provide details on the following topics:
 This implementation of Delorean "compiles" script code to
 Ruby.
 
+### Calling ruby methods from Delorean
+
+Ruby methods that are called from Delorean should be whitelisted.
+
+```ruby
+
+  ::Delorean::Ruby.whitelist.add_method :length do |method|
+    method.called_on String
+    method.called_on Enumerable
+  end
+
+  ::Delorean::Ruby.whitelist.add_method :first do |method|
+    method.called_on Enumerable, with: [Integer]
+  end
+
+```
+
+By default Delorean has some methods whitelisted, such as `length`, `min`, `max`, etc. Those can be found in `/lib/delorean/ruby/whitelists/default`. If you don't want to use defaults, you can override whitelist with and empty one.
+
+```ruby
+
+  require 'delorean/ruby/whitelists/empty'
+
+  ::Delorean::Ruby.whitelist = ::Delorean::Ruby::Whitelists::Empty.new
+
+```
+
 ### Caching
 
 Delorean provides `cached_delorean_function` method that will cache result based on arguments.

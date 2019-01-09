@@ -1,92 +1,15 @@
 require 'active_support/time'
 require 'active_record'
 require 'bigdecimal'
+require 'delorean/ruby'
+require 'delorean/ruby/whitelists/default'
 require 'delorean/cache'
 
 module Delorean
 
+  ::Delorean::Ruby.whitelist = ::Delorean::Ruby::Whitelists::Default.new
+
   ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new(size_per_class: 1000)
-
-  TI_TYPES   = [Time, ActiveSupport::TimeWithZone]
-  DT_TYPES   = [Date] + TI_TYPES
-  NUM_OR_STR = [Numeric, String]
-  NUM_OR_NIL = [nil, Integer]
-
-  # FIXME: the whitelist is quite hacky.  It's currently difficult to
-  # override it.  A user will likely want to directly modify this
-  # hash.  The whole whitelist mechanism should be eventually
-  # rethought.
-  RUBY_WHITELIST = {
-    # FIXME: hack -- Relation.attributes currently implemented in marty
-    attributes:         [[ActiveRecord::Base, ActiveRecord::Relation]],
-    between?:           [NUM_OR_STR, NUM_OR_STR, NUM_OR_STR],
-    between:            "between?",
-    compact:            [[Array, Hash]],
-    to_set:             [Array],
-    flatten:            [Array, NUM_OR_NIL],
-    length:             [[String, Enumerable]],
-    max:                [Array],
-    member:             "member?",
-    member?:            [Enumerable, [Object]],
-    empty:              "empty?",
-    empty?:             [Enumerable],
-    except:             [Hash, String] + [[nil, String]]*9,
-    reverse:            [Array],
-    slice:              [Array, Integer, Integer],
-    each_slice:         [Array, Integer],
-    sort:               [Array],
-    split:              [String, String],
-    uniq:               [Array],
-    sum:                [Array],
-    transpose:          [Array],
-    join:               [Array, String],
-    zip:                [Array, Array, [Array, nil], [Array, nil]],
-    index:              [Array, [Object]],
-    product:            [Array, Array],
-    first:              [[ActiveRecord::Relation, Enumerable], NUM_OR_NIL],
-    last:               [[ActiveRecord::Relation, Enumerable], NUM_OR_NIL],
-    intersection:       [Set, Enumerable],
-    union:              [Set, Enumerable],
-
-    keys:               [Hash],
-    values:             [Hash],
-    fetch:              [Hash, Object, [Object]],
-    upcase:             [String],
-    downcase:           [String],
-    match:              [String, [String], NUM_OR_NIL],
-
-    iso8601:            [DT_TYPES],
-    hour:               [DT_TYPES],
-    min:                [DT_TYPES+[Array]],
-    sec:                [DT_TYPES],
-    to_date:            [DT_TYPES+[String]],
-    to_time:            [DT_TYPES+[String]],
-
-    month:              [DT_TYPES],
-    day:                [DT_TYPES],
-    year:               [DT_TYPES],
-
-    next_month:         [DT_TYPES, NUM_OR_NIL],
-    prev_month:         [DT_TYPES, NUM_OR_NIL],
-
-    beginning_of_month: [DT_TYPES],
-    end_of_month:       [DT_TYPES],
-
-    next_day:           [DT_TYPES, NUM_OR_NIL],
-    prev_day:           [DT_TYPES, NUM_OR_NIL],
-
-    to_i:               [NUM_OR_STR + TI_TYPES],
-    to_f:               [NUM_OR_STR + TI_TYPES],
-    to_d:               [NUM_OR_STR],
-    to_s:               [Object],
-    to_a:               [Object],
-    to_json:            [Object],
-    abs:                [Numeric],
-    round:              [Numeric, [nil, Integer]],
-    ceil:               [Numeric],
-    floor:              [Numeric],
-    truncate:           [Numeric, [nil, Integer]],
-  }
 
   module BaseModule
     # _e is used by Marty promise_jobs to pass promise-related
@@ -233,33 +156,23 @@ module Delorean
         end
 
         # FIXME: this is pretty hacky -- should probably merge
-        # RUBY_WHITELIST and SIG mechanisms.
+        # whitelist and SIG mechanisms.
         if obj.is_a?(Class)
           _e[:_engine].parse_check_call_fn(method, args.count, obj)
           return obj.send(msg, *args)
         end
 
         cls = obj.class
-        sig = RUBY_WHITELIST[msg]
 
-        raise "no such method #{method}" unless sig
+        matcher = ::Delorean::Ruby.whitelist.matcher(method_name: msg)
 
-        # if sig is a string, then method mapped to another name
-        return _instance_call(obj, sig, args, _e) if sig.is_a? String
+        raise "no such method #{method}" unless matcher
 
-        raise "too many args to #{method}" if args.length>(sig.length-1)
+        return(
+          _instance_call(obj, matcher.match_to, args, _e)
+        ) if matcher.match_to?
 
-        arglist = [obj] + args
-
-        sig.each_with_index do |s, i|
-          s = [s] unless s.is_a?(Array)
-
-          ai = arglist[i]
-
-          raise "bad arg #{i}, method #{method}: #{ai}/#{ai.class} #{s}" unless
-            (s.member?(nil) && i>=arglist.length) ||
-            s.detect {|sc| sc && ai.class <= sc}
-        end
+        matcher.match!(klass: obj.class, args: args)
 
         obj.send(msg, *args)
       end
