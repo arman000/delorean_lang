@@ -34,15 +34,15 @@ module Delorean
       # large lists which we count as one item in the cache.  Caching
       # mechanism will result in large processes.
       def cached_delorean_fn(name, options = {}, &block)
-        delorean_fn(name, options) do |args|
+        delorean_fn(name, options) do |*args|
           delorean_cache_adapter = ::Delorean::Cache.adapter
           # Check if caching should be performed
-          next block.call(args) unless delorean_cache_adapter.cache_item?(
+          next block.call(*args) unless delorean_cache_adapter.cache_item?(
             klass: self, method_name: name, args: args
           )
 
           cache_key = delorean_cache_adapter.cache_key(
-            klass: self, method_name: name, args: [args]
+            klass: self, method_name: name, args: args
           )
           cached_item = delorean_cache_adapter.fetch_item(
             klass: self, cache_key: cache_key
@@ -50,7 +50,7 @@ module Delorean
 
           next cached_item if cached_item
 
-          res = block.call(args)
+          res = block.call(*args)
 
           delorean_cache_adapter.cache_item(
             klass: self, cache_key: cache_key, item: res

@@ -15,8 +15,8 @@ describe "Delorean cache" do
   it 'uses cache' do
     expect(OpenStruct).to receive(:new).once.and_call_original
 
-    res1 = Dummy.returns_cached_openstruct
-    res2 = Dummy.returns_cached_openstruct
+    res1 = Dummy.returns_cached_openstruct(1, 2)
+    res2 = Dummy.returns_cached_openstruct(1, 2)
 
     expect(res1).to eq res2
   end
@@ -31,8 +31,8 @@ describe "Delorean cache" do
   it "doesn't use cache with different keys" do
     expect(OpenStruct).to receive(:new).twice.and_call_original
 
-    Dummy.returns_cached_openstruct(1)
-    Dummy.returns_cached_openstruct(2)
+    Dummy.returns_cached_openstruct(1, 1)
+    Dummy.returns_cached_openstruct(1, 2)
   end
 
   it 'removes outdated items from cache' do
@@ -41,15 +41,15 @@ describe "Delorean cache" do
     )
 
     12.times do |t|
-      Dummy.returns_cached_openstruct(t)
+      Dummy.returns_cached_openstruct(t, t)
     end
 
     item_2 = ::Delorean::Cache.adapter.fetch_item(
-      klass: Dummy, cache_key: [:returns_cached_openstruct, 2]
+      klass: Dummy, cache_key: [:returns_cached_openstruct, 2, 2]
     )
 
     item_10 = ::Delorean::Cache.adapter.fetch_item(
-      klass: Dummy, cache_key: [:returns_cached_openstruct, 10]
+      klass: Dummy, cache_key: [:returns_cached_openstruct, 10, 10]
     )
 
     expect(item_2).to_not be_present
