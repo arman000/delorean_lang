@@ -115,10 +115,9 @@ module M
   end
 end
 
-Delorean::RUBY_WHITELIST.
-  merge!(
-         name2: [Dummy],
-         )
+Delorean::Ruby.whitelist.add_method :name2 do |method|
+  method.called_on Dummy
+end
 
 ######################################################################
 
