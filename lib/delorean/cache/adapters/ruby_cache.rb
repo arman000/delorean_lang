@@ -17,8 +17,12 @@ module Delorean
           lookup_cache[klass][cache_key] = item
         end
 
-        def fetch_item(klass:, cache_key:)
-          lookup_cache.dig(klass, cache_key)
+        def fetch_item(klass:, cache_key:, default: nil)
+          subh = lookup_cache.fetch(klass, default)
+          return default if subh == default
+          v = subh.fetch(cache_key, default)
+          return default if v == default
+          v
         end
 
         def cache_key(klass:, method_name:, args:)
