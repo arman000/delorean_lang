@@ -196,7 +196,7 @@ Delorean expects it to have methods with following signatures:
 ```ruby
 
   cache_item(klass:, cache_key:, item:)
-  fetch_item(klass:, cache_key:)
+  fetch_item(klass:, cache_key:, default:)
   cache_key(klass:, method_name:, args:)
   clear!(klass:)
   clear_all!

@@ -45,10 +45,10 @@ module Delorean
             klass: self, method_name: name, args: args
           )
           cached_item = delorean_cache_adapter.fetch_item(
-            klass: self, cache_key: cache_key
+            klass: self, cache_key: cache_key, default: :NF
           )
 
-          next cached_item if cached_item
+          next cached_item if cached_item != :NF
 
           res = block.call(*args)
 
