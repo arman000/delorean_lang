@@ -4,6 +4,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rspec'
 require 'delorean_lang'
 require 'active_record'
+require 'pry'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
@@ -86,6 +87,10 @@ class Dummy < ActiveRecord::Base
   delorean_fn :returns_openstruct, sig: 0 do
     OpenStruct.new({"abc"=>"def"})
   end
+
+  cached_delorean_fn :returns_cached_openstruct, sig: 2 do |first, last|
+    OpenStruct.new({ first.to_s => last })
+  end
 end
 
 class DummyChild < Dummy
@@ -110,10 +115,9 @@ module M
   end
 end
 
-Delorean::RUBY_WHITELIST.
-  merge!(
-         name2: [Dummy],
-         )
+Delorean::Ruby.whitelist.add_method :name2 do |method|
+  method.called_on Dummy
+end
 
 ######################################################################
 
