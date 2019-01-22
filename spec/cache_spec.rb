@@ -53,8 +53,9 @@ describe "Delorean cache" do
     )
     expect(item_2).to eq(nil)
 
-    item_10, item_10_found = ::Delorean::Cache.adapter.fetch_item(
-      klass: Dummy, cache_key: [:returns_cached_openstruct, 10, 10], default: :NF
+    item_10 = ::Delorean::Cache.adapter.fetch_item(
+      klass: Dummy, cache_key: [
+        :returns_cached_openstruct, 10, 10], default: :NF
     )
 
     expect(item_10).to be_a(OpenStruct)
