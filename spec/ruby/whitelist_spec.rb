@@ -63,7 +63,7 @@ describe "Delorean Ruby whitelisting" do
       expect do
         matcher_with_args.match!(klass: Dummy, args: [1, 2])
       end.to raise_error(
-        'bad arg 1, method testmethod_with_args: 2/Fixnum [String, nil]'
+        "bad arg 1, method testmethod_with_args: 2/#{2.class} [String, nil]"
       )
     end
 
