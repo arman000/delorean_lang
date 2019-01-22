@@ -1,5 +1,13 @@
 inherit_from: .rubocop_todo.yml
 
+AllCops:
+  Exclude:
+    - 'db/**/*'
+    - 'spec/dummy/**/*'
+    - 'bin/{rails,rake}'
+    - 'vendor/**/*'
+    - !ruby/regexp /old_and_unused\.rb$/
+
 Style/StringLiterals:
   Enabled: false
 
