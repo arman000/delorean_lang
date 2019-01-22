@@ -1,0 +1,29 @@
+image: ruby:2.4.2
+
+before_script:
+  - gem install bundler
+  - bundle install --jobs $(nproc) --path vendor "${FLAGS[@]}"
+
+rubocop:
+  stage: test
+  script:
+    - bundle exec rubocop
+
+rspec:
+  stage: test
+  script:
+    - bundle exec rspec
+
+cache:
+  key: 'delorean_bundler_cache'
+  paths:
+    - vendor/ruby
+
+variables:
+  GIT_SSL_NO_VERIFY: "true"
+  BUNDLER_VERSION: "2.0.1"
+  POSTGRES_USER: "runner"
+  POSTGRES_PASSWORD: ""
+  RAILS_ENV: "test"
+  RAILS_DUMP_SCHEMA: "false"
+
