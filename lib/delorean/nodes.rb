@@ -238,6 +238,16 @@ eos
     end
   end
 
+  class Sup < SNode
+    def check(context, *)
+      []
+    end
+
+    def rewrite(context)
+      "superclass"
+    end
+  end
+
   class IString < Literal
     def rewrite(context)
       # FIXME: hacky to just fail
