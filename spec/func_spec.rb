@@ -45,7 +45,7 @@ describe "Delorean" do
     r.should == [12.35, 12.3, 12]
   end
 
-  xit "should handle TRUNCATE" do
+  it "should handle TRUNCATE" do
     engine.parse defn("A:",
                       "    a = 12.3456.truncate(2)",
                       "    b = 12.3456.truncate(1)",
