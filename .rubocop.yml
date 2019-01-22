@@ -1,8 +1,20 @@
+inherit_from: .rubocop_todo.yml
+
 Style/StringLiterals:
   Enabled: false
 
 Metrics/LineLength:
   Max: 80
+  Exclude:
+    - 'lib/delorean/delorean.rb'
+    - 'spec/func_spec.rb'
+    - 'spec/parse_spec.rb'
 
-Style/TrailingComma:
+Style/TrailingCommaInArguments:
+  Enabled: false
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
+Style/TrailingCommaInHashLiteral:
   Enabled: false

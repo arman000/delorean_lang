@@ -9,7 +9,9 @@ module Delorean
 
   ::Delorean::Ruby.whitelist = ::Delorean::Ruby::Whitelists::Default.new
 
-  ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new(size_per_class: 1000)
+  ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new(
+    size_per_class: 1000
+  )
 
   module BaseModule
     # _e is used by Marty promise_jobs to pass promise-related
