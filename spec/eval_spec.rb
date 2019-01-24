@@ -1071,4 +1071,22 @@ eof
     r2 = engine.evaluate("B", "res2")
     expect(r2.values.uniq.length).to eq 1
   end
+
+  it "Implements ability to use overridden superclass attrs" do
+    code = <<-DELOREAN
+    A:
+        x = 123
+        y = x*2
+    B: A
+        x = 5
+        y = _sup.y * 10
+        xx = _sup.x + 5
+        yy = _sup.x * 10
+    DELOREAN
+
+    engine.parse code.gsub(/^    /, '')
+
+    r = engine.evaluate("B", ["x", "y", "xx", "yy"])
+    expect(r).to eq [5, 2460, 128, 1230]
+  end
 end
