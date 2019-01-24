@@ -7,6 +7,7 @@ AllCops:
     - 'bin/{rails,rake}'
     - 'vendor/**/*'
     - !ruby/regexp /old_and_unused\.rb$/
+    - lib/delorean/delorean.rb
 
 Style/StringLiterals:
   Enabled: false
@@ -17,6 +18,14 @@ Metrics/LineLength:
     - 'lib/delorean/delorean.rb'
     - 'spec/func_spec.rb'
     - 'spec/parse_spec.rb'
+
+Metrics/ModuleLength:
+  Exclude:
+    - 'spec/eval_spec.rb'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/eval_spec.rb'
 
 Style/TrailingCommaInArguments:
   Enabled: false

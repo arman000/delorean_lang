@@ -114,6 +114,7 @@ grammar Delorean
     boolean                                             /
     nil_val                                             /
     identifier                                          /
+    sup                                                 /
     self                                                /
     list_expr                                           /
     set_expr                                            /
@@ -160,6 +161,10 @@ grammar Delorean
 
   rule boolean
     'true' <Literal> / 'false' <Literal>
+  end
+
+  rule sup
+    '_sup' <Sup>
   end
 
   rule self
