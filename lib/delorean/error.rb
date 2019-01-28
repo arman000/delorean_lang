@@ -48,5 +48,4 @@ module Delorean
 
   class InvalidIndex < StandardError
   end
-
 end

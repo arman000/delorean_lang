@@ -6,313 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: TreatCommentsAsGroupSeparators, Include.
-# Include: **/*.gemfile, **/Gemfile, **/gems.rb
-Bundler/OrderedGems:
-  Exclude:
-    - 'Gemfile'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: TreatCommentsAsGroupSeparators, Include.
-# Include: **/*.gemspec
-Gemspec/OrderedDependencies:
-  Exclude:
-    - 'delorean.gemspec'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedHashRocketStyle, EnforcedColonStyle, EnforcedLastArgumentHashStyle.
-# SupportedHashRocketStyles: key, separator, table
-# SupportedColonStyles: key, separator, table
-# SupportedLastArgumentHashStyles: always_inspect, always_ignore, ignore_implicit, ignore_explicit
-Layout/AlignHash:
-  Exclude:
-    - 'spec/dev_spec.rb'
-    - 'spec/eval_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: with_first_parameter, with_fixed_indentation
-Layout/AlignParameters:
-  Exclude:
-    - 'lib/delorean/base.rb'
-    - 'lib/delorean/engine.rb'
-
-# Offense count: 209
-# Cop supports --auto-correct.
-Layout/ClosingParenthesisIndentation:
-  Exclude:
-    - 'spec/dev_spec.rb'
-    - 'spec/eval_spec.rb'
-    - 'spec/func_spec.rb'
-    - 'spec/parse_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: leading, trailing
-Layout/DotPosition:
-  Exclude:
-    - 'spec/func_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/ElseAlignment:
-  Exclude:
-    - 'lib/delorean/nodes.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-Layout/EmptyLineAfterGuardClause:
-  Exclude:
-    - 'lib/delorean/base.rb'
-    - 'lib/delorean/cache/adapters/ruby_cache.rb'
-    - 'lib/delorean/engine.rb'
-    - 'lib/delorean/model.rb'
-    - 'lib/delorean/nodes.rb'
-    - 'lib/delorean/ruby/whitelists/matchers/method.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAdjacentOneLineDefs, NumberOfEmptyLines.
-Layout/EmptyLineBetweenDefs:
-  Exclude:
-    - 'lib/delorean/nodes.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-Layout/EmptyLines:
-  Exclude:
-    - 'delorean.gemspec'
-    - 'lib/delorean/delorean.rb'
-    - 'lib/delorean/ruby/whitelists/default.rb'
-    - 'spec/func_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/EmptyLinesAroundArguments:
-  Exclude:
-    - 'spec/func_spec.rb'
-
-# Offense count: 17
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, no_empty_lines
-Layout/EmptyLinesAroundBlockBody:
-  Exclude:
-    - 'spec/dev_spec.rb'
-    - 'spec/eval_spec.rb'
-    - 'spec/func_spec.rb'
-    - 'spec/parse_spec.rb'
-    - 'spec/spec_helper.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines, beginning_only, ending_only
-Layout/EmptyLinesAroundClassBody:
-  Exclude:
-    - 'lib/delorean/engine.rb'
-
-# Offense count: 28
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
-Layout/EmptyLinesAroundModuleBody:
-  Exclude:
-    - 'lib/delorean/base.rb'
-    - 'lib/delorean/delorean.rb'
-    - 'lib/delorean/error.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, AutoCorrect, Severity.
-# SupportedStylesAlignWith: keyword, variable, start_of_line
-Layout/EndAlignment:
-  Exclude:
-    - 'lib/delorean/nodes.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: consistent, consistent_relative_to_receiver, special_for_inner_method_call, special_for_inner_method_call_in_parentheses
-Layout/FirstParameterIndentation:
-  Exclude:
-    - 'spec/parse_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: special_inside_parentheses, consistent, align_brackets
-Layout/IndentArray:
-  Exclude:
-    - 'spec/eval_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: auto_detection, squiggly, active_support, powerpack, unindent
-Layout/IndentHeredoc:
-  Exclude:
-    - 'spec/eval_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: normal, rails
-Layout/IndentationConsistency:
-  Exclude:
-    - 'lib/delorean/nodes.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: Width, IgnoredPatterns.
-Layout/IndentationWidth:
-  Exclude:
-    - 'lib/delorean/nodes.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: symmetrical, new_line, same_line
-Layout/MultilineArrayBraceLayout:
-  Exclude:
-    - 'lib/delorean/nodes.rb'
-    - 'spec/eval_spec.rb'
-
-# Offense count: 9
-# Cop supports --auto-correct.
-Layout/MultilineBlockLayout:
-  Exclude:
-    - 'lib/delorean/base.rb'
-    - 'lib/delorean/debug.rb'
-    - 'lib/delorean/nodes.rb'
-    - 'lib/delorean/ruby/whitelists/matchers/method.rb'
-    - 'spec/dev_spec.rb'
-    - 'spec/ruby/whitelist_spec.rb'
-    - 'spec/spec_helper.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: symmetrical, new_line, same_line
-Layout/MultilineHashBraceLayout:
-  Exclude:
-    - 'spec/eval_spec.rb'
-
-# Offense count: 213
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: symmetrical, new_line, same_line
-Layout/MultilineMethodCallBraceLayout:
-  Exclude:
-    - 'spec/dev_spec.rb'
-    - 'spec/eval_spec.rb'
-    - 'spec/func_spec.rb'
-    - 'spec/parse_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: aligned, indented
-Layout/MultilineOperationIndentation:
-  Exclude:
-    - 'lib/delorean/nodes.rb'
-
-# Offense count: 224
-# Cop supports --auto-correct.
-Layout/SpaceAfterComma:
-  Exclude:
-    - 'lib/delorean/base.rb'
-    - 'lib/delorean/delorean.rb'
-    - 'spec/eval_spec.rb'
-    - 'spec/func_spec.rb'
-
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: space, no_space
-Layout/SpaceAroundEqualsInParameterDefault:
-  Exclude:
-    - 'lib/delorean/engine.rb'
-    - 'lib/delorean/nodes.rb'
-    - 'spec/spec_helper.rb'
-
-# Offense count: 231
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-Layout/SpaceAroundOperators:
-  Exclude:
-    - 'lib/delorean/delorean.rb'
-    - 'lib/delorean/model.rb'
-    - 'lib/delorean/nodes.rb'
-    - 'lib/delorean/ruby/whitelists/default.rb'
-    - 'spec/eval_spec.rb'
-    - 'spec/func_spec.rb'
-    - 'spec/spec_helper.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces.
-# SupportedStyles: space, no_space
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceBeforeBlockBraces:
-  Exclude:
-    - 'delorean.gemspec'
-    - 'lib/delorean/engine.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBrackets.
-# SupportedStyles: space, no_space, compact
-# SupportedStylesForEmptyBrackets: space, no_space
-Layout/SpaceInsideArrayLiteralBrackets:
-  Exclude:
-    - 'spec/spec_helper.rb'
-
-# Offense count: 18
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces, SpaceBeforeBlockParameters.
-# SupportedStyles: space, no_space
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceInsideBlockBraces:
-  Exclude:
-    - 'lib/delorean/engine.rb'
-    - 'lib/delorean/nodes.rb'
-    - 'spec/spec_helper.rb'
-
-# Offense count: 139
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces.
-# SupportedStyles: space, no_space, compact
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceInsideHashLiteralBraces:
-  Exclude:
-    - 'lib/delorean/engine.rb'
-    - 'spec/eval_spec.rb'
-    - 'spec/func_spec.rb'
-    - 'spec/spec_helper.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: space, no_space
-Layout/SpaceInsideParens:
-  Exclude:
-    - 'lib/delorean/engine.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: final_newline, final_blank_line
-Layout/TrailingBlankLines:
-  Exclude:
-    - 'lib/delorean/delorean.rb'
-
 # Offense count: 3
 Lint/HandleExceptions:
   Exclude:
@@ -323,13 +16,6 @@ Lint/InterpolationCheck:
   Exclude:
     - 'spec/parse_spec.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/ScriptPermission:
-  Exclude:
-    - 'Rakefile'
-
-# Offense count: 1
 Lint/ShadowedException:
   Exclude:
     - 'lib/delorean/engine.rb'
@@ -338,24 +24,6 @@ Lint/ShadowedException:
 Lint/UnderscorePrefixedVariableName:
   Exclude:
     - 'lib/delorean/base.rb'
-
-# Offense count: 23
-# Cop supports --auto-correct.
-# Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods.
-Lint/UnusedMethodArgument:
-  Exclude:
-    - 'lib/delorean/abstract_container.rb'
-    - 'lib/delorean/cache/adapters/base.rb'
-    - 'lib/delorean/cache/adapters/ruby_cache.rb'
-    - 'lib/delorean/nodes.rb'
-
-# Offense count: 7
-Lint/UselessAssignment:
-  Exclude:
-    - 'lib/delorean/base.rb'
-    - 'spec/eval_spec.rb'
-    - 'spec/func_spec.rb'
-    - 'spec/spec_helper.rb'
 
 # Offense count: 65
 # Configuration parameters: CheckForMethodsWithNoSideEffects.
@@ -384,27 +52,16 @@ Metrics/BlockNesting:
 # Offense count: 2
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
-  Max: 257
+  Max: 280
 
 # Offense count: 29
 Metrics/CyclomaticComplexity:
   Max: 61
 
-# Offense count: 106
-# Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
-# URISchemes: http, https
-Metrics/LineLength:
-  Max: 111
-
 # Offense count: 43
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/MethodLength:
   Max: 302
-
-# Offense count: 1
-# Configuration parameters: CountComments.
-Metrics/ModuleLength:
-  Max: 3395
 
 # Offense count: 27
 Metrics/PerceivedComplexity:
@@ -416,35 +73,12 @@ Naming/AccessorMethodName:
     - 'lib/delorean/debug.rb'
 
 # Offense count: 3
-Naming/BinaryOperatorParameterName:
-  Exclude:
-    - 'lib/delorean/base.rb'
-
-# Offense count: 3
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: lowercase, uppercase
 Naming/HeredocDelimiterCase:
   Exclude:
     - 'lib/delorean/nodes.rb'
     - 'spec/eval_spec.rb'
-
-# Offense count: 1
-# Configuration parameters: EnforcedStyleForLeadingUnderscores.
-# SupportedStylesForLeadingUnderscores: disallowed, required, optional
-Naming/MemoizedInstanceVariableName:
-  Exclude:
-    - 'lib/delorean/base.rb'
-
-# Offense count: 1
-# Configuration parameters: NamePrefix, NamePrefixBlacklist, NameWhitelist, MethodDefinitionMacros.
-# NamePrefix: is_, has_, have_
-# NamePrefixBlacklist: is_, has_, have_
-# NameWhitelist: is_a?
-# MethodDefinitionMacros: define_method, define_singleton_method
-Naming/PredicateName:
-  Exclude:
-    - 'spec/**/*'
-    - 'lib/delorean/engine.rb'
 
 # Offense count: 12
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
@@ -457,59 +91,6 @@ Naming/UncommunicativeMethodParamName:
     - 'lib/delorean/nodes.rb'
     - 'spec/spec_helper.rb'
 
-# Offense count: 2
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: snake_case, normalcase, non_integer
-Naming/VariableNumber:
-  Exclude:
-    - 'spec/cache_spec.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'lib/delorean/model.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Performance/RedundantMatch:
-  Exclude:
-    - 'lib/delorean/engine.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always, conditionals
-Style/AndOr:
-  Exclude:
-    - 'lib/delorean/model.rb'
-
-# Offense count: 17
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, IgnoredMethods.
-# SupportedStyles: line_count_based, semantic, braces_for_chaining
-# ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
-# FunctionalMethods: let, let!, subject, watch
-# IgnoredMethods: lambda, proc, it
-Style/BlockDelimiters:
-  Exclude:
-    - 'lib/delorean/debug.rb'
-    - 'lib/delorean/engine.rb'
-    - 'lib/delorean/nodes.rb'
-    - 'spec/dev_spec.rb'
-    - 'spec/eval_spec.rb'
-    - 'spec/func_spec.rb'
-    - 'spec/parse_spec.rb'
-
-# Offense count: 26
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: braces, no_braces, context_dependent
-Style/BracesAroundHashParameters:
-  Exclude:
-    - 'spec/eval_spec.rb'
-    - 'spec/func_spec.rb'
-    - 'spec/spec_helper.rb'
 
 # Offense count: 5
 Style/ClassVars:
@@ -519,44 +100,9 @@ Style/ClassVars:
     - 'spec/spec_helper.rb'
 
 # Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: Keywords.
-# Keywords: TODO, FIXME, OPTIMIZE, HACK, REVIEW
-Style/CommentAnnotation:
-  Exclude:
-    - 'lib/delorean/model.rb'
-
-# Offense count: 95
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
-# SupportedStyles: assign_to_condition, assign_inside_condition
-Style/ConditionalAssignment:
-  Exclude:
-    - 'lib/delorean/delorean.rb'
-
-# Offense count: 111
-Style/Documentation:
-  Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: compact, expanded
-Style/EmptyMethod:
-  Exclude:
-    - 'lib/delorean/ruby/whitelists/empty.rb'
-    - 'spec/spec_helper.rb'
-
-# Offense count: 1
 Style/EvalWithLocation:
   Exclude:
     - 'lib/delorean/engine.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/ExpandPathArguments:
-  Exclude:
-    - 'delorean.gemspec'
 
 # Offense count: 11
 # Configuration parameters: MinBodyLength.
@@ -566,24 +112,10 @@ Style/GuardClause:
     - 'lib/delorean/engine.rb'
     - 'lib/delorean/model.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/LineEndConcatenation:
-  Exclude:
-    - 'lib/delorean/nodes.rb'
-
 # Offense count: 1
 Style/MultilineBlockChain:
   Exclude:
     - 'lib/delorean/engine.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/MultilineIfModifier:
-  Exclude:
-    - 'lib/delorean/base.rb'
-    - 'lib/delorean/engine.rb'
-    - 'lib/delorean/ruby/whitelists/base.rb'
 
 # Offense count: 6
 Style/MultilineTernaryOperator:
@@ -591,45 +123,6 @@ Style/MultilineTernaryOperator:
     - 'lib/delorean/base.rb'
     - 'lib/delorean/engine.rb'
     - 'lib/delorean/nodes.rb'
-
-# Offense count: 13
-# Cop supports --auto-correct.
-Style/MutableConstant:
-  Exclude:
-    - 'lib/delorean/const.rb'
-    - 'lib/delorean/ruby/whitelists/default.rb'
-    - 'lib/delorean/version.rb'
-    - 'spec/spec_helper.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: Strict.
-Style/NumericLiterals:
-  MinDigits: 11
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, EnforcedStyle, IgnoredMethods.
-# SupportedStyles: predicate, comparison
-Style/NumericPredicate:
-  Exclude:
-    - 'spec/**/*'
-    - 'lib/delorean/engine.rb'
-
-# Offense count: 75
-# Cop supports --auto-correct.
-Style/ParallelAssignment:
-  Exclude:
-    - 'lib/delorean/delorean.rb'
-    - 'lib/delorean/engine.rb'
-    - 'lib/delorean/nodes.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowSafeAssignment, AllowInMultilineConditions.
-Style/ParenthesesAroundCondition:
-  Exclude:
-    - 'lib/delorean/model.rb'
 
 # Offense count: 19
 # Cop supports --auto-correct.
@@ -646,106 +139,7 @@ Style/PerlBackrefs:
   Exclude:
     - 'lib/delorean/engine.rb'
 
-# Offense count: 26
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: short, verbose
-Style/PreferredHashMethods:
-  Exclude:
-    - 'lib/delorean/delorean.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'lib/delorean/base.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowMultipleReturnValues.
-Style/RedundantReturn:
-  Exclude:
-    - 'lib/delorean/base.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/RedundantSelf:
-  Exclude:
-    - 'lib/delorean/base.rb'
-    - 'lib/delorean/model.rb'
-    - 'lib/delorean/nodes.rb'
-
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: implicit, explicit
-Style/RescueStandardError:
-  Exclude:
-    - 'lib/delorean/base.rb'
-    - 'lib/delorean/engine.rb'
-    - 'spec/eval_spec.rb'
-    - 'spec/parse_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAsExpressionSeparator.
-Style/Semicolon:
-  Exclude:
-    - 'lib/delorean/engine.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: only_raise, only_fail, semantic
-Style/SignalException:
-  Exclude:
-    - 'spec/parse_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: use_perl_names, use_english_names
-Style/SpecialGlobalVars:
-  Exclude:
-    - 'delorean.gemspec'
-
 # Offense count: 1
 Style/StructInheritance:
   Exclude:
     - 'lib/delorean/base.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, IgnoreClassMethods, Whitelist.
-# Whitelist: to_ary, to_a, to_c, to_enum, to_h, to_hash, to_i, to_int, to_io, to_open, to_path, to_proc, to_r, to_regexp, to_str, to_s, to_sym
-Style/TrivialAccessors:
-  Exclude:
-    - 'lib/delorean/debug.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/UnneededPercentQ:
-  Exclude:
-    - 'delorean.gemspec'
-
-# Offense count: 40
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinSize, WordRegex.
-# SupportedStyles: percent, brackets
-Style/WordArray:
-  Exclude:
-    - 'spec/dev_spec.rb'
-    - 'spec/eval_spec.rb'
-    - 'spec/func_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/ZeroLengthPredicate:
-  Exclude:
-    - 'lib/delorean/engine.rb'
-
-# Offense count: 106
-# Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
-# URISchemes: http, https
-Metrics/LineLength:
-  Max: 111

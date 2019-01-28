@@ -6,6 +6,7 @@ module Delorean
     def check(context, *a)
       f.check(context, *a)
     end
+
     def rewrite(context)
       f.rewrite(context)
     end
@@ -24,11 +25,12 @@ module Delorean
       # in _e.  If not, to compute it we check for the value in _e
       # (i.e. check for aname).  Otherwise, we use the default value
       # if any.
-      aname, cname = i.text_value, context.last_node
+      aname = i.text_value
+      cname = context.last_node
       not_found = defined?(e) ? e.rewrite(context) :
         "raise UndefinedParamError, 'undefined parameter #{aname}'"
 
-<<eos
+      <<eos
       class #{cname}
         def self.#{aname}#{POST}(_e)
             _e[self.name+'.#{aname}'] ||= _e.fetch('#{aname}') { #{not_found} }
@@ -71,8 +73,8 @@ eos
     def def_class(context, base_name)
       # Nodes are simply translated to classes.  Define our own
       # self.name() since it's extremely slow in MRI 2.0.
-      "class #{n.text_value} < #{base_name}; " +
-        "def self.module_name; '#{context.module_name}'; end;" +
+      "class #{n.text_value} < #{base_name}; " \
+        "def self.module_name; '#{context.module_name}'; end;" \
         "def self.name; '#{n.text_value}'; end; end"
     end
 
@@ -106,7 +108,7 @@ eos
       debug = Debug.debug_set.member?(dname)
 
       # an attr is defined as a class function on the node class.
-      "class #{context.last_node}; " +
+      "class #{context.last_node}; " \
         "def self.#{i.text_value}#{POST}(_e); " +
         (debug ? "_debug =" : '') +
         "_e[self.name+'.#{i.text_value}'] ||= #{e.rewrite(context)};" +
@@ -133,7 +135,7 @@ eos
     end
 
     def +(other)
-      self.to_s + other
+      to_s + other
     end
 
     def to_s
@@ -181,7 +183,8 @@ eos
 
   class BinOp < SNode
     def check(context, *)
-      vc, ec = v.check(context), e.check(context)
+      vc = v.check(context)
+      ec = e.check(context)
       # returns list of attrs used in RHS and LHS
       ec + vc
     end
@@ -198,11 +201,13 @@ eos
   # hacky, for backwards compatibility
   class ErrorOp < SNode
     def check(context, *)
-      args.text_value=='' ? [] : args.check(context)
+      args.text_value == '' ? [] : args.check(context)
     end
 
     def rewrite(context, *)
-      args.text_value!='' ? "_err(#{args.rewrite(context)})" : "binding.pry; 0"
+      args.text_value != '' ?
+        "_err(#{args.rewrite(context)})" :
+        "binding.pry; 0"
     end
   end
 
@@ -217,39 +222,39 @@ eos
   end
 
   class Literal < SNode
-    def check(context, *)
+    def check(_context, *)
       []
     end
 
     # Delorean literals have same syntax as Ruby
-    def rewrite(context)
+    def rewrite(_context)
       text_value
     end
   end
 
   # _ is self -- a naive implementation of "self" for now.
   class Self < SNode
-    def check(context, *)
+    def check(_context, *)
       []
     end
 
-    def rewrite(context)
+    def rewrite(_context)
       "_sanitize_hash(_e)"
     end
   end
 
   class Sup < SNode
-    def check(context, *)
+    def check(_context, *)
       []
     end
 
-    def rewrite(context)
+    def rewrite(_context)
       "superclass"
     end
   end
 
   class IString < Literal
-    def rewrite(context)
+    def rewrite(_context)
       # FIXME: hacky to just fail
       raise "String interpolation not supported" if text_value =~ /\#\{.*\}/
 
@@ -259,7 +264,7 @@ eos
   end
 
   class DString < Literal
-    def rewrite(context)
+    def rewrite(_context)
       # remove the quotes and requote.  We don't want the likes of #{}
       # evals to just pass through.
       text_value[1..-2].inspect
@@ -315,11 +320,11 @@ eos
   end
 
   class GetAttr < SNode
-    def check(context, *)
+    def check(_context, *)
       []
     end
 
-    def rewrite(context, vcode)
+    def rewrite(_context, vcode)
       attr = i.text_value
       attr = "'#{attr}'" unless attr =~ /\A[0-9]+\z/
       "_get_attr(#{vcode}, #{attr}, _e)"
@@ -333,9 +338,11 @@ eos
 
     def rewrite(context, vcode)
       if al.text_value.empty?
-        args_str, arg_count = "", 0
+        args_str = ""
+        arg_count = 0
       else
-        args_str, arg_count = al.rewrite(context), al.arg_count
+        args_str = al.rewrite(context)
+        arg_count = al.arg_count
       end
 
       if vcode.is_a?(ClassText)
@@ -375,7 +382,7 @@ eos
       # element since it'll be "".
       attrs.shift
 
-      attrs.inject(v.rewrite(context)) {|x, y| "_get_attr(#{x}, '#{y}', _e)"}
+      attrs.inject(v.rewrite(context)) { |x, y| "_get_attr(#{x}, '#{y}', _e)" }
     end
   end
 
@@ -403,8 +410,9 @@ eos
 
   class IfElse < SNode
     def check(context, *)
-      vc, e1c, e2c =
-        v.check(context), e1.check(context), e2.check(context)
+      vc = v.check(context)
+      e1c = e1.check(context)
+      e2c = e2.check(context)
       vc + e1c + e2c
     end
 
@@ -442,19 +450,18 @@ eos
     def check(context, *)
       unpack_vars = args.check(context)
       e1c = e1.check(context)
-      unpack_vars.each {|vname| context.parse_define_var(vname)}
+      unpack_vars.each { |vname| context.parse_define_var(vname) }
 
       # need to check e2/e3 in a context where the comprehension var
       # is defined.
       e2c = e2.check(context)
       e3c = defined?(ifexp.e3) ? ifexp.e3.check(context) : []
 
-      unpack_vars.each {
-        |vname|
+      unpack_vars.each do |vname|
         context.parse_undef_var(vname)
         e2c.delete(vname)
         e3c.delete(vname)
-      }
+      end
 
       e1c + e2c + e3c
     end
@@ -462,13 +469,13 @@ eos
     def rewrite(context)
       res = ["(#{e1.rewrite(context)})"]
       unpack_vars = args.check(context)
-      unpack_vars.each {|vname| context.parse_define_var(vname)}
+      unpack_vars.each { |vname| context.parse_define_var(vname) }
       args_str = args.rewrite(context)
 
       res << ".select{|#{args_str}|(#{ifexp.e3.rewrite(context)})}" if
         defined?(ifexp.e3)
       res << ".map{|#{args_str}| (#{e2.rewrite(context)}) }"
-      unpack_vars.each {|vname| context.parse_undef_var(vname)}
+      unpack_vars.each { |vname| context.parse_undef_var(vname) }
       res.sum
     end
   end
@@ -492,7 +499,7 @@ eos
     def check(context, *)
       unpack_vars = args.check(context)
       e1c = e1.check(context)
-      unpack_vars.each {|vname| context.parse_define_var(vname)}
+      unpack_vars.each { |vname| context.parse_define_var(vname) }
 
       # need to check el/er/ei in a context where the comprehension var
       # is defined.
@@ -500,20 +507,19 @@ eos
       erc = er.check(context)
       eic = defined?(ifexp.ei) ? ifexp.ei.check(context) : []
 
-      unpack_vars.each {
-        |vname|
+      unpack_vars.each do |vname|
         context.parse_undef_var(vname)
         elc.delete(vname)
         erc.delete(vname)
         eic.delete(vname)
-      }
+      end
       e1c + elc + erc + eic
     end
 
     def rewrite(context)
       res = ["(#{e1.rewrite(context)})"]
       unpack_vars = args.check(context)
-      unpack_vars.each {|vname| context.parse_define_var(vname)}
+      unpack_vars.each { |vname| context.parse_define_var(vname) }
       args_str = args.rewrite(context)
 
       hid = @@comp_count += 1
@@ -523,10 +529,10 @@ eos
 
       unpack_str = unpack_vars.count > 1 ? "(#{args_str})" : args_str
 
-      res << ".each_with_object({}){|#{unpack_str}, _h#{hid}| " +
-        "_h#{hid}[#{el.rewrite(context)}]=(#{er.rewrite(context)})}"
+      res << ".each_with_object({}){|#{unpack_str}, _h#{hid}| " \
+             "_h#{hid}[#{el.rewrite(context)}]=(#{er.rewrite(context)})}"
 
-      unpack_vars.each {|vname| context.parse_undef_var(vname)}
+      unpack_vars.each { |vname| context.parse_undef_var(vname) }
       res.sum
     end
   end
@@ -538,6 +544,7 @@ eos
 
     def rewrite(context)
       return "{}" unless defined?(args)
+
       var = "_h#{context.hcount}"
       "(#{var}={}; " + args.rewrite(context, var) + "; #{var})"
     end
@@ -545,14 +552,15 @@ eos
 
   class KwArgs < SNode
     def check(context, *)
-      [arg0.check(context),
-       (ifexp.e3.check(context) if defined?(ifexp.e3)),
-       (args_rest.al.check(context) if
-         defined?(args_rest.al) && !args_rest.al.empty?)
+      [
+        arg0.check(context),
+        (ifexp.e3.check(context) if defined?(ifexp.e3)),
+        (args_rest.al.check(context) if
+          defined?(args_rest.al) && !args_rest.al.empty?)
       ].compact.sum
     end
 
-    def rewrite(context, var, i=0)
+    def rewrite(context, var, i = 0)
       arg0_rw = arg0.rewrite(context)
 
       if defined?(splat)
@@ -573,20 +581,21 @@ eos
 
   class HashArgs < SNode
     def check(context, *)
-      [e0.check(context),
-       (e1.check(context) unless defined?(splat)),
-       (ifexp.e3.check(context) if defined?(ifexp.e3)),
-       (args_rest.al.check(context) if
-         defined?(args_rest.al) && !args_rest.al.empty?),
+      [
+        e0.check(context),
+        (e1.check(context) unless defined?(splat)),
+        (ifexp.e3.check(context) if defined?(ifexp.e3)),
+        (args_rest.al.check(context) if
+          defined?(args_rest.al) && !args_rest.al.empty?),
       ].compact.sum
     end
 
     def rewrite(context, var)
       res = if defined?(splat)
-        "#{var}.merge!(#{e0.rewrite(context)})"
-      else
-        "#{var}[#{e0.rewrite(context)}]=(#{e1.rewrite(context)})"
-      end
+              "#{var}.merge!(#{e0.rewrite(context)})"
+            else
+              "#{var}[#{e0.rewrite(context)}]=(#{e1.rewrite(context)})"
+            end
       res += " if (#{ifexp.e3.rewrite(context)})" if defined?(ifexp.e3)
       res += ";"
       res += args_rest.al.rewrite(context, var) if

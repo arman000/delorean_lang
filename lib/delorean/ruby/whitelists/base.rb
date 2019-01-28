@@ -11,9 +11,11 @@ module Delorean
           return method_name_error unless method_name.is_a?(Symbol)
           return block_and_match_error if !match_to.nil? && block_given?
 
-          return add_matched_method(
-            method_name: method_name, match_to: match_to
-          ) unless match_to.nil?
+          unless match_to.nil?
+            return add_matched_method(
+              method_name: method_name, match_to: match_to
+            )
+          end
 
           matchers[method_name.to_sym] = method_matcher_class.new(
             method_name: method_name, &block

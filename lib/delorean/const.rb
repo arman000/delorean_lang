@@ -1,5 +1,5 @@
 module Delorean
-  SIG = "_SIG"
-  MOD = "DELOREAN__"
-  POST = "__D"
+  SIG = "_SIG".freeze
+  MOD = "DELOREAN__".freeze
+  POST = "__D".freeze
 end

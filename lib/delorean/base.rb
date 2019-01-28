@@ -6,7 +6,6 @@ require 'delorean/ruby/whitelists/default'
 require 'delorean/cache'
 
 module Delorean
-
   ::Delorean::Ruby.whitelist = ::Delorean::Ruby::Whitelists::Default.new
 
   ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new(
@@ -22,7 +21,7 @@ module Delorean
         # This is pretty awful.  NOTE: can't sanitize params as Marty
         # patches NodeCall and modifies params to send _parent_id.
         # This whole thing needs to be redone.
-        @cp ||= Hash[params]
+        @cloned_params ||= Hash[params]
       end
 
       def evaluate(attr)
@@ -30,18 +29,16 @@ module Delorean
       end
 
       def /(args)
-        begin
-          case args
-          when Array
-            engine.eval_to_hash(node, args, cloned_params)
-          when String
-            self.evaluate(args)
-          else
-            raise "non-array/string arg to /"
-          end
-        rescue => exc
-          Delorean::Engine.grok_runtime_exception(exc)
+        case args
+        when Array
+          engine.eval_to_hash(node, args, cloned_params)
+        when String
+          evaluate(args)
+        else
+          raise "non-array/string arg to /"
         end
+      rescue StandardError => exc
+        Delorean::Engine.grok_runtime_exception(exc)
       end
 
       # FIXME: % should also support string as args
@@ -72,6 +69,7 @@ module Delorean
           # {}.length.  i.e. length is a whitelisted function, but not
           # an attr. This implementation returns nil instead of 0.
           return obj[attr] if obj.member?(attr)
+
           return attr.is_a?(String) ? obj[attr.to_sym] : nil
         end
 
@@ -91,9 +89,11 @@ module Delorean
 
         begin
           return _instance_call(obj, attr, [], _e)
-        rescue => exc
-          raise InvalidGetAttribute,
-          "attr lookup failed: '#{attr}' on <#{obj.class}> #{obj} - #{exc}"
+        rescue StandardError => exc
+          raise(
+            InvalidGetAttribute,
+            "attr lookup failed: '#{attr}' on <#{obj.class}> #{obj} - #{exc}"
+          )
         end
       end
 
@@ -105,14 +105,16 @@ module Delorean
         when nil
           # FIXME: even Javascript which is superpermissive raises an
           # exception on null getattr.
-          return nil
+          nil
         when Hash, NodeCall, Class, OpenStruct
           raise InvalidIndex unless args.length == 1
+
           _get_attr(obj, args[0], _e)
         when Array, String, MatchData
           raise InvalidIndex unless args.length <= 2 &&
                                     args[0].is_a?(Integer) &&
                                     (args[1].nil? || args[1].is_a?(Integer))
+
           obj[*args]
         else
           raise InvalidIndex
@@ -122,8 +124,7 @@ module Delorean
       ######################################################################
 
       def self._sanitize_hash(_e)
-        _e.each_with_object({}) do
-          |(k,v), h|
+        _e.each_with_object({}) do |(k, v), h|
           h[k] = v if k.is_a?(Integer) || k =~ /\A[a-z][A-Za-z0-9_]*\z/
         end
       end
@@ -164,15 +165,15 @@ module Delorean
           return obj.send(msg, *args)
         end
 
-        cls = obj.class
-
         matcher = ::Delorean::Ruby.whitelist.matcher(method_name: msg)
 
         raise "no such method #{method}" unless matcher
 
-        return(
-          _instance_call(obj, matcher.match_to, args, _e)
-        ) if matcher.match_to?
+        if matcher.match_to?
+          return(
+            _instance_call(obj, matcher.match_to, args, _e)
+          )
+        end
 
         matcher.match!(klass: obj.class, args: args)
 

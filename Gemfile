@@ -4,6 +4,6 @@ source 'https://rubygems.org'
 gemspec
 
 group :development, :test do
-  gem 'rspec-instafail', require: false
   gem 'pry'
+  gem 'rspec-instafail', require: false
 end

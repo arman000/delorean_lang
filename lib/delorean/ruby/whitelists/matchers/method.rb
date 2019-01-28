@@ -24,11 +24,12 @@ module Delorean
           end
 
           def matcher(klass:)
-            matcher = arguments_matchers.find do
-              |matcher_object| klass <= matcher_object.called_on
+            matcher = arguments_matchers.find do |matcher_object|
+              klass <= matcher_object.called_on
             end
 
             raise "no such method #{method_name} for #{klass}" if matcher.nil?
+
             matcher
           end
 

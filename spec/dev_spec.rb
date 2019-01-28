@@ -1,10 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Delorean" do
-
-  let(:engine) {
+  let(:engine) do
     Delorean::Engine.new("YYY")
-  }
+  end
 
   it "can enumerate nodes" do
     engine.parse defn("X:",
@@ -16,7 +15,7 @@ describe "Delorean" do
                       "    a = 11",
                       "    c =?",
                       "    d = 456",
-                      )
+                     )
     engine.enumerate_nodes.should == SortedSet.new(["A", "X", "XX", "Y"])
   end
 
@@ -30,24 +29,22 @@ describe "Delorean" do
                       "    a = 11",
                       "    c =?",
                       "    d = 456",
-                      )
+                     )
 
     exp = {
-      "X"  => ["a", "b"],
-      "Y"  => ["a", "b"],
-      "Z"  => [],
+      "X" => ["a", "b"],
+      "Y" => ["a", "b"],
+      "Z" => [],
       "XX" => ["a", "b", "c", "d"],
     }
     res = engine.enumerate_attrs
 
     res.keys.sort.should == exp.keys.sort
 
-    exp.each {
-      |k, v|
-
+    exp.each do |k, v|
       engine.enumerate_attrs_by_node(k).sort.should == v
       res[k].sort.should == v
-    }
+    end
   end
 
   it "can enumerate params" do
@@ -63,7 +60,7 @@ describe "Delorean" do
                       "YY: XX",
                       "    c =? 22",
                       "    e =? 11",
-                      )
+                     )
 
     engine.enumerate_params.should == Set.new(["a", "c", "e"])
   end
@@ -81,7 +78,7 @@ describe "Delorean" do
                       "YY: XX",
                       "    c =? 22",
                       "    e =? 11",
-                      )
+                     )
     engine.enumerate_params_by_node("X").should == Set.new(["a"])
     engine.enumerate_params_by_node("XX").should == Set.new(["a", "c"])
     engine.enumerate_params_by_node("YY").should == Set.new(["a", "c", "e"])

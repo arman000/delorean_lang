@@ -4,10 +4,10 @@ module Delorean
   module Ruby
     module Whitelists
       class Default < ::Delorean::Ruby::Whitelists::Base
-        TI_TYPES   = [Time, ActiveSupport::TimeWithZone]
+        TI_TYPES   = [Time, ActiveSupport::TimeWithZone].freeze
         DT_TYPES   = [Date] + TI_TYPES
-        NUM_OR_STR = [Numeric, String]
-        NUM_OR_NIL = [nil, Integer]
+        NUM_OR_STR = [Numeric, String].freeze
+        NUM_OR_NIL = [nil, Integer].freeze
 
         def initialize_hook
           _add_default_methods
@@ -63,7 +63,7 @@ module Delorean
           end
 
           add_method :except do |method|
-            method.called_on Hash, with: [String] + [[nil, String]]*9
+            method.called_on Hash, with: [String] + [[nil, String]] * 9
           end
 
           add_method :reverse do |method|
@@ -131,8 +131,6 @@ module Delorean
           add_method :union do |method|
             method.called_on Set, with: [Enumerable]
           end
-
-
 
           add_method :keys do |method|
             method.called_on Hash
