@@ -1,15 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Delorean" do
-
-  let(:engine) {
+  let(:engine) do
     Delorean::Engine.new("ZZZ")
-  }
+  end
 
   it "should handle MAX as a node name" do
     engine.parse defn("MAX:",
                       "    a = [1, 2, 3, 0, -10].max()",
-                      )
+                     )
 
     r = engine.evaluate("MAX", "a")
     r.should == 3
@@ -19,16 +18,16 @@ describe "Delorean" do
     engine.parse defn("A:",
                       "    a = [1, 2, nil, -3, 4].compact",
                       "    b = {'a': 1, 'b': nil, 'c': nil}.compact()",
-                      )
+                     )
 
     expect(engine.evaluate("A", "a")).to eq([1, 2, -3, 4])
-    expect(engine.evaluate("A", "b")).to eq({"a" => 1})
+    expect(engine.evaluate("A", "b")).to eq("a" => 1)
   end
 
   it "should handle MIN" do
     engine.parse defn("A:",
                       "    a = [1, 2, -3, 4].min()",
-                      )
+                     )
 
     r = engine.evaluate("A", "a")
     r.should == -3
@@ -39,7 +38,7 @@ describe "Delorean" do
                       "    a = 12.3456.round(2)",
                       "    b = 12.3456.round(1)",
                       "    c = 12.3456.round()",
-                      )
+                     )
 
     r = engine.evaluate("A", ["a", "b", "c"])
     r.should == [12.35, 12.3, 12]
@@ -50,7 +49,7 @@ describe "Delorean" do
                       "    a = 12.3456.truncate(2)",
                       "    b = 12.3456.truncate(1)",
                       "    c = 12.3456.truncate()",
-                      )
+                     )
 
     r = engine.evaluate("A", ["a", "b", "c"])
     r.should == [12.34, 12.3, 12]
@@ -59,7 +58,7 @@ describe "Delorean" do
   it "should handle FLOOR" do
     engine.parse defn("A:",
                       "    a = [12.3456.floor(), 13.7890.floor()]",
-                      )
+                     )
 
     r = engine.evaluate("A", "a")
     r.should == [12, 13]
@@ -71,10 +70,10 @@ describe "Delorean" do
                       "    b = '12.3456'.to_f()",
                       "    c = '12'.to_f()",
                       "    d = '2018-05-04 10:56:27 -0700'.to_time.to_f",
-                      )
+                     )
 
     r = engine.evaluate("A", ["a", "b", "c", "d"])
-    r.should == [12.3456, 12.3456, 12, 1525456587.0]
+    r.should == [12.3456, 12.3456, 12, 1_525_456_587.0]
   end
 
   it "should handle ABS" do
@@ -83,7 +82,7 @@ describe "Delorean" do
                       "    b = (-1.1).abs()",
                       "    c = 2.3.abs()",
                       "    d = 0.abs()",
-                      )
+                     )
 
     r = engine.evaluate("A", ["a", "b", "c", "d"])
     r.should == [123, 1.1, 2.3, 0]
@@ -94,10 +93,10 @@ describe "Delorean" do
                       "    a = 'hello'.to_s()",
                       "    b = 12.3456.to_s()",
                       "    c = [1,2,3].to_s()",
-                      )
+                     )
 
     r = engine.evaluate("A", ["a", "b", "c"])
-    r.should == ["hello", '12.3456', [1,2,3].to_s]
+    r.should == ["hello", '12.3456', [1, 2, 3].to_s]
   end
 
   it "should handle FETCH" do
@@ -106,7 +105,7 @@ describe "Delorean" do
                       "    a = h.fetch('a')",
                       "    b = h.fetch(1)",
                       "    c = h.fetch('xxx', 456)",
-                      )
+                     )
 
     r = engine.evaluate("A", ["a", "b", "c"])
     r.should == [123, 111, 456]
@@ -120,16 +119,15 @@ describe "Delorean" do
                       "    s = p.sec()",
                       "    d = p.to_date()",
                       "    e = p.to_date.to_s.to_date",
-                      )
+                     )
 
     p = Time.now
-    params = {"p" => p}
+    params = { "p" => p }
     r = engine.evaluate("A", %w{h m s d e}, params)
     r.should == [p.hour, p.min, p.sec, p.to_date, p.to_date]
 
     # Non time argument should raise an error
-    expect { engine.evaluate("A", ["m"], {"p" => 123}) }.to raise_error
-
+    expect { engine.evaluate("A", ["m"], "p" => 123) }.to raise_error
   end
 
   it "should handle DATEPART" do
@@ -138,25 +136,25 @@ describe "Delorean" do
                       "    y = p.year()",
                       "    d = p.day()",
                       "    m = p.month()",
-                      )
+                     )
 
     p = Date.today
-    r = engine.evaluate("A", ["y", "d", "m"], {"p" => p})
+    r = engine.evaluate("A", ["y", "d", "m"], "p" => p)
     r.should == [p.year, p.day, p.month]
 
     # Non date argument should raise an error
-    expect {
-      engine.evaluate("A", ["y", "d", "m"], {"p" => 123})
-    }.to raise_error
+    expect do
+      engine.evaluate("A", ["y", "d", "m"], "p" => 123)
+    end.to raise_error
   end
 
   it "should handle FLATTEN" do
-    x = [[1,2,[3]], 4, 5, [6]]
+    x = [[1, 2, [3]], 4, 5, [6]]
 
     engine.parse defn("A:",
                       "    a = #{x}",
                       "    b = a.flatten() + a.flatten(1)"
-                      )
+                     )
 
     engine.evaluate("A", "b").should == x.flatten + x.flatten(1)
   end
@@ -171,7 +169,7 @@ describe "Delorean" do
                       "    b = #{b}",
                       "    c = #{c}",
                       "    d = a.zip(b) + a.zip(b, c)",
-                      )
+                     )
 
     expect(engine.evaluate("A", "d")).to eq a.zip(b) + a.zip(b, c)
   end
@@ -180,12 +178,12 @@ describe "Delorean" do
     engine.parse defn("A:",
                       "    a = ERR('hello')",
                       "    b = ERR('xx', 1, 2, 3)",
-                      )
+                     )
 
     expect { engine.evaluate("A", "a") }.to raise_error('hello')
 
     lambda {
-      r = engine.evaluate("A", "b")
+      engine.evaluate("A", "b")
     }.should raise_error("xx, 1, 2, 3")
   end
 
@@ -206,10 +204,10 @@ describe "Delorean" do
                       "    m = [a.member(5), a.member(55)]",
                       "    n = {'a':1, 'b':2, 'c':3}.length()",
                       "    o = 'hello'.length",
-                      )
+                     )
 
     engine.evaluate("A", "c").should == x.flatten(1)
-    d = engine.evaluate("A", "d").should == x.flatten + x.flatten(1)
+    engine.evaluate("A", "d").should == x.flatten + x.flatten(1)
     dd = engine.evaluate("A", "dd")
     engine.evaluate("A", "e").should == dd.sort
     engine.evaluate("A", "f").should == dd.sort.uniq
@@ -229,7 +227,7 @@ describe "Delorean" do
     engine.parse defn("A:",
                       "    n = {}.length",
                       "    m = {'length':100}.length",
-                      )
+                     )
     engine.evaluate("A", "n").should == 0
     engine.evaluate("A", "m").should == 100
   end
@@ -238,8 +236,8 @@ describe "Delorean" do
     engine.parse defn("A:",
                       "    h = {'a': 1, 'b':2, 'c': 3}",
                       "    e = h.except('a', 'c')",
-                      )
-    expect(engine.evaluate("A", "e")).to eq({"b"=>2})
+                     )
+    expect(engine.evaluate("A", "e")).to eq("b" => 2)
   end
 
   it "should handle RUBY slice function" do
@@ -248,8 +246,8 @@ describe "Delorean" do
     engine.parse defn("A:",
                       "    a = #{x}",
                       "    b = a.slice(0, 4)",
-                      )
-    engine.evaluate("A", "b").should == x.slice(0,4)
+                     )
+    engine.evaluate("A", "b").should == x.slice(0, 4)
   end
 
   it "should handle RUBY empty? function" do
@@ -261,7 +259,7 @@ describe "Delorean" do
                       "    b1 = {'a': 1, 'b':2}",
                       "    c1 = {1,2,3}",
                       "    res = [a0.empty, b0.empty(), c0.empty, a1.empty, b1.empty(), c1.empty]",
-                      )
+                     )
     engine.evaluate("A", "res").should == [true, true, true, false, false, false]
   end
 
@@ -269,13 +267,11 @@ describe "Delorean" do
     engine.parse defn("A:",
                       "    a = 1.23",
                       "    number_between = [a.between(10,20), a.between(1,3)]",
-
                       "    c = 'c'",
                       "    string_between = [c.between('a', 'd'), c.between('d', 'e')]",
-
                       "    types_mismatch1 = [a.between('a', 'd')]",
                       "    types_mismatch2 = [c.between(1, 3)]"
-                      )
+                     )
 
     expect(engine.evaluate("A", "number_between")).to eq([false, true])
     expect(engine.evaluate("A", "string_between")).to eq([true, false])
@@ -284,15 +280,13 @@ describe "Delorean" do
     expect { engine.evaluate("A", "types_mismatch2") }.to raise_error(/bad arg/)
   end
 
-
   it "should handle MATCH" do
     engine.parse defn("A:",
                       "    a = 'this is a test'.match('(.*)( is )(.*)')",
                       "    b = [a[0], a[1], a[2], a[3], a[4]]",
-                      )
+                     )
 
-    expect(engine.evaluate("A", "b")).
-      to eq(["this is a test", "this", " is ", "a test", nil])
+    expect(engine.evaluate("A", "b"))
+      .to eq(["this is a test", "this", " is ", "a test", nil])
   end
-
 end

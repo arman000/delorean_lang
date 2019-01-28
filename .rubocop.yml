@@ -7,7 +7,6 @@ AllCops:
     - 'bin/{rails,rake}'
     - 'vendor/**/*'
     - !ruby/regexp /old_and_unused\.rb$/
-    - lib/delorean/delorean.rb
 
 Style/StringLiterals:
   Enabled: false
@@ -20,12 +19,14 @@ Metrics/LineLength:
     - 'spec/parse_spec.rb'
 
 Metrics/ModuleLength:
+  Max: 100
   Exclude:
-    - 'spec/eval_spec.rb'
+    - 'spec/**/*'
+    - lib/delorean/delorean.rb
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/eval_spec.rb'
+    - 'spec/**/*'
 
 Style/TrailingCommaInArguments:
   Enabled: false
@@ -35,3 +36,33 @@ Style/TrailingCommaInArrayLiteral:
 
 Style/TrailingCommaInHashLiteral:
   Enabled: false
+
+Layout/IndentHeredoc:
+  Exclude:
+    - 'spec/eval_spec.rb'
+
+Style/Documentation:
+  Enabled: false
+
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
+Naming/VariableNumber:
+  Enabled: false
+
+Style/WordArray:
+  Exclude:
+    - 'spec/**/*'
+
+Layout/MultilineArrayBraceLayout:
+  Exclude:
+    - 'spec/**/*'
+
+Layout/MultilineMethodCallBraceLayout:
+  Exclude:
+    - 'spec/**/*'
+
+Naming/BinaryOperatorParameterName:
+  Exclude:
+    - 'lib/delorean/base.rb'
+

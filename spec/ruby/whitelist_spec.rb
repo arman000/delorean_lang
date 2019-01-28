@@ -47,7 +47,8 @@ describe "Delorean Ruby whitelisting" do
     end
 
     it 'raises error if arguments list is too long' do
-      expect do matcher.match!(klass: Dummy, args: [1])
+      expect do
+        matcher.match!(klass: Dummy, args: [1])
       end.to raise_error('too many args to testmethod')
     end
 
