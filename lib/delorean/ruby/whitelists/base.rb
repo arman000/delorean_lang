@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'delorean/ruby/whitelists/whitelist_error'
 require 'delorean/ruby/whitelists/matchers'
 

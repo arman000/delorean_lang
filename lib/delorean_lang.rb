@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "delorean/version"
 
 require 'treetop'

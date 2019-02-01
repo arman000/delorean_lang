@@ -37,6 +37,9 @@ Style/TrailingCommaInArrayLiteral:
 Style/TrailingCommaInHashLiteral:
   Enabled: false
 
+Style/FrozenStringLiteralComment:
+  EnforcedStyle: always
+
 Layout/IndentHeredoc:
   Exclude:
     - 'spec/eval_spec.rb'

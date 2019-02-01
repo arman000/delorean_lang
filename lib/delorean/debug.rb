@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Delorean
   class Debug
     @debug_set = Set[]
