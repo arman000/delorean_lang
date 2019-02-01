@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Delorean
   class SNode < Treetop::Runtime::SyntaxNode
   end
