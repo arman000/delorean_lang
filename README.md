@@ -121,6 +121,28 @@ newly defined `teen_min`.  Therefore, `IndiaInfo.is_teenager` with
 input of `age = 10` will evaluate to `true`.  Whereas,
 `USInfo.is_teenager` with input of `age = 10` will evaluate to `false`.
 
+### Debugging
+
+You can use `(ERR())` to add a breakpoint:
+
+```
+    USInfo:
+		age = ?
+		teen_max = 19
+		teen_min = 13
+		is_teenager = (ERR()) && age >= teen_min && age <= teen_max
+
+```
+
+Then you can call attributes by using their mangled name (e.g. attr__D) and passing the context. attr__D(_e). Of course, you can use `ls` to list available methods.
+
+```
+  teen_max__D(_e) # 19
+  age__D(_e)
+```
+
+### TODO
+
 TODO: provide details on the following topics:
 
 * Supported data types
