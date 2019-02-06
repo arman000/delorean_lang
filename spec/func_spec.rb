@@ -125,7 +125,7 @@ describe "Delorean" do
 
     p = Time.now
     params = { "p" => p }
-    r = engine.evaluate("A", %w{h m s d e}, params)
+    r = engine.evaluate("A", %w[h m s d e], params)
     r.should == [p.hour, p.min, p.sec, p.to_date, p.to_date]
 
     # Non time argument should raise an error

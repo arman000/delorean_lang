@@ -7,6 +7,7 @@ AllCops:
     - 'bin/{rails,rake}'
     - 'vendor/**/*'
     - !ruby/regexp /old_and_unused\.rb$/
+    - 'lib/delorean/delorean.rb' # Auto-generated
 
 Style/StringLiterals:
   Enabled: false
@@ -14,7 +15,6 @@ Style/StringLiterals:
 Metrics/LineLength:
   Max: 80
   Exclude:
-    - 'lib/delorean/delorean.rb'
     - 'spec/func_spec.rb'
     - 'spec/parse_spec.rb'
 
@@ -22,7 +22,6 @@ Metrics/ModuleLength:
   Max: 100
   Exclude:
     - 'spec/**/*'
-    - lib/delorean/delorean.rb
 
 Metrics/BlockLength:
   Exclude:
@@ -68,4 +67,10 @@ Layout/MultilineMethodCallBraceLayout:
 Naming/BinaryOperatorParameterName:
   Exclude:
     - 'lib/delorean/base.rb'
+
+Style/PerlBackrefs:
+  Enabled: false
+
+Naming/HeredocDelimiterCase:
+  Enabled: false
 
