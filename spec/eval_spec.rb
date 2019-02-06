@@ -117,8 +117,8 @@ describe "Delorean" do
                       "    a =? 2",
                       "    c = A.a",
                      )
-    engine.evaluate("B", %w{c a}).should == [1, 2]
-    engine.evaluate("B", %w{a c}).should == [2, 1]
+    engine.evaluate("B", %w[c a]).should == [1, 2]
+    engine.evaluate("B", %w[a c]).should == [2, 1]
   end
 
   it "params should behave properly with inheritance" do
@@ -131,9 +131,9 @@ describe "Delorean" do
                       "    b = B.a",
                       "    c = A.a",
                      )
-    engine.evaluate("C", %w{a b c}).should == [3, 2, 1]
-    engine.evaluate("C", %w{a b c}, "a" => 4).should == [4, 4, 4]
-    engine.evaluate("C", %w{c b a}).should == [1, 2, 3]
+    engine.evaluate("C", %w[a b c]).should == [3, 2, 1]
+    engine.evaluate("C", %w[a b c], "a" => 4).should == [4, 4, 4]
+    engine.evaluate("C", %w[c b a]).should == [1, 2, 3]
   end
 
   it "should give error when param is undefined for eval" do
@@ -292,7 +292,7 @@ describe "Delorean" do
                       "    d = b.b",
                       "    e = b.this_is_crazy",
                      )
-    engine.evaluate("A", %w{c d e}).should == [456, 789, nil]
+    engine.evaluate("A", %w[c d e]).should == [456, 789, nil]
   end
 
   it "get attr on nil should return nil" do
@@ -311,7 +311,7 @@ describe "Delorean" do
                       "    b = A",
                       "    c = b.a * 2",
                      )
-    engine.evaluate("A", %w{a c}).should == [123, 123 * 2]
+    engine.evaluate("A", %w[a c]).should == [123, 123 * 2]
   end
 
   getattr_code = <<eoc
@@ -479,7 +479,7 @@ eof
                       "    e = [1, 1+1, 1+1+1, 1*2*4]",
                      )
 
-    engine.evaluate("A", %w{b c d e}).should ==
+    engine.evaluate("A", %w[b c d e]).should ==
       [[],
        [1, 2, 3],
        [[], [1, 2, 3], [], [1, 2, 3], 1, 2, "123", 1.1, -1.23],
@@ -494,7 +494,7 @@ eof
                       "    d = c*2",
                      )
 
-    engine.evaluate("A", %w{b c d}).should ==
+    engine.evaluate("A", %w[b c d]).should ==
       [[],
        [1, 2, 3],
        [1, 2, 3] * 2,
@@ -576,7 +576,7 @@ eof
                       "    g = {b:b, [b]:[1,23], []:345}",
                      )
 
-    engine.evaluate("A", %w{b c d e f g}).should ==
+    engine.evaluate("A", %w[b c d e f g]).should ==
       [{},
        { "a" => 1, "b" => 2, "c" => 3 },
        { 123 * 2 => -123, "b_b" => 2 },
@@ -594,7 +594,7 @@ eof
                       "    d = {1: {1: 2 if b}, 3: 3 if c, 2: {2: 3 if a}}",
                      )
 
-    engine.evaluate("A", %w{a b d}).should == [
+    engine.evaluate("A", %w[a b d]).should == [
       { "a" => 1 },
       { "a" => { "a" => 1 }, 2 => { "a" => 1 }, "c" => nil },
       { 1 => { 1 => 2 }, 2 => { 2 => 3 } },
@@ -713,7 +713,7 @@ eof
                       "    d = n().a",
                      )
 
-    engine.evaluate("A", %w{d}).should == [123]
+    engine.evaluate("A", %w[d]).should == [123]
   end
 
   it "should eval module calls 2" do
@@ -726,7 +726,7 @@ eof
                       "    e = nil() % ['b']",
                      )
 
-    engine.evaluate("A", %w{n c d e}).should == [
+    engine.evaluate("A", %w[n c d e]).should == [
       "A",
       { "a" => 123, "b" => 579 },
       { "a" => 123, "b" => 579 },
@@ -742,7 +742,7 @@ eof
                       "    d = n().a",
                      )
 
-    engine.evaluate("B", %w{d}).should == [123]
+    engine.evaluate("B", %w[d]).should == [123]
   end
 
   it "should be possible to implement recursive calls" do
@@ -786,7 +786,7 @@ eof
                       "         ) % ['b']",
                      )
 
-    engine.evaluate("A", %w{n c d e}).should == [
+    engine.evaluate("A", %w[n c d e]).should == [
       "A",
       { "a" => 123, "b" => 579 },
       { "a" => 123, "b" => 579 },
@@ -803,7 +803,7 @@ eof
                       "    d = [i*2 for i in s if i in a]",
                      )
 
-    engine.evaluate("A", %w{b c d}).should ==
+    engine.evaluate("A", %w[b c d]).should ==
       [false, true, [66, 88]]
   end
 

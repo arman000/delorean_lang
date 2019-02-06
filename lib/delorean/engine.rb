@@ -102,7 +102,9 @@ module Delorean
 
       sname = pname ? super_name(pname, mname) : 'Object'
 
-      @pm.module_eval("class #{name} < #{sname}; end")
+      @pm.module_eval <<-RUBY, __FILE__, __LINE__ + 1
+        class #{name} < #{sname}; end
+      RUBY
 
       # latest defined node
       @last_node = name
