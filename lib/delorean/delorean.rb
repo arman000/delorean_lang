@@ -56,7 +56,7 @@ module Delorean
               r8 = true
               @index += 1
             else
-              terminal_parse_failure("any character")
+              terminal_parse_failure('any character')
               r8 = nil
             end
             if r8
@@ -3606,7 +3606,7 @@ module Delorean
               r9 = true
               @index += 1
             else
-              terminal_parse_failure("any character")
+              terminal_parse_failure('any character')
               r9 = nil
             end
             s6 << r9

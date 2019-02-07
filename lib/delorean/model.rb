@@ -16,11 +16,11 @@ module Delorean
 
         sig = options[:sig]
 
-        raise "no signature" unless sig
+        raise 'no signature' unless sig
 
         if sig
           sig = [sig, sig] if sig.is_a? Integer
-          raise "Bad signature" unless sig.is_a?(Array) && (sig.length == 2)
+          raise 'Bad signature' unless sig.is_a?(Array) && (sig.length == 2)
 
           const_set(name.to_s.upcase + Delorean::SIG, sig)
         end

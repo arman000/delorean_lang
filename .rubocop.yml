@@ -10,7 +10,8 @@ AllCops:
     - 'lib/delorean/delorean.rb' # Auto-generated
 
 Style/StringLiterals:
-  Enabled: false
+  Enabled: true
+  EnforcedStyle: single_quotes
 
 Metrics/LineLength:
   Max: 80

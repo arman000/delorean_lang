@@ -22,7 +22,7 @@ end
 ######################################################################
 # ActiveRecord related
 
-ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
+ActiveRecord::Base.establish_connection adapter: 'sqlite3', database: ':memory:'
 
 ActiveRecord::Migration.create_table :dummies do |t|
   t.string :name
@@ -51,18 +51,18 @@ class Dummy < ActiveRecord::Base
   def self.this_is_crazy; end
 
   def self.miss_you_so_bad
-    d = Dummy.create(name: "hello", number: 123)
-    Dummy.new(name: "jello", number: 456, dummy: d)
+    d = Dummy.create(name: 'hello', number: 123)
+    Dummy.new(name: 'jello', number: 456, dummy: d)
   end
 
   MISS_YOU_SO_BAD_SIG = [0, 0].freeze
 
   delorean_fn :all_of_me, sig: 0 do
-    [{ "name" => "hello", "foo" => "bar" }]
+    [{ 'name' => 'hello', 'foo' => 'bar' }]
   end
 
   def self.i_threw_a_hash_in_the_well
-    { a: 123, "a" => 456, b: 789 }
+    { a: 123, 'a' => 456, b: 789 }
   end
 
   I_THREW_A_HASH_IN_THE_WELL_SIG = [0, 0].freeze
@@ -84,7 +84,7 @@ class Dummy < ActiveRecord::Base
   end
 
   delorean_fn :returns_openstruct, sig: 0 do
-    OpenStruct.new("abc" => "def")
+    OpenStruct.new('abc' => 'def')
   end
 
   cached_delorean_fn :returns_cached_openstruct, sig: 2 do |first, last|
@@ -94,7 +94,7 @@ end
 
 class DummyChild < Dummy
   def self.hello
-    DummyChild.new(name: "child", number: 99_999)
+    DummyChild.new(name: 'child', number: 99_999)
   end
   HELLO_SIG = [0, 0].freeze
 end

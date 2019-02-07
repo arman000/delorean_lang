@@ -3,7 +3,7 @@
 require_relative '../spec_helper'
 require 'delorean/ruby/whitelists/empty'
 
-describe "Delorean Ruby whitelisting" do
+describe 'Delorean Ruby whitelisting' do
   it 'allows to override whitelist with an empty one' do
     ::Delorean::Ruby.whitelist = whitelist
     expect(whitelist.matchers).to be_empty
@@ -14,7 +14,7 @@ describe "Delorean Ruby whitelisting" do
 
   let(:whitelist) { ::Delorean::Ruby::Whitelists::Empty.new }
 
-  describe "methods" do
+  describe 'methods' do
     before do
       whitelist.add_method :testmethod do |method|
         method.called_on Dummy

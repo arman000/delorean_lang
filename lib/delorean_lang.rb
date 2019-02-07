@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "delorean/version"
+require 'delorean/version'
 
 require 'treetop'
 require 'delorean/abstract_container'
