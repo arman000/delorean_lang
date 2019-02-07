@@ -46,7 +46,7 @@ module Delorean
     end
 
     def parse_import(name)
-      err(ParseError, "No script set") unless sset
+      err(ParseError, 'No script set') unless sset
 
       err(ParseError, "Module #{name} importing itself") if
         name == module_name
@@ -132,7 +132,7 @@ module Delorean
 
     # Parse-time check to see if attr is available on current node.
     def parse_call_last_node_attr(attr_name)
-      err(ParseError, "Not inside a node") unless @last_node
+      err(ParseError, 'Not inside a node') unless @last_node
       parse_call_attr(@last_node, attr_name)
     end
 
@@ -146,7 +146,7 @@ module Delorean
     end
 
     def parse_undef_var(var_name)
-      err(ParseError, "internal error") unless comp_set.member? var_name
+      err(ParseError, 'internal error') unless comp_set.member? var_name
       comp_set.delete var_name
     end
 
@@ -242,7 +242,7 @@ module Delorean
         # generate ruby code
         gen = t.rewrite(self)
       rescue RuntimeError => exc
-        err(ParseError, "codegen error: " + exc.message)
+        err(ParseError, 'codegen error: ' + exc.message)
       end
 
       # puts gen
@@ -252,7 +252,7 @@ module Delorean
         @m.module_eval(gen, "#{MOD}#{module_name}", curr_line)
       rescue StandardError => exc
         # bad ruby code generated, shoudn't happen
-        err(ParseError, "codegen error: " + exc.message)
+        err(ParseError, 'codegen error: ' + exc.message)
       end
     end
 
@@ -286,7 +286,7 @@ module Delorean
             next
           else
             t = parser.parse(multi_line)
-            err(ParseError, "syntax error") unless t
+            err(ParseError, 'syntax error') unless t
 
             generate(t)
             multi_line = nil
@@ -297,7 +297,7 @@ module Delorean
         t = parser.parse(line)
 
         if !t
-          err(ParseError, "syntax error") unless line =~ /^\s+/
+          err(ParseError, 'syntax error') unless line =~ /^\s+/
 
           multi_line = line
           @multi_no = @line_no
@@ -308,7 +308,7 @@ module Delorean
 
       if multi_line
         t = parser.parse(multi_line)
-        err(ParseError, "syntax error") unless t
+        err(ParseError, 'syntax error') unless t
         generate(t)
       end
     end
@@ -331,7 +331,7 @@ module Delorean
 
     # enumerate qualified list of attrs by node
     def enumerate_attrs_by_node(node)
-      raise "bad node" unless node
+      raise 'bad node' unless node
 
       begin
         klass = node.is_a?(String) ? @m.module_eval(node) : node
@@ -365,7 +365,7 @@ module Delorean
     ######################################################################
 
     def evaluate(node, attrs, params = {})
-      raise "bad params" unless params.is_a?(Hash)
+      raise 'bad params' unless params.is_a?(Hash)
 
       if node.is_a?(Class)
         klass = node
@@ -404,7 +404,7 @@ module Delorean
         $1 && [$1, $2.to_i, $4.sub(/#{POST}$/, '')]
       end.reject(&:!)
 
-      { "error" => exc.message, "backtrace" => bt }
+      { 'error' => exc.message, 'backtrace' => bt }
     end
 
     ######################################################################

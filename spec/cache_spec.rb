@@ -2,7 +2,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-describe "Delorean cache" do
+describe 'Delorean cache' do
   before do
     Dummy.clear_lookup_cache!
   end
@@ -62,6 +62,6 @@ describe "Delorean cache" do
     )
 
     expect(item_10).to be_a(OpenStruct)
-    expect(item_10["10"]).to eq(10)
+    expect(item_10['10']).to eq(10)
   end
 end

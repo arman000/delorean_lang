@@ -62,7 +62,7 @@ eos
 
     def rewrite(context)
       context.gen_import(n.text_value)
-      ""
+      ''
     end
   end
 
@@ -81,7 +81,7 @@ eos
     end
 
     def rewrite(context)
-      def_class(context, "BaseClass")
+      def_class(context, 'BaseClass')
     end
   end
 
@@ -112,10 +112,10 @@ eos
       # an attr is defined as a class function on the node class.
       "class #{context.last_node}; " \
         "def self.#{i.text_value}#{POST}(_e); " +
-        (debug ? "_debug =" : '') +
+        (debug ? '_debug =' : '') +
         "_e[self.name+'.#{i.text_value}'] ||= #{e.rewrite(context)};" +
         (debug ? 'Delorean::Debug.log(_debug); _debug;' : '') +
-        "end; end;"
+        'end; end;'
     end
   end
 
@@ -209,7 +209,7 @@ eos
     def rewrite(context, *)
       args.text_value != '' ?
         "_err(#{args.rewrite(context)})" :
-        "binding.pry; 0"
+        'binding.pry; 0'
     end
   end
 
@@ -241,7 +241,7 @@ eos
     end
 
     def rewrite(_context)
-      "_sanitize_hash(_e)"
+      '_sanitize_hash(_e)'
     end
   end
 
@@ -251,14 +251,14 @@ eos
     end
 
     def rewrite(_context)
-      "superclass"
+      'superclass'
     end
   end
 
   class IString < Literal
     def rewrite(_context)
       # FIXME: hacky to just fail
-      raise "String interpolation not supported" if text_value =~ /\#\{.*\}/
+      raise 'String interpolation not supported' if text_value =~ /\#\{.*\}/
 
       # FIXME: syntax check?
       text_value
@@ -284,7 +284,7 @@ eos
       # class method calls.  POST is used in mangling the attr names.
       # _e is the environment.  Comprehension vars (in comp_set) are
       # not passed the env arg.
-      arg = context.comp_set.member?(text_value) ? "" : '(_e)'
+      arg = context.comp_set.member?(text_value) ? '' : '(_e)'
       text_value + POST + arg
     end
   end
@@ -340,7 +340,7 @@ eos
 
     def rewrite(context, vcode)
       if al.text_value.empty?
-        args_str = ""
+        args_str = ''
         arg_count = 0
       else
         args_str = al.rewrite(context)
@@ -365,7 +365,7 @@ eos
 
     def rewrite(context, node_name)
       var = "_h#{context.hcount}"
-      res = al.text_value.empty? ? "" : al.rewrite(context, var)
+      res = al.text_value.empty? ? '' : al.rewrite(context, var)
       "(#{var}={}; #{res}; _node_call(#{node_name}, _e, #{var}))"
     end
   end
@@ -398,7 +398,7 @@ eos
     end
 
     def rewrite(context)
-      rest = ", " + args_rest.args.rewrite(context) if
+      rest = ', ' + args_rest.args.rewrite(context) if
         defined?(args_rest.args) && !args_rest.args.text_value.empty?
 
       [arg0.rewrite(context), rest].compact.sum
@@ -430,7 +430,7 @@ eos
     end
 
     def rewrite(context)
-      "[" + (defined?(args) ? args.rewrite(context) : "") + "]"
+      '[' + (defined?(args) ? args.rewrite(context) : '') + ']'
     end
   end
 
@@ -444,7 +444,7 @@ eos
     def rewrite(context)
       arg0.rewrite(context) +
         (defined?(args_rest.args) && !args_rest.args.text_value.empty? ?
-         ", " + args_rest.args.rewrite(context) : "")
+         ', ' + args_rest.args.rewrite(context) : '')
     end
   end
 
@@ -545,7 +545,7 @@ eos
     end
 
     def rewrite(context)
-      return "{}" unless defined?(args)
+      return '{}' unless defined?(args)
 
       var = "_h#{context.hcount}"
       "(#{var}={}; " + args.rewrite(context, var) + "; #{var})"
@@ -574,7 +574,7 @@ eos
       end
 
       res += " if (#{ifexp.e3.rewrite(context)})" if defined?(ifexp.e3)
-      res += ";"
+      res += ';'
       res += args_rest.al.rewrite(context, var, i) if
         defined?(args_rest.al) && !args_rest.al.text_value.empty?
       res
@@ -599,7 +599,7 @@ eos
               "#{var}[#{e0.rewrite(context)}]=(#{e1.rewrite(context)})"
             end
       res += " if (#{ifexp.e3.rewrite(context)})" if defined?(ifexp.e3)
-      res += ";"
+      res += ';'
       res += args_rest.al.rewrite(context, var) if
         defined?(args_rest.al) && !args_rest.al.text_value.empty?
       res

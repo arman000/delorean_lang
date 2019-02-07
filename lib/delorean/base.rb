@@ -37,7 +37,7 @@ module Delorean
         when String
           evaluate(args)
         else
-          raise "non-array/string arg to /"
+          raise 'non-array/string arg to /'
         end
       rescue StandardError => exc
         Delorean::Engine.grok_runtime_exception(exc)
@@ -45,14 +45,14 @@ module Delorean
 
       # FIXME: % should also support string as args
       def %(args)
-        raise "non-array arg to %" unless args.is_a?(Array)
+        raise 'non-array arg to %' unless args.is_a?(Array)
 
         engine.eval_to_hash(node, args, cloned_params)
       end
 
       # add new arguments, results in a new NodeCall
       def +(args)
-        raise "bad arg to %" unless args.is_a?(Hash)
+        raise 'bad arg to %' unless args.is_a?(Hash)
 
         NodeCall.new(_e, engine, node, params.merge(args))
       end
@@ -134,7 +134,7 @@ module Delorean
       ######################################################################
 
       def self._err(*args)
-        str = args.map(&:to_s).join(", ")
+        str = args.map(&:to_s).join(', ')
         raise str
       end
 
