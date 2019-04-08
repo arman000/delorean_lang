@@ -100,6 +100,27 @@ eos
     end
   end
 
+  class SubNodeNested < BaseNode
+    def check(context, *)
+      module_names = mod.m.text_value.split('::')
+      node_name = module_names.pop
+      mname = module_names.join('::') if module_names.any?
+
+      context.parse_define_node(n.text_value, node_name, mname)
+    end
+
+    def rewrite(context)
+      module_names = mod.m.text_value.split('::')
+      node_name = module_names.pop
+      mname = module_names.join('::') if module_names.any?
+
+      sname = context.super_name(node_name, mname)
+
+      # A sub-node (derived node) is just a subclass.
+      def_class(context, sname)
+    end
+  end
+
   class Formula < SNode
     def check(context, *)
       context.parse_define_attr(i.text_value, e.check(context))
@@ -161,6 +182,37 @@ eos
     def rewrite(context)
       node_name = c.text_value
       mname = mod.m.text_value if defined?(mod.m)
+      begin
+        context.parse_check_defined_mod_node(node_name, mname)
+        context.super_name(node_name, mname)
+      rescue UndefinedError, ParseError
+        # FIXME: wrap the class name so Call will be able to tell it
+        # apart from a regular value.
+        ClassText.new(text_value)
+      end
+    end
+  end
+
+  class NodeAsValueNested < SNode
+    def check(context, *)
+      module_names = c.text_value.split('::')
+      node_name = module_names.pop
+      mname = module_names.join('::') if module_names.any?
+
+      begin
+        context.parse_check_defined_mod_node(node_name, mname)
+      rescue UndefinedError, ParseError
+        # Node is a non-Delorean ruby class
+        context.parse_class(text_value)
+      end
+      []
+    end
+
+    def rewrite(context)
+      module_names = c.text_value.split('::')
+      node_name = module_names.pop
+      mname = module_names.join('::') if module_names.any?
+
       begin
         context.parse_check_defined_mod_node(node_name, mname)
         context.super_name(node_name, mname)
