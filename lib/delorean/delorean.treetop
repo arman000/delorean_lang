@@ -10,15 +10,26 @@ grammar Delorean
     /
     sp4 i:identifier sp? '=' sp? e:expression <Formula>
     /
+    n:class_name ':' sp? mod:(m:class_name_import_nested) <SubNodeNested> # FIXME: requires to be above SubNode statement, otherwise doesn't work
+    /
     n:class_name ':' sp? mod:(m:class_name '::')? p:class_name <SubNode>
     /
     n:class_name ':' <BaseNode>
     /
-    'import' sp n:class_name <Import>
+    'import' sp n:class_name_import <Import>
   end
 
   rule class_name
     [A-Z] [a-zA-Z0-9_]*
+  end
+
+  rule class_name_import
+    [A-Z] [a-zA-Z0-9_]* ('::' [A-Z] [a-zA-Z0-9_]*)*
+  end
+
+  # FIXME: Hacky way to skip Module::Node cases, so only Module::NestedModule::Node will pass
+  rule class_name_import_nested
+    [A-Z] [a-zA-Z0-9_]* (('::' [A-Z] [a-zA-Z0-9_]*) 2..)
   end
 
   rule expression
@@ -119,6 +130,7 @@ grammar Delorean
     list_expr                                           /
     set_expr                                            /
     hash_expr                                           /
+    c:class_name_import <NodeAsValueNested>             / # FIXME: requires to be above NodeAsValue statement, otherwise doesn't work
     mod:(m:class_name '::')? c:class_name <NodeAsValue> /
     '(' sp? e:expression sp? ')'          <Expr>
   end

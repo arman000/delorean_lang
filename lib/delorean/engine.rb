@@ -57,13 +57,13 @@ module Delorean
         err(ImportError, exc.to_s)
       end
 
-      @pm.const_set("#{MOD}#{name}", @imports[name].pm)
+      @pm.const_set("#{MOD}#{name.gsub('::', '__')}", @imports[name].pm)
     end
 
     def gen_import(name)
       @imports.merge!(@imports[name].imports)
 
-      @m.const_set("#{MOD}#{name}", @imports[name].m)
+      @m.const_set("#{MOD}#{name.gsub('::', '__')}", @imports[name].m)
     end
 
     def get_import_engine(name)
@@ -88,7 +88,7 @@ module Delorean
     end
 
     def super_name(pname, mname)
-      mname ? "#{MOD}#{mname}::#{pname}" : pname
+      mname ? "#{MOD}#{mname.gsub('::', '__')}::#{pname}" : pname
     end
 
     def parse_check_defined_mod_node(pname, mname)

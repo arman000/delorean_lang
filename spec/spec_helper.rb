@@ -111,6 +111,11 @@ module M
     end
     SUP_SIG = [0, 0].freeze
   end
+
+  module N
+    class NestedDummy < ::M::LittleDummy
+    end
+  end
 end
 
 Delorean::Ruby.whitelist.add_method :name2 do |method|

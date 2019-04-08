@@ -335,8 +335,12 @@ eoc
   it 'should be able to call class methods on AR classes in modules' do
     engine.parse defn('A:',
                       '    b = M::LittleDummy.heres_my_number(867, 5309)',
+                      '    c = M::N::NestedDummy.heres_my_number(867, 5309)',
                      )
     r = engine.evaluate('A', 'b')
+    r.should == 867 + 5309
+
+    r = engine.evaluate('A', 'c')
     r.should == 867 + 5309
   end
 
@@ -344,8 +348,12 @@ eoc
     engine.parse defn('A:',
                       '    a = M::LittleDummy',
                       '    b = a.heres_my_number(867, 5309)',
+                      '    c = M::N::NestedDummy.heres_my_number(867, 5309)',
                      )
     r = engine.evaluate('A', 'b')
+    r.should == 867 + 5309
+
+    r = engine.evaluate('A', 'c')
     r.should == 867 + 5309
   end
 
@@ -873,6 +881,70 @@ eof
     e4 = sset.get_engine('CCC')
     e4.evaluate('X', 'xx').should == [1, 2, 3]
     e4.evaluate('X', 'yy').should == [1, 2, 3]
+  end
+
+  it 'should eval imports (4) - with ::' do
+    sset.merge(
+      'BBB' => getattr_code,
+      'BBB::A' => defn(
+        'X:',
+        '    xx = [1, 2, 3]'
+      ),
+      'BBB::A::CC' => defn(
+        'X:',
+        '    xx = [1, 2, 3]'
+      ),
+      'DDD__Ef__Gh' => defn(
+        'import BBB',
+        'import BBB::A',
+        'import BBB::A::CC',
+        'EfNode:',
+        '    g = BBB::D.xs',
+        '    gh = BBB::A::X.xx',
+      ),
+      'CCC' =>
+      defn('import BBB',
+           'import DDD__Ef__Gh',
+           'X:',
+           '    xx = [n.x for n in BBB::D().xs]',
+           '    yy = [n.x for n in BBB::D.xs]',
+           '    zz = [n * 2 for n in DDD__Ef__Gh::EfNode.gh]',
+          ),
+    )
+
+    e4 = sset.get_engine('CCC')
+    e4.evaluate('X', 'xx').should == [1, 2, 3]
+    e4.evaluate('X', 'zz').should == [2, 4, 6]
+  end
+
+  it 'should eval imports (4) - inheritance - with ::' do
+    sset.merge(
+      'BBB' => getattr_code,
+      'BBB::A' => defn(
+        'X:',
+        '    xx = [1, 2, 3]'
+      ),
+      'BBB::A::CC' => defn(
+        'X:',
+        '    xx = [1, 2, 3]'
+      ),
+      'DDD__Ef__Gh' => defn(
+        'import BBB',
+        'import BBB::A',
+        'import BBB::A::CC',
+        'EfNode: BBB::A::CC::X',
+        '    g = xx',
+      ),
+      'CCC' =>
+      defn('import BBB',
+           'import DDD__Ef__Gh',
+           'X:',
+           '    zz = [n * 2 for n in DDD__Ef__Gh::EfNode.g]',
+          ),
+    )
+
+    e4 = sset.get_engine('CCC')
+    e4.evaluate('X', 'zz').should == [2, 4, 6]
   end
 
   it 'can eval indexing' do
