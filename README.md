@@ -159,7 +159,7 @@ Ruby.
 
 ### Calling ruby methods from Delorean
 
-Ruby methods that are called from Delorean should be whitelisted.
+There are two ways of calling ruby code from delorean. First one is to whitelist methods:
 
 ```ruby
 
@@ -182,6 +182,35 @@ By default Delorean has some methods whitelisted, such as `length`, `min`, `max`
 
   ::Delorean::Ruby.whitelist = ::Delorean::Ruby::Whitelists::Empty.new
 
+```
+
+Another way is to define methods using `delorean_fn` and `cached_delorean_fn`.
+Use `extend Delorean::Functions` or `include Delorean::Model` in your module or class.
+
+```ruby
+class Dummy < ActiveRecord::Base
+  include Delorean::Model
+
+  delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
+    a.inject(0, :+)
+  end
+end
+
+module DummyModule
+  extend Delorean::Functions
+
+  delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
+    a.inject(0, :+)
+  end
+end
+```
+
+`heres_my_number` method will be accessible from Delorean code.
+
+```ruby
+ExampleScript:
+    a = Dummy.heres_my_number(867, 5309)'
+    b = DummyModule.heres_my_number(867, 5309)'
 ```
 
 ### Caching

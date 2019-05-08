@@ -1,3 +1,4 @@
+require: rubocop-performance
 inherit_from: .rubocop_todo.yml
 
 AllCops:
@@ -75,3 +76,5 @@ Style/PerlBackrefs:
 Naming/HeredocDelimiterCase:
   Enabled: false
 
+Naming/RescuedExceptionsVariableName:
+  Enabled: false

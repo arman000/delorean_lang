@@ -122,6 +122,18 @@ Delorean::Ruby.whitelist.add_method :name2 do |method|
   method.called_on Dummy
 end
 
+module DummyModule
+  extend Delorean::Functions
+
+  delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
+    a.inject(0, :+)
+  end
+end
+
+module M
+  DummyModule = ::DummyModule
+end
+
 ######################################################################
 
 class TestContainer < Delorean::AbstractContainer

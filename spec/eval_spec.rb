@@ -357,6 +357,20 @@ eoc
     r.should == 867 + 5309
   end
 
+  it 'should be able to use ruby modules as values and call their methods' do
+    engine.parse defn('A:',
+                      '    a = DummyModule',
+                      '    b = a.heres_my_number(867, 5309)',
+                      '    c = M::DummyModule.heres_my_number(867, 5309)',
+                     )
+    # binding.pry
+    r = engine.evaluate('A', 'b')
+    r.should == 867 + 5309
+
+    r = engine.evaluate('A', 'c')
+    r.should == 867 + 5309
+  end
+
   it 'should ignore undeclared params sent to eval which match attr names' do
     engine.parse defn('A:',
                       '    d = 12',
