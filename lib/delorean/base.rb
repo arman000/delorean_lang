@@ -162,7 +162,7 @@ module Delorean
 
         # FIXME: this is pretty hacky -- should probably merge
         # whitelist and SIG mechanisms.
-        if obj.is_a?(Class)
+        if obj.is_a?(Class) || obj.is_a?(Module)
           _e[:_engine].parse_check_call_fn(method, args.count, obj)
           return obj.send(msg, *args)
         end

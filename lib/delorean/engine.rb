@@ -193,10 +193,9 @@ module Delorean
         err(UndefinedError, "Can't find class: #{class_name}")
       end
 
-      err(UndefinedError, "Access to non-class: #{class_name}") unless
-        klass.instance_of?(Class)
+      return klass if klass.instance_of?(Class) || klass.instance_of?(Module)
 
-      klass
+      err(UndefinedError, "Access to non-class/module: #{class_name}")
     end
 
     def err(exc, msg)
