@@ -43,7 +43,7 @@ module Delorean
             !match_to.nil?
           end
 
-          def extend
+          def extend_matcher
             yield self if block_given?
           end
         end

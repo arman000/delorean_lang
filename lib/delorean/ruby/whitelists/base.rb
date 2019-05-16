@@ -22,7 +22,7 @@ module Delorean
 
           matcher = matchers[method_name.to_sym]
 
-          return matcher.extend(&block) if matcher
+          return matcher.extend_matcher(&block) if matcher
 
           matchers[method_name.to_sym] = method_matcher_class.new(
             method_name: method_name, &block
@@ -41,7 +41,7 @@ module Delorean
 
           matcher = class_method_matchers[method_name.to_sym]
 
-          return matcher.extend(&block) if matcher
+          return matcher.extend_matcher(&block) if matcher
 
           class_method_matchers[method_name.to_sym] = method_matcher_class.new(
             method_name: method_name, &block
