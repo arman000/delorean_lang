@@ -374,15 +374,11 @@ eoc
   it 'should be able call method defined in a parent or matched to' do
     engine.parse defn(
       'A:',
-      # '    a = DeloreanFunctionsChildClass.heres_my_number(867, 5309)',
       '    b = DeloreanFunctionsChildClass.test_fn',
       '    c = DeloreanFunctionsChildClass.test_fn2',
       '    d = DifferentClassSameMethod.test_fn2',
       '    e = DifferentClassSameMethod.match_to_test_fn2',
     )
-    # binding.pry
-    # r = engine.evaluate('A', 'a')
-    # r.should == 867 + 5309
 
     r = engine.evaluate('A', 'b')
     r.should == :test_fn_result
@@ -395,6 +391,61 @@ eoc
 
     r = engine.evaluate('A', 'e')
     r.should == :test_fn2_result_different
+  end
+
+  it 'should raise exception if method is not whitelisted' do
+    engine.parse defn(
+      'A:',
+      '    a = DeloreanFunctionsChildClass.test_fn4',
+      '    b = DeloreanFunctionsChildClass.test_fn4()',
+      '    c = Dummy.this_is_crazy()',
+    )
+
+    lambda {
+      engine.evaluate('A', 'a')
+    }.should raise_error(
+      Delorean::InvalidGetAttribute,
+      "attr lookup failed: 'test_fn4' on <Class> DeloreanFunctionsChildClass - no such method test_fn4"
+    )
+
+    lambda {
+      engine.evaluate('A', 'b')
+    }.should raise_error(RuntimeError, 'no such method test_fn4')
+
+    lambda {
+      engine.evaluate('A', 'c')
+    }.should raise_error(RuntimeError, 'no such method this_is_crazy')
+  end
+
+  it 'should raise exception if required arguments are missing' do
+    engine.parse defn(
+      'A:',
+      '    a = DifferentClassSameMethod.test_fn3(1, 2, 3, 4, 5,
+                                                 6, 7, 8, 9, 10)',
+      '    b = DifferentClassSameMethod.test_fn3(1, 2, 3, 4) ',
+      '    c = DifferentClassSameMethod.test_fn3(1, 2) ',
+      '    d = DifferentClassSameMethod.test_fn3() ',
+    )
+
+    r = engine.evaluate('A', 'a')
+    r.should == { a: 1, b: 2, c: 3, d: 4, e: 5, rest: [6, 7, 8, 9, 10] }
+
+    r = engine.evaluate('A', 'b')
+    r.should == { a: 1, b: 2, c: 3, d: 4, e: nil, rest: [] }
+
+    lambda {
+      r = engine.evaluate('A', 'c')
+    }.should raise_error(
+      ArgumentError,
+      'wrong number of arguments (given 2, expected 3+)'
+    )
+
+    lambda {
+      r = engine.evaluate('A', 'd')
+    }.should raise_error(
+      ArgumentError,
+      'wrong number of arguments (given 0, expected 3+)'
+    )
   end
 
   it 'should ignore undeclared params sent to eval which match attr names' do

@@ -17,6 +17,7 @@ Style/StringLiterals:
 Metrics/LineLength:
   Max: 80
   Exclude:
+    - 'spec/eval_spec.rb'
     - 'spec/func_spec.rb'
     - 'spec/parse_spec.rb'
 
@@ -78,3 +79,7 @@ Naming/HeredocDelimiterCase:
 
 Naming/RescuedExceptionsVariableName:
   Enabled: false
+
+Metrics/ParameterLists:
+  Exclude:
+    - 'spec/spec_helper.rb'

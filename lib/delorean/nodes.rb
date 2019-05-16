@@ -400,13 +400,13 @@ eos
       end
 
       if vcode.is_a?(ClassText)
+        # FIXME: Do we really need this check here?
         # ruby class call
         class_name = vcode.text
         context.parse_check_call_fn(i.text_value, arg_count, class_name)
-        "#{class_name}.#{i.text_value}(#{args_str})"
-      else
-        "_instance_call(#{vcode}, '#{i.text_value}', [#{args_str}], _e)"
       end
+
+      "_instance_call(#{vcode}, '#{i.text_value}', [#{args_str}], _e)"
     end
   end
 

@@ -36,17 +36,13 @@ class Dummy < ActiveRecord::Base
 
   belongs_to :dummy
 
-  def self.i_just_met_you(name, number)
+  delorean_fn :i_just_met_you do |name, number|
     Dummy.new(name: name, number: number)
   end
 
-  I_JUST_MET_YOU_SIG = [1, 2].freeze
-
-  def self.call_me_maybe(*a)
+  delorean_fn :call_me_maybe do |*a|
     a.inject(0, :+)
   end
-
-  CALL_ME_MAYBE_SIG = [0, Float::INFINITY].freeze
 
   def self.this_is_crazy; end
 
@@ -55,17 +51,13 @@ class Dummy < ActiveRecord::Base
     Dummy.new(name: 'jello', number: 456, dummy: d)
   end
 
-  MISS_YOU_SO_BAD_SIG = [0, 0].freeze
-
   delorean_fn :all_of_me, sig: 0 do
     [{ 'name' => 'hello', 'foo' => 'bar' }]
   end
 
-  def self.i_threw_a_hash_in_the_well
+  delorean_fn :i_threw_a_hash_in_the_well do
     { a: 123, 'a' => 456, b: 789 }
   end
-
-  I_THREW_A_HASH_IN_THE_WELL_SIG = [0, 0].freeze
 
   def name2
     "#{name}-#{number.round(4)}"
@@ -96,7 +88,6 @@ class DummyChild < Dummy
   def self.hello
     DummyChild.new(name: 'child', number: 99_999)
   end
-  HELLO_SIG = [0, 0].freeze
 end
 
 module M
@@ -106,10 +97,10 @@ module M
     delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
       a.inject(0, :+)
     end
+
     def self.sup
       LittleDummy.new
     end
-    SUP_SIG = [0, 0].freeze
   end
 
   module N
@@ -146,6 +137,8 @@ class DeloreanFunctionsChildClass < DeloreanFunctionsClass
   delorean_fn :test_fn2, sig: 0 do
     :test_fn2_result
   end
+
+  def self.test_fn4; end
 end
 
 class DifferentClassSameMethod
@@ -153,6 +146,17 @@ class DifferentClassSameMethod
 
   delorean_fn :test_fn2, sig: 0 do
     :test_fn2_result_different
+  end
+
+  delorean_fn :test_fn3, sig: 0 do |a, b, c, d = :default, e = nil, *args|
+    {
+      a: a,
+      b: b,
+      c: c,
+      d: d,
+      e: e,
+      rest: args
+    }
   end
 end
 
