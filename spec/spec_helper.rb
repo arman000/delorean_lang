@@ -134,6 +134,33 @@ module M
   DummyModule = ::DummyModule
 end
 
+class DeloreanFunctionsClass
+  extend Delorean::Functions
+
+  delorean_fn :test_fn, sig: 0 do
+    :test_fn_result
+  end
+end
+
+class DeloreanFunctionsChildClass < DeloreanFunctionsClass
+  delorean_fn :test_fn2, sig: 0 do
+    :test_fn2_result
+  end
+end
+
+class DifferentClassSameMethod
+  extend Delorean::Functions
+
+  delorean_fn :test_fn2, sig: 0 do
+    :test_fn2_result_different
+  end
+end
+
+Delorean::Ruby.whitelist.add_class_method(
+  :match_to_test_fn2,
+  match_to: :test_fn2
+)
+
 ######################################################################
 
 class TestContainer < Delorean::AbstractContainer

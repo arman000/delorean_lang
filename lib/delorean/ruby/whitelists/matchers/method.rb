@@ -42,6 +42,10 @@ module Delorean
           def match_to?
             !match_to.nil?
           end
+
+          def extend
+            yield self if block_given?
+          end
         end
       end
     end

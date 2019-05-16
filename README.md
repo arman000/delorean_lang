@@ -163,13 +163,17 @@ There are two ways of calling ruby code from delorean. First one is to whitelist
 
 ```ruby
 
-  ::Delorean::Ruby.whitelist.add_method :length do |method|
+  ::Delorean::Ruby.whitelist.add__method :length do |method|
     method.called_on String
     method.called_on Enumerable
   end
 
   ::Delorean::Ruby.whitelist.add_method :first do |method|
     method.called_on Enumerable, with: [Integer]
+  end
+
+  ::Delorean::Ruby.whitelist.add_class_method :last do |method|
+    method.called_on ActiveRecord::Base, with: [Integer]
   end
 
 ```

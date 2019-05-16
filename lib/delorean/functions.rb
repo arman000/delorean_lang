@@ -2,19 +2,31 @@
 
 module Delorean
   module Functions
-    def delorean_fn(name, options = {})
+    # OBJ_OR_NIL = [nil, Object].freeze
+
+    def delorean_fn(name, _options = {})
+      # sig = options[:sig]
+      #
+      # raise 'no signature' unless sig
+
+      # sig = [sig, sig] if sig.is_a? Integer
+      #
+      # raise 'Bad signature' unless sig.is_a?(Array) && (sig.length == 2)
+      #
+      # required = [Object] * sig.first
+      # optional = [OBJ_OR_NIL] * (sig.last - sig.first)
+      #
+      # signature = required + optional
+
+      any_args = Delorean::Ruby::Whitelists::Matchers::Arguments::ANYTHING
+
       define_singleton_method(name) do |*args|
         yield(*args)
       end
 
-      sig = options[:sig]
-
-      raise 'no signature' unless sig
-
-      sig = [sig, sig] if sig.is_a? Integer
-      raise 'Bad signature' unless sig.is_a?(Array) && (sig.length == 2)
-
-      const_set(name.to_s.upcase + Delorean::SIG, sig)
+      ::Delorean::Ruby.whitelist.add_class_method name do |method|
+        method.called_on self, with: any_args
+      end
     end
 
     # FIXME: IDEA: we just make :cache an argument to delorean_fn.

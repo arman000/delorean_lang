@@ -202,7 +202,7 @@ module Delorean
       raise exc.new(msg, @module_name, curr_line)
     end
 
-    def parse_check_call_fn(fn, argcount, class_name = nil)
+    def parse_check_call_fn(fn, _argcount, class_name = nil)
       klass = case class_name
               when nil
                 @m::BaseClass
@@ -216,18 +216,18 @@ module Delorean
         klass.methods.member? fn.to_sym
 
       # signature methods must be named FUNCTION_NAME_SIG
-      sig = "#{fn}#{SIG}".upcase.to_sym
+      # sig = "#{fn}#{SIG}".upcase.to_sym
 
-      err(UndefinedFunctionError, "Signature #{sig} not found") unless
-        klass.constants.member? sig
+      # err(UndefinedFunctionError, "Signature #{sig} not found") unless
+      # klass.constants.member? sig
 
-      min, max = klass.const_get(sig)
+      # min, max = klass.const_get(sig)
 
-      err(BadCallError, "Too many args to #{fn} (#{argcount} > #{max})") if
-        argcount > max
-
-      err(BadCallError, "Too few args to #{fn} (#{argcount} < #{min})") if
-        argcount < min
+      # err(BadCallError, "Too many args to #{fn} (#{argcount} > #{max})") if
+      # argcount > max
+      #
+      # err(BadCallError, "Too few args to #{fn} (#{argcount} < #{min})") if
+      # argcount < min
     end
 
     def parser

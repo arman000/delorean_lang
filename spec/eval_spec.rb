@@ -371,6 +371,32 @@ eoc
     r.should == 867 + 5309
   end
 
+  it 'should be able call method defined in a parent or matched to' do
+    engine.parse defn(
+      'A:',
+      # '    a = DeloreanFunctionsChildClass.heres_my_number(867, 5309)',
+      '    b = DeloreanFunctionsChildClass.test_fn',
+      '    c = DeloreanFunctionsChildClass.test_fn2',
+      '    d = DifferentClassSameMethod.test_fn2',
+      '    e = DifferentClassSameMethod.match_to_test_fn2',
+    )
+    # binding.pry
+    # r = engine.evaluate('A', 'a')
+    # r.should == 867 + 5309
+
+    r = engine.evaluate('A', 'b')
+    r.should == :test_fn_result
+
+    r = engine.evaluate('A', 'c')
+    r.should == :test_fn2_result
+
+    r = engine.evaluate('A', 'd')
+    r.should == :test_fn2_result_different
+
+    r = engine.evaluate('A', 'e')
+    r.should == :test_fn2_result_different
+  end
+
   it 'should ignore undeclared params sent to eval which match attr names' do
     engine.parse defn('A:',
                       '    d = 12',
