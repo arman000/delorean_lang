@@ -3,10 +3,10 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 
+require 'pry'
 require 'rspec'
 require 'delorean_lang'
 require 'active_record'
-require 'pry'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
@@ -158,6 +158,40 @@ class DifferentClassSameMethod
       rest: args
     }
   end
+end
+
+class RootClass
+  def self.test_method(_int_arg)
+    :test_method_with_int_arg
+  end
+end
+
+Delorean::Ruby.whitelist.add_class_method :test_method do |method|
+  method.called_on RootClass, with: [Integer]
+end
+
+class RootClassChild < RootClass
+  def self.test_method(_str_arg)
+    :test_method_with_str_arg
+  end
+end
+
+Delorean::Ruby.whitelist.add_class_method :test_method do |method|
+  method.called_on RootClassChild, with: [String]
+end
+
+class RootClassChildsChild < RootClassChild
+  def self.test_method(_true_arg)
+    :test_method_with_true_arg
+  end
+end
+
+Delorean::Ruby.whitelist.add_class_method :test_method do |method|
+  method.called_on RootClassChildsChild, with: [TrueClass]
+end
+
+class RootClassChildsChildsChild < RootClassChildsChild
+  def self.test_method2(bool_arg); end
 end
 
 Delorean::Ruby.whitelist.add_class_method(
