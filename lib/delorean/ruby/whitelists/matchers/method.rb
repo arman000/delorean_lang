@@ -23,6 +23,12 @@ module Delorean
             )
 
             arguments_matchers << matcher
+
+            # Sort matchers by reversed ancestors chain length, so
+            # matcher method would find the closest ancestor in hierarchy
+            arguments_matchers.sort_by! do |obj|
+              -obj.called_on.ancestors.size
+            end
           end
 
           def matcher(klass:)
@@ -41,6 +47,10 @@ module Delorean
 
           def match_to?
             !match_to.nil?
+          end
+
+          def extend_matcher
+            yield self if block_given?
           end
         end
       end

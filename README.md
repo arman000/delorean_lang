@@ -172,6 +172,10 @@ There are two ways of calling ruby code from delorean. First one is to whitelist
     method.called_on Enumerable, with: [Integer]
   end
 
+  ::Delorean::Ruby.whitelist.add_class_method :last do |method|
+    method.called_on ActiveRecord::Base, with: [Integer]
+  end
+
 ```
 
 By default Delorean has some methods whitelisted, such as `length`, `min`, `max`, etc. Those can be found in `/lib/delorean/ruby/whitelists/default`. If you don't want to use defaults, you can override whitelist with and empty one.
