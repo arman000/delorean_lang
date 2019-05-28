@@ -393,21 +393,21 @@ describe 'Delorean' do
                      )
   end
 
-  it 'should get exception on arg count to class method call' do
-    lambda {
-      engine.parse defn('A:',
-                        '    b = Dummy.i_just_met_you(1, 2, 3)',
-                       )
-    }.should raise_error(Delorean::BadCallError)
-  end
-
-  it "shouldn't be able to call ActiveRecord methods without signature" do
-    lambda {
-      engine.parse defn('A:',
-                        '    b = Dummy.this_is_crazy()',
-                       )
-    }.should raise_error(Delorean::UndefinedFunctionError)
-  end
+  # it 'should get exception on arg count to class method call' do
+  # lambda {
+  # engine.parse defn('A:',
+  # '    b = Dummy.i_just_met_you(1, 2, 3)',
+  # )
+  # }.should raise_error(Delorean::BadCallError)
+  # end
+  #
+  # it "shouldn't be able to call ActiveRecord methods without signature" do
+  # lambda {
+  # engine.parse defn('A:',
+  # '    b = Dummy.this_is_crazy()',
+  # )
+  # }.should raise_error(Delorean::UndefinedFunctionError)
+  # end
 
   it 'should be able to call class methods on ActiveRecord classes in modules' do
     engine.parse defn('A:',

@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'treetop', '~> 1.5'
   gem.add_development_dependency 'pry'
   gem.add_development_dependency 'rspec', '~> 2.1'
+  gem.add_development_dependency 'rspec-instafail'
   gem.add_development_dependency 'rubocop'
   gem.add_development_dependency 'rubocop-performance'
   gem.add_development_dependency 'sqlite3', '~> 1.3.10'

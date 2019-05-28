@@ -160,14 +160,15 @@ module Delorean
           raise "bad method #{method}"
         end
 
-        # FIXME: this is pretty hacky -- should probably merge
-        # whitelist and SIG mechanisms.
         if obj.is_a?(Class) || obj.is_a?(Module)
-          _e[:_engine].parse_check_call_fn(method, args.count, obj)
-          return obj.send(msg, *args)
+          matcher = ::Delorean::Ruby.whitelist.class_method_matcher(
+            method_name: msg
+          )
+          klass = obj
+        else
+          matcher = ::Delorean::Ruby.whitelist.matcher(method_name: msg)
+          klass = obj.class
         end
-
-        matcher = ::Delorean::Ruby.whitelist.matcher(method_name: msg)
 
         raise "no such method #{method}" unless matcher
 
@@ -177,7 +178,7 @@ module Delorean
           )
         end
 
-        matcher.match!(klass: obj.class, args: args)
+        matcher.match!(klass: klass, args: args)
 
         obj.send(msg, *args)
       end
