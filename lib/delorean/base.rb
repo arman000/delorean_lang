@@ -180,7 +180,7 @@ module Delorean
 
         matcher.match!(klass: klass, args: args)
 
-        obj.send(msg, *args)
+        obj.public_send(msg, *args)
       end
 
       ######################################################################

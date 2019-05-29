@@ -181,13 +181,25 @@ Delorean::Ruby.whitelist.add_class_method :test_method do |method|
 end
 
 class RootClassChildsChild < RootClassChild
-  def self.test_method(_true_arg)
-    :test_method_with_true_arg
+  class << self
+    def test_method(_true_arg)
+      :test_method_with_true_arg
+    end
+
+    private
+
+    def test_private_method
+      :test_private_method
+    end
   end
 end
 
 Delorean::Ruby.whitelist.add_class_method :test_method do |method|
   method.called_on RootClassChildsChild, with: [TrueClass]
+end
+
+Delorean::Ruby.whitelist.add_class_method :test_private_method do |method|
+  method.called_on RootClassChildsChild, with: []
 end
 
 class RootClassChildsChildsChild < RootClassChildsChild

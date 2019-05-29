@@ -101,7 +101,8 @@ describe 'Delorean Ruby whitelisting' do
         '    i = RootClassChildsChildsChild.test_method()',
         '    j = RootClassChildsChildsChild.test_method',
         '    k = RootClassChildsChildsChild.test_method(true, true)',
-        '    l = RootClassChildsChildsChild.test_method2(true)'
+        '    l = RootClassChildsChildsChild.test_method2(true)',
+        '    m = RootClassChildsChildsChild.test_private_method',
       )
 
       engine
@@ -180,6 +181,13 @@ describe 'Delorean Ruby whitelisting' do
       expect { engine.evaluate('A', 'l') }.to raise_error(
         RuntimeError,
         'no such method test_method2'
+      )
+    end
+
+    it 'raises exception method is private' do
+      expect { engine.evaluate('A', 'm') }.to raise_error(
+        Delorean::InvalidGetAttribute,
+        /private method `test_private_method/
       )
     end
   end
