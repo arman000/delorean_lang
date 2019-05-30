@@ -10,6 +10,8 @@ module Delorean
       ::Delorean::Ruby.whitelist.add_class_method name do |method|
         method.called_on self, with: any_args
       end
+
+      name.to_sym
     end
 
     # FIXME: IDEA: we just make :cache an argument to delorean_fn.
