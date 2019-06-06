@@ -7,12 +7,16 @@ module Delorean
     module Whitelists
       module Matchers
         class Method
-          attr_reader :method_name, :match_to, :arguments_matchers
+          attr_reader :method_name,
+                      :match_to,
+                      :arguments_matchers,
+                      :arguments_matchers_hash
 
           def initialize(method_name:, match_to: nil)
             @method_name = method_name
             @match_to = match_to
             @arguments_matchers = []
+            @arguments_matchers_hash = {}
 
             yield self if block_given?
           end
@@ -21,6 +25,8 @@ module Delorean
             matcher = Ruby::Whitelists::Matchers::Arguments.new(
               called_on: klass, method_name: method_name, with: with
             )
+
+            arguments_matchers_hash[klass] = matcher
 
             arguments_matchers << matcher
 
@@ -32,7 +38,12 @@ module Delorean
           end
 
           def matcher(klass:)
-            matcher = arguments_matchers.find do |matcher_object|
+            # Optimization hack: Look for exact class matcher in hash.
+            # If it's not found, search for ancestor classes matchers in array
+            matcher = @arguments_matchers_hash[klass]
+            return matcher unless matcher.nil?
+
+            matcher = @arguments_matchers.find do |matcher_object|
               klass <= matcher_object.called_on
             end
 
