@@ -131,6 +131,9 @@ class DeloreanFunctionsClass
   delorean_fn :test_fn, sig: 0 do
     :test_fn_result
   end
+
+  delorean_fn :test_private_fn, private: true do
+  end
 end
 
 class DeloreanFunctionsChildClass < DeloreanFunctionsClass

@@ -81,3 +81,7 @@ Naming/RescuedExceptionsVariableName:
 Metrics/ParameterLists:
   Exclude:
     - 'spec/spec_helper.rb'
+
+Style/AccessModifierDeclarations:
+  Exclude:
+    - 'lib/delorean/functions.rb'

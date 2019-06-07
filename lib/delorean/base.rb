@@ -66,9 +66,7 @@ module Delorean
         # return true when we called obj.instance_of?(Hash) and do not
         # work with the "case/when" matcher!!!  For now, this is a
         # hacky workaround.  This is likely some sort of Ruby bug.
-        if obj.instance_of?(Hash)
-          return _get_hash_attr(obj, attr, _e)
-        end
+        return _get_hash_attr(obj, attr, _e) if obj.instance_of?(Hash)
 
         # NOTE: should keep this function consistent with _index
         case obj

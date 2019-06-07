@@ -448,6 +448,34 @@ eoc
     )
   end
 
+  it 'should raise exception if private method is called' do
+    engine.parse defn(
+      'A:',
+      '    a = DeloreanFunctionsClass.test_private_fn',
+      '    b = DeloreanFunctionsChildClass.test_private_fn'
+    )
+
+    lambda {
+      engine.evaluate('A', 'a')
+    }.should raise_error(
+      Delorean::InvalidGetAttribute,
+      "attr lookup failed: 'test_private_fn' on <Class> DeloreanFunctionsClass - no such method test_private_fn"
+    )
+
+    lambda {
+      engine.evaluate('A', 'b')
+    }.should raise_error(
+      "attr lookup failed: 'test_private_fn' on <Class> DeloreanFunctionsChildClass - no such method test_private_fn"
+    )
+
+    lambda {
+      DeloreanFunctionsClass.test_private_fn
+    }.should raise_error(
+      NoMethodError,
+      "private method `test_private_fn' called for DeloreanFunctionsClass:Class"
+    )
+  end
+
   it 'should ignore undeclared params sent to eval which match attr names' do
     engine.parse defn('A:',
                       '    d = 12',

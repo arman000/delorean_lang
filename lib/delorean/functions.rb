@@ -2,13 +2,17 @@
 
 module Delorean
   module Functions
-    def delorean_fn(name, _options = {}, &block)
+    def delorean_fn(name, options = {}, &block)
       any_args = Delorean::Ruby::Whitelists::Matchers::Arguments::ANYTHING
 
       define_singleton_method(name, block)
 
-      ::Delorean::Ruby.whitelist.add_class_method name do |method|
-        method.called_on self, with: any_args
+      if options[:private] == true
+        singleton_class.class_eval { private name }
+      else
+        ::Delorean::Ruby.whitelist.add_class_method name do |method|
+          method.called_on self, with: any_args
+        end
       end
 
       name.to_sym
