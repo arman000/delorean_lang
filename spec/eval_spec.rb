@@ -417,6 +417,26 @@ eoc
     }.should raise_error(RuntimeError, 'no such method this_is_crazy')
   end
 
+  it 'should be able to call cached_delorean_fn' do
+    engine.parse defn(
+      'A:',
+      '    b = Dummy.returns_cached_openstruct(1, 2)',
+      '    c = Dummy.returns_cached_openstruct(1, 2)',
+      '    d = Dummy.returns_cached_openstruct(1, 3)',
+    )
+
+    expect(OpenStruct).to receive(:new).twice.and_call_original
+
+    r = engine.evaluate('A', 'b')
+    r['1'].should eq 2
+
+    r = engine.evaluate('A', 'c')
+    r['1'].should eq 2
+
+    r = engine.evaluate('A', 'd')
+    r['1'].should eq 3
+  end
+
   it 'should raise exception if required arguments are missing' do
     engine.parse defn(
       'A:',

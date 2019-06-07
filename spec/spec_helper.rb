@@ -82,6 +82,10 @@ class Dummy < ActiveRecord::Base
   cached_delorean_fn :returns_cached_openstruct, sig: 2 do |first, last|
     OpenStruct.new(first.to_s => last)
   end
+
+  delorean_fn :returns_cached_openstruct2, cache: true, sig: 2 do |first, last|
+    OpenStruct.new(first.to_s => last)
+  end
 end
 
 class DummyChild < Dummy

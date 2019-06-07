@@ -23,6 +23,15 @@ describe 'Delorean cache' do
     expect(res1).to eq res2
   end
 
+  it 'uses cache2' do
+    expect(OpenStruct).to receive(:new).once.and_call_original
+
+    res1 = Dummy.returns_cached_openstruct2(1, 2)
+    res2 = Dummy.returns_cached_openstruct2(1, 2)
+
+    expect(res1).to eq res2
+  end
+
   it 'clears cache' do
     expect(OpenStruct).to receive(:new).twice.and_call_original
     Dummy.returns_cached_openstruct
