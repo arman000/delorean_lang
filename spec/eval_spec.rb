@@ -746,6 +746,18 @@ eof
     engine.evaluate('A', 'c').should == { 0.5 => 50 }
   end
 
+  it 'should eval hash methods such as length' do
+    engine.parse defn('A:',
+                      '    b = {}',
+                      "    c = {'a':1, 'b': 2,'c':3}",
+                      '    length1 = b.length',
+                      '    length2 = c.length',
+                     )
+
+    engine.evaluate('A', 'length1').should == 0
+    engine.evaluate('A', 'length2').should == 3
+  end
+
   it 'should eval node calls as intermediate results' do
     engine.parse defn('A:',
                       '    a =?',

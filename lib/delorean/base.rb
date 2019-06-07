@@ -67,12 +67,7 @@ module Delorean
         # work with the "case/when" matcher!!!  For now, this is a
         # hacky workaround.  This is likely some sort of Ruby bug.
         if obj.instance_of?(Hash)
-          # FIXME: this implementation doesn't handle something like
-          # {}.length.  i.e. length is a whitelisted function, but not
-          # an attr. This implementation returns nil instead of 0.
-          return obj[attr] if obj.member?(attr)
-
-          return attr.is_a?(String) ? obj[attr.to_sym] : nil
+          return _get_hash_attr(obj, attr, _e)
         end
 
         # NOTE: should keep this function consistent with _index
@@ -96,6 +91,21 @@ module Delorean
             InvalidGetAttribute,
             "attr lookup failed: '#{attr}' on <#{obj.class}> #{obj} - #{exc}"
           )
+        end
+      end
+
+      def self._get_hash_attr(obj, attr, _e)
+        return obj[attr] if obj.key?(attr)
+
+        return obj[attr.to_sym] if attr.is_a?(String) && obj.key?(attr.to_sym)
+
+        # hash.length might be either hash['length'] or hash.length call.
+        # If key is not found, try to call the method.
+        # If not succeeded, return nil, assuming that it was an attribute call.
+        begin
+          return _instance_call(obj, attr, [], _e)
+        rescue StandardError
+          return nil
         end
       end
 
