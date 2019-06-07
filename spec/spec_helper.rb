@@ -63,10 +63,7 @@ class Dummy < ActiveRecord::Base
     "#{name}-#{number.round(4)}"
   end
 
-  delorean_fn :one_or_two, sig: [1, 2] do |*args|
-    # FIXME: |a,b| will not work properly with delorean_fn
-    a, b = args
-
+  delorean_fn :one_or_two, sig: [1, 2] do |a, b = nil|
     [a, b]
   end
 

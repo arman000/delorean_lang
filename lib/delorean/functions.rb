@@ -22,15 +22,10 @@ module Delorean
       name.to_sym
     end
 
-    # FIXME: IDEA: we just make :cache an argument to delorean_fn.
-    # That way, we don't need the cached_ flavors.  It'll make all
-    # this code a lot simpler.  We should also just add the :private
-    # mechanism here.
-
     # By default implements a VERY HACKY class-based (per process) caching
-    # mechanism for database lookup results.  Issues include: cached
-    # values are ActiveRecord objects.  Query results can be very
-    # large lists which we count as one item in the cache.  Caching
+    # mechanism for database lookup results. Issues include: cached
+    # values are ActiveRecord objects. Query results can be very
+    # large lists which we count as one item in the cache. Caching
     # mechanism will result in large processes.
     def cached_delorean_fn(name, options = {})
       delorean_fn(name, options) do |*args|
