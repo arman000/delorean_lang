@@ -188,7 +188,7 @@ By default Delorean has some methods whitelisted, such as `length`, `min`, `max`
 
 ```
 
-Another way is to define methods using `delorean_fn` and `cached_delorean_fn`.
+Another way is to define methods using `delorean_fn` with optional `private` and `cache` flags.
 Use `extend Delorean::Functions` or `include Delorean::Model` in your module or class.
 
 ```ruby
@@ -196,6 +196,10 @@ class Dummy < ActiveRecord::Base
   include Delorean::Model
 
   delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
+    a.inject(0, :+)
+  end
+
+  delorean_fn :private_cached_number, cache: true, private: true do |*a|
     a.inject(0, :+)
   end
 end
@@ -219,10 +223,10 @@ ExampleScript:
 
 ### Caching
 
-Delorean provides `cached_delorean_function` method that will cache result based on arguments.
+Delorean provides `cache` flag for `delorean_fn` method that will cache result based on arguments.
 
 ```ruby
-  cached_delorean_fn :returns_cached_openstruct, sig: 1 do |timestamp|
+  delorean_fn :returns_cached_openstruct, cache: true do |timestamp|
     User.all
   end
 
