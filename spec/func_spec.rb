@@ -222,11 +222,13 @@ describe 'Delorean' do
 
   it 'should be able to call function on hash' do
     engine.parse defn('A:',
-                      '    n = {}.length',
                       "    m = {'length':100}.length",
+                      '    n = {}.length',
+                      '    o = {}["length"]',
                      )
-    engine.evaluate('A', 'n').should == 0
     engine.evaluate('A', 'm').should == 100
+    engine.evaluate('A', 'n').should == 0
+    engine.evaluate('A', 'o').should.nil?
   end
 
   it 'should be able to call hash except' do

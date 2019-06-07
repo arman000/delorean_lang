@@ -3,8 +3,9 @@
 module Delorean
   module Functions
     def delorean_fn(name, options = {}, &block)
-      if options.delete(:cache) == true
-        return cached_delorean_fn(name, options, &block)
+      if options[:cache] == true
+        new_options = options.reject { |key, _| key == :cache }
+        return cached_delorean_fn(name, new_options, &block)
       end
 
       any_args = Delorean::Ruby::Whitelists::Matchers::Arguments::ANYTHING
