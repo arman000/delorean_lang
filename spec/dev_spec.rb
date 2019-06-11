@@ -18,7 +18,7 @@ describe 'Delorean' do
                       '    c =?',
                       '    d = 456',
                      )
-    engine.enumerate_nodes.should == SortedSet.new(['A', 'X', 'XX', 'Y'])
+    expect(engine.enumerate_nodes).to eq(SortedSet.new(['A', 'X', 'XX', 'Y']))
   end
 
   it 'can enumerate attrs by node' do
@@ -41,11 +41,11 @@ describe 'Delorean' do
     }
     res = engine.enumerate_attrs
 
-    res.keys.sort.should == exp.keys.sort
+    expect(res.keys.sort).to eq(exp.keys.sort)
 
     exp.each do |k, v|
-      engine.enumerate_attrs_by_node(k).sort.should == v
-      res[k].sort.should == v
+      expect(engine.enumerate_attrs_by_node(k).sort).to eq(v)
+      expect(res[k].sort).to eq(v)
     end
   end
 
@@ -64,7 +64,7 @@ describe 'Delorean' do
                       '    e =? 11',
                      )
 
-    engine.enumerate_params.should == Set.new(['a', 'c', 'e'])
+    expect(engine.enumerate_params).to eq(Set.new(['a', 'c', 'e']))
   end
 
   it 'can enumerate params by node' do
@@ -81,9 +81,9 @@ describe 'Delorean' do
                       '    c =? 22',
                       '    e =? 11',
                      )
-    engine.enumerate_params_by_node('X').should == Set.new(['a'])
-    engine.enumerate_params_by_node('XX').should == Set.new(['a', 'c'])
-    engine.enumerate_params_by_node('YY').should == Set.new(['a', 'c', 'e'])
-    engine.enumerate_params_by_node('Z').should == Set.new([])
+    expect(engine.enumerate_params_by_node('X')).to eq(Set.new(['a']))
+    expect(engine.enumerate_params_by_node('XX')).to eq(Set.new(['a', 'c']))
+    expect(engine.enumerate_params_by_node('YY')).to eq(Set.new(['a', 'c', 'e']))
+    expect(engine.enumerate_params_by_node('Z')).to eq(Set.new([]))
   end
 end
