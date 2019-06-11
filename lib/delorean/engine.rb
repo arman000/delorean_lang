@@ -266,7 +266,7 @@ module Delorean
         if multi_line
           # if line starts with >4 spaces, assume it's a multline
           # continuation.
-          if line =~ /\A {5}/
+          if /\A {5}/.match?(line)
             multi_line += line
             next
           else

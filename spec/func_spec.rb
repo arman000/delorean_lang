@@ -13,7 +13,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('MAX', 'a')
-    r.should == 3
+    expect(r).to eq(3)
   end
 
   it 'should handle COMPACT' do
@@ -32,7 +32,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', 'a')
-    r.should == -3
+    expect(r).to eq(-3)
   end
 
   it 'should handle ROUND' do
@@ -43,7 +43,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', ['a', 'b', 'c'])
-    r.should == [12.35, 12.3, 12]
+    expect(r).to eq([12.35, 12.3, 12])
   end
 
   it 'should handle TRUNCATE' do
@@ -54,7 +54,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', ['a', 'b', 'c'])
-    r.should == [12.34, 12.3, 12]
+    expect(r).to eq([12.34, 12.3, 12])
   end
 
   it 'should handle FLOOR' do
@@ -63,7 +63,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', 'a')
-    r.should == [12, 13]
+    expect(r).to eq([12, 13])
   end
 
   it 'should handle TO_F' do
@@ -75,7 +75,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', ['a', 'b', 'c', 'd'])
-    r.should == [12.3456, 12.3456, 12, 1_525_456_587.0]
+    expect(r).to eq([12.3456, 12.3456, 12, 1_525_456_587.0])
   end
 
   it 'should handle ABS' do
@@ -87,7 +87,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', ['a', 'b', 'c', 'd'])
-    r.should == [123, 1.1, 2.3, 0]
+    expect(r).to eq([123, 1.1, 2.3, 0])
   end
 
   it 'should handle STRING' do
@@ -98,7 +98,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', ['a', 'b', 'c'])
-    r.should == ['hello', '12.3456', [1, 2, 3].to_s]
+    expect(r).to eq(['hello', '12.3456', [1, 2, 3].to_s])
   end
 
   it 'should handle FETCH' do
@@ -110,7 +110,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', ['a', 'b', 'c'])
-    r.should == [123, 111, 456]
+    expect(r).to eq([123, 111, 456])
   end
 
   it 'should handle TIMEPART' do
@@ -126,10 +126,10 @@ describe 'Delorean' do
     p = Time.now
     params = { 'p' => p }
     r = engine.evaluate('A', %w[h m s d e], params)
-    r.should == [p.hour, p.min, p.sec, p.to_date, p.to_date]
+    expect(r).to  eq([p.hour, p.min, p.sec, p.to_date, p.to_date])
 
     # Non time argument should raise an error
-    expect { engine.evaluate('A', ['m'], 'p' => 123) }.to raise_error
+    expect { engine.evaluate('A', ['m'], 'p' => 123) }.to raise_error(RuntimeError)
   end
 
   it 'should handle DATEPART' do
@@ -142,12 +142,12 @@ describe 'Delorean' do
 
     p = Date.today
     r = engine.evaluate('A', ['y', 'd', 'm'], 'p' => p)
-    r.should == [p.year, p.day, p.month]
+    expect(r).to eq([p.year, p.day, p.month])
 
     # Non date argument should raise an error
     expect do
       engine.evaluate('A', ['y', 'd', 'm'], 'p' => 123)
-    end.to raise_error
+    end.to raise_error(RuntimeError)
   end
 
   it 'should handle FLATTEN' do
@@ -158,7 +158,7 @@ describe 'Delorean' do
                       '    b = a.flatten() + a.flatten(1)'
                      )
 
-    engine.evaluate('A', 'b').should == x.flatten + x.flatten(1)
+    expect(engine.evaluate('A', 'b')).to eq(x.flatten + x.flatten(1))
   end
 
   it 'should handle ZIP' do
@@ -173,7 +173,7 @@ describe 'Delorean' do
                       '    d = a.zip(b) + a.zip(b, c)',
                      )
 
-    expect(engine.evaluate('A', 'd')).to eq a.zip(b) + a.zip(b, c)
+    expect(engine.evaluate('A', 'd')).to eq(a.zip(b) + a.zip(b, c))
   end
 
   it 'should handle ERR' do
@@ -184,9 +184,7 @@ describe 'Delorean' do
 
     expect { engine.evaluate('A', 'a') }.to raise_error('hello')
 
-    lambda {
-      engine.evaluate('A', 'b')
-    }.should raise_error('xx, 1, 2, 3')
+    expect { engine.evaluate('A', 'b') }.to raise_error('xx, 1, 2, 3')
   end
 
   it 'should handle RUBY' do
@@ -208,16 +206,16 @@ describe 'Delorean' do
                       "    o = 'hello'.length",
                      )
 
-    engine.evaluate('A', 'c').should == x.flatten(1)
-    engine.evaluate('A', 'd').should == x.flatten + x.flatten(1)
+    expect(engine.evaluate('A', 'c')).to eq(x.flatten(1))
+    expect(engine.evaluate('A', 'd')).to eq(x.flatten + x.flatten(1))
     dd = engine.evaluate('A', 'dd')
-    engine.evaluate('A', 'e').should == dd.sort
-    engine.evaluate('A', 'f').should == dd.sort.uniq
-    engine.evaluate('A', 'g').should == dd.length
-    engine.evaluate('A', 'gg').should == x.length
-    engine.evaluate('A', 'm').should == [x.member?(5), x.member?(55)]
-    engine.evaluate('A', 'n').should == 3
-    engine.evaluate('A', 'o').should == 5
+    expect(engine.evaluate('A', 'e')).to eq(dd.sort)
+    expect(engine.evaluate('A', 'f')).to eq(dd.sort.uniq)
+    expect(engine.evaluate('A', 'g')).to eq(dd.length)
+    expect(engine.evaluate('A', 'gg')).to eq(x.length)
+    expect(engine.evaluate('A', 'm')).to eq([x.member?(5), x.member?(55)])
+    expect(engine.evaluate('A', 'n')).to eq(3)
+    expect(engine.evaluate('A', 'o')).to eq(5)
   end
 
   it 'should be able to call function on hash' do
@@ -230,8 +228,8 @@ describe 'Delorean' do
                       '    n = {}.length',
                       "    m = {'length':100}.length",
                      )
-    engine.evaluate('A', 'n').should == 0
-    engine.evaluate('A', 'm').should == 100
+    expect(engine.evaluate('A', 'n')).to eq(0)
+    expect(engine.evaluate('A', 'm')).to eq(100)
   end
 
   it 'should be able to call hash except' do
@@ -249,7 +247,7 @@ describe 'Delorean' do
                       "    a = #{x}",
                       '    b = a.slice(0, 4)',
                      )
-    engine.evaluate('A', 'b').should == x.slice(0, 4)
+    expect(engine.evaluate('A', 'b')).to eq(x.slice(0, 4))
   end
 
   it 'should handle RUBY empty? function' do
@@ -262,7 +260,9 @@ describe 'Delorean' do
                       '    c1 = {1,2,3}',
                       '    res = [a0.empty, b0.empty(), c0.empty, a1.empty, b1.empty(), c1.empty]',
                      )
-    engine.evaluate('A', 'res').should == [true, true, true, false, false, false]
+    expect(engine.evaluate('A', 'res')).to eq(
+      [true, true, true, false, false, false]
+    )
   end
 
   it 'should handle BETWEEN' do

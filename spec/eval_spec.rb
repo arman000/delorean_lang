@@ -25,10 +25,10 @@ describe 'Delorean' do
                       '    d = a ** 3 - 10*0.2',
                      )
 
-    engine.evaluate('A', ['a']).should == [123]
+    expect(engine.evaluate('A', ['a'])).to eq([123])
 
     r = engine.evaluate('A', ['x', 'b'])
-    r.should == [-246, -124]
+    expect(r).to eq([-246, -124])
 
     expect(engine.evaluate('A', 'd')).to eq 1_860_865.0
   end
@@ -40,7 +40,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', 'c')
-    r.should == -122
+    expect(r).to eq(-122)
   end
 
   it 'proper string interpolation' do
@@ -49,7 +49,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', 'a')
-    r.should == "\n123\n"
+    expect(r).to eq("\n123\n")
   end
 
   it 'should handle getattr in expressions' do
@@ -57,7 +57,7 @@ describe 'Delorean' do
                       "    a = {'x':123, 'y':456, 'z':789}",
                       '    b = A.a.x * A.a.y - A.a.z',
                      )
-    engine.evaluate('A', ['b']).should == [123 * 456 - 789]
+    expect(engine.evaluate('A', ['b'])).to eq([123 * 456 - 789])
   end
 
   it 'should handle numeric getattr' do
@@ -65,7 +65,7 @@ describe 'Delorean' do
                       "    a = {1:123, 0:456, 'z':789, 2: {'a':444}}",
                       '    b = A.a.1 * A.a.0 - A.a.z - A.a.2.a',
                      )
-    engine.evaluate('A', ['b']).should == [123 * 456 - 789 - 444]
+    expect(engine.evaluate('A', ['b'])).to eq([123 * 456 - 789 - 444])
   end
 
   it 'should be able to evaluate multiple node attrs' do
@@ -77,7 +77,7 @@ describe 'Delorean' do
 
     h = { 'a' => 16 }
     r = engine.evaluate('A', ['c', 'b'], h)
-    r.should == [4, 5]
+    expect(r).to eq([4, 5])
   end
 
   it 'should give error when accessing undefined attr' do
@@ -86,9 +86,9 @@ describe 'Delorean' do
                       '    c = a.to_ss',
                      )
 
-    lambda {
-      engine.evaluate('A', 'c')
-    }.should raise_error(Delorean::InvalidGetAttribute)
+    expect { engine.evaluate('A', 'c') }.to raise_error(
+      Delorean::InvalidGetAttribute
+    )
   end
 
   it 'should be able to call 0-ary functions without ()' do
@@ -96,8 +96,7 @@ describe 'Delorean' do
                       '    a = 1',
                       '    d = a.to_s',
                      )
-
-    engine.evaluate('A', 'd').should == '1'
+    expect(engine.evaluate('A', 'd')).to eq('1')
   end
 
   it 'should handle default param values' do
@@ -107,7 +106,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', 'c')
-    r.should == 1
+    expect(r).to eq(1)
   end
 
   it 'order of attr evaluation should not matter' do
@@ -117,8 +116,8 @@ describe 'Delorean' do
                       '    a =? 2',
                       '    c = A.a',
                      )
-    engine.evaluate('B', %w[c a]).should == [1, 2]
-    engine.evaluate('B', %w[a c]).should == [2, 1]
+    expect(engine.evaluate('B', %w[c a])).to eq([1, 2])
+    expect(engine.evaluate('B', %w[a c])).to eq([2, 1])
   end
 
   it 'params should behave properly with inheritance' do
@@ -131,9 +130,9 @@ describe 'Delorean' do
                       '    b = B.a',
                       '    c = A.a',
                      )
-    engine.evaluate('C', %w[a b c]).should == [3, 2, 1]
-    engine.evaluate('C', %w[a b c], 'a' => 4).should == [4, 4, 4]
-    engine.evaluate('C', %w[c b a]).should == [1, 2, 3]
+    expect(engine.evaluate('C', %w[a b c])).to eq([3, 2, 1])
+    expect(engine.evaluate('C', %w[a b c], 'a' => 4)).to eq([4, 4, 4])
+    expect(engine.evaluate('C', %w[c b a])).to eq([1, 2, 3])
   end
 
   it 'should give error when param is undefined for eval' do
@@ -142,9 +141,9 @@ describe 'Delorean' do
                       '    c = a / 123.0',
                      )
 
-    lambda {
-      engine.evaluate('A', 'c')
-    }.should raise_error(Delorean::UndefinedParamError)
+    expect { engine.evaluate('A', 'c') }.to raise_error(
+      Delorean::UndefinedParamError
+    )
   end
 
   it 'should handle simple param computation' do
@@ -154,7 +153,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', 'c', 'a' => 123)
-    r.should == 1
+    expect(r).to eq(1)
   end
 
   it 'should give error on unknown node' do
@@ -162,9 +161,9 @@ describe 'Delorean' do
                       '    a = 1',
                      )
 
-    lambda {
-      engine.evaluate('B', 'a')
-    }.should raise_error(Delorean::UndefinedNodeError)
+    expect { engine.evaluate('B', 'a') }.to raise_error(
+      Delorean::UndefinedNodeError
+    )
   end
 
   it 'should handle runtime errors and report module/line number' do
@@ -179,10 +178,10 @@ describe 'Delorean' do
       res = Delorean::Engine.grok_runtime_exception(exc)
     end
 
-    res.should == {
+    expect(res).to eq(
       'error' => 'divided by 0',
       'backtrace' => [['XXX', 2, '/'], ['XXX', 2, 'a'], ['XXX', 3, 'b']],
-    }
+    )
   end
 
   it 'should handle runtime errors 2' do
@@ -196,7 +195,7 @@ describe 'Delorean' do
       res = Delorean::Engine.grok_runtime_exception(exc)
     end
 
-    res['backtrace'].should == [['XXX', 2, 'b']]
+    expect(res['backtrace']).to eq([['XXX', 2, 'b']])
   end
 
   it 'should handle optional args to external fns' do
@@ -205,8 +204,8 @@ describe 'Delorean' do
                       "    c = Dummy.one_or_two([1,2,3], ['a', 'b'])",
                      )
 
-    engine.evaluate('A', 'b').should == [['a', 'b'], nil]
-    engine.evaluate('A', 'c').should == [[1, 2, 3], ['a', 'b']]
+    expect(engine.evaluate('A', 'b')).to eq([['a', 'b'], nil])
+    expect(engine.evaluate('A', 'c')).to eq([[1, 2, 3], ['a', 'b']])
   end
 
   it 'should handle operator precedence properly' do
@@ -218,10 +217,10 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('A', 'd')
-    r.should == -50
+    expect(r).to eq(-50)
 
     r = engine.evaluate('A', 'e')
-    r.should == -124
+    expect(r).to eq(-124)
   end
 
   it 'should handle if/else' do
@@ -232,10 +231,10 @@ describe 'Delorean' do
 
     engine.parse text
     r = engine.evaluate('A', 'e', 'd' => -100)
-    r.should == 'gungamstyle'
+    expect(r).to eq('gungamstyle')
 
     r = engine.evaluate('A', 'e')
-    r.should == 'korea'
+    expect(r).to eq('korea')
   end
 
   it 'should be able to access specific node attrs ' do
@@ -250,9 +249,9 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('B', 'c')
-    r.should == 123 * 123
+    expect(r).to eq(123 * 123)
     r = engine.evaluate('C', 'c', 'c' => 5)
-    r.should == 123 * 123 + 5
+    expect(r).to eq(123 * 123 + 5)
   end
 
   it 'should be able to access nodes and node attrs dynamically ' do
@@ -264,7 +263,7 @@ describe 'Delorean' do
                      )
 
     r = engine.evaluate('B', 'c')
-    r.should == 123 * 456
+    expect(r).to eq(123 * 456)
   end
 
   it 'should be able to call class methods on ActiveRecord classes' do
@@ -274,7 +273,7 @@ describe 'Delorean' do
                       '    d = Dummy.call_me_maybe(5) + b + c',
                      )
     r = engine.evaluate('A', ['b', 'c', 'd'])
-    r.should == [10, 0, 15]
+    expect(r).to eq([10, 0, 15])
   end
 
   it 'should be able to access ActiveRecord whitelisted fns using .x syntax' do
@@ -282,7 +281,7 @@ describe 'Delorean' do
                       '    b = Dummy.i_just_met_you("CRJ", 1.234).name2',
                      )
     r = engine.evaluate('A', 'b')
-    r.should == 'CRJ-1.234'
+    expect(r).to eq('CRJ-1.234')
   end
 
   it 'should be able to get attr on Hash objects using a.b syntax' do
@@ -292,7 +291,7 @@ describe 'Delorean' do
                       '    d = b.b',
                       '    e = b.this_is_crazy',
                      )
-    engine.evaluate('A', %w[c d e]).should == [456, 789, nil]
+    expect(engine.evaluate('A', %w[c d e])).to eq([456, 789, nil])
   end
 
   it 'get attr on nil should return nil' do
@@ -302,7 +301,7 @@ describe 'Delorean' do
                       '    d = b.gaga || 55',
                      )
     r = engine.evaluate('A', ['b', 'c', 'd'])
-    r.should == [nil, nil, 55]
+    expect(r).to eq([nil, nil, 55])
   end
 
   it 'should be able to get attr on node' do
@@ -311,7 +310,7 @@ describe 'Delorean' do
                       '    b = A',
                       '    c = b.a * 2',
                      )
-    engine.evaluate('A', %w[a c]).should == [123, 123 * 2]
+    expect(engine.evaluate('A', %w[a c])).to eq([123, 123 * 2])
   end
 
   getattr_code = <<eoc
@@ -329,7 +328,7 @@ eoc
 
   it 'should be able to get attr on node 2' do
     engine.parse getattr_code
-    engine.evaluate('E', 'xx').should == [1, 2, 3]
+    expect(engine.evaluate('E', 'xx')).to eq([1, 2, 3])
   end
 
   it 'should be able to call class methods on AR classes in modules' do
@@ -338,10 +337,10 @@ eoc
                       '    c = M::N::NestedDummy.heres_my_number(867, 5309)',
                      )
     r = engine.evaluate('A', 'b')
-    r.should == 867 + 5309
+    expect(r).to eq(867 + 5309)
 
     r = engine.evaluate('A', 'c')
-    r.should == 867 + 5309
+    expect(r).to eq(867 + 5309)
   end
 
   it 'should be able to use AR classes as values and call their methods' do
@@ -351,10 +350,10 @@ eoc
                       '    c = M::N::NestedDummy.heres_my_number(867, 5309)',
                      )
     r = engine.evaluate('A', 'b')
-    r.should == 867 + 5309
+    expect(r).to eq(867 + 5309)
 
     r = engine.evaluate('A', 'c')
-    r.should == 867 + 5309
+    expect(r).to eq(867 + 5309)
   end
 
   it 'should be able to use ruby modules as values and call their methods' do
@@ -365,10 +364,10 @@ eoc
                      )
     # binding.pry
     r = engine.evaluate('A', 'b')
-    r.should == 867 + 5309
+    expect(r).to eq(867 + 5309)
 
     r = engine.evaluate('A', 'c')
-    r.should == 867 + 5309
+    expect(r).to eq(867 + 5309)
   end
 
   it 'should be able call method defined in a parent or matched to' do
@@ -381,16 +380,16 @@ eoc
     )
 
     r = engine.evaluate('A', 'b')
-    r.should == :test_fn_result
+    expect(r).to eq(:test_fn_result)
 
     r = engine.evaluate('A', 'c')
-    r.should == :test_fn2_result
+    expect(r).to eq(:test_fn2_result)
 
     r = engine.evaluate('A', 'd')
-    r.should == :test_fn2_result_different
+    expect(r).to eq(:test_fn2_result_different)
 
     r = engine.evaluate('A', 'e')
-    r.should == :test_fn2_result_different
+    expect(r).to eq(:test_fn2_result_different)
   end
 
   it 'should raise exception if method is not whitelisted' do
@@ -401,20 +400,18 @@ eoc
       '    c = Dummy.this_is_crazy()',
     )
 
-    lambda {
-      engine.evaluate('A', 'a')
-    }.should raise_error(
+    expect { engine.evaluate('A', 'a') }.to raise_error(
       Delorean::InvalidGetAttribute,
       "attr lookup failed: 'test_fn4' on <Class> DeloreanFunctionsChildClass - no such method test_fn4"
     )
 
-    lambda {
-      engine.evaluate('A', 'b')
-    }.should raise_error(RuntimeError, 'no such method test_fn4')
+    expect { engine.evaluate('A', 'b') }.to raise_error(
+      RuntimeError, 'no such method test_fn4'
+    )
 
-    lambda {
-      engine.evaluate('A', 'c')
-    }.should raise_error(RuntimeError, 'no such method this_is_crazy')
+    expect { engine.evaluate('A', 'c') }.to raise_error(
+      RuntimeError, 'no such method this_is_crazy'
+    )
   end
 
   it 'should raise exception if required arguments are missing' do
@@ -428,21 +425,17 @@ eoc
     )
 
     r = engine.evaluate('A', 'a')
-    r.should == { a: 1, b: 2, c: 3, d: 4, e: 5, rest: [6, 7, 8, 9, 10] }
+    expect(r).to eq(a: 1, b: 2, c: 3, d: 4, e: 5, rest: [6, 7, 8, 9, 10])
 
     r = engine.evaluate('A', 'b')
-    r.should == { a: 1, b: 2, c: 3, d: 4, e: nil, rest: [] }
+    expect(r).to eq(a: 1, b: 2, c: 3, d: 4, e: nil, rest: [])
 
-    lambda {
-      r = engine.evaluate('A', 'c')
-    }.should raise_error(
+    expect { r = engine.evaluate('A', 'c') }.to raise_error(
       ArgumentError,
       'wrong number of arguments (given 2, expected 3+)'
     )
 
-    lambda {
-      r = engine.evaluate('A', 'd')
-    }.should raise_error(
+    expect { r = engine.evaluate('A', 'd') }.to raise_error(
       ArgumentError,
       'wrong number of arguments (given 0, expected 3+)'
     )
@@ -453,7 +446,7 @@ eoc
                       '    d = 12',
                      )
     r = engine.evaluate('A', 'd', 'd' => 5, 'e' => 6)
-    r.should == 12
+    expect(r).to eq(12)
   end
 
   it 'should handle different param defaults on nodes' do
@@ -467,19 +460,19 @@ eoc
                      )
 
     r = engine.evaluate('C', 'c', 'p' => 5)
-    r.should == 5 * 123
+    expect(r).to eq(5 * 123)
 
     r = engine.evaluate('B', 'c', 'p' => 10)
-    r.should == 10 * 123
+    expect(r).to eq(10 * 123)
 
     r = engine.evaluate('A', 'c')
-    r.should == 1 * 123
+    expect(r).to eq(1 * 123)
 
     r = engine.evaluate('B', 'c')
-    r.should == 2 * 123
+    expect(r).to eq(2 * 123)
 
     r = engine.evaluate('C', 'c')
-    r.should == 3 * 123
+    expect(r).to eq(3 * 123)
   end
 
   it 'should allow overriding of attrs as params' do
@@ -491,14 +484,14 @@ eoc
                      )
 
     r = engine.evaluate('A', 'b', 'a' => 10)
-    r.should == 2 * 3
+    expect(r).to eq(2 * 3)
 
     r = engine.evaluate('B', 'b', 'a' => 10)
-    r.should == 10 * 3
+    expect(r).to eq(10 * 3)
 
-    lambda {
-      r = engine.evaluate('B', 'b')
-    }.should raise_error(Delorean::UndefinedParamError)
+    expect { r = engine.evaluate('B', 'b') }.to raise_error(
+      Delorean::UndefinedParamError
+    )
   end
 
   sample_script = <<eof
@@ -519,17 +512,17 @@ eof
     engine.parse sample_script
 
     r = engine.evaluate('C', 'c')
-    r.should == 4
+    expect(r).to eq(4)
 
     r = engine.evaluate('B', 'pc')
-    r.should == 4 + 5
+    expect(r).to eq(4 + 5)
 
     r = engine.evaluate('C', 'pc')
-    r.should == 4 + 3
+    expect(r).to eq(4 + 3)
 
-    lambda {
-      r = engine.evaluate('A', 'pc')
-    }.should raise_error(Delorean::UndefinedParamError)
+    expect { r = engine.evaluate('A', 'pc') }.to raise_error(
+      Delorean::UndefinedParamError
+    )
   end
 
   it 'engines of same name should be independent' do
@@ -551,17 +544,24 @@ eof
                       '    d = 111',
                      )
 
-    engine.evaluate('A', ['a', 'b']).should == [123, 123 * 3]
-    engin2.evaluate('A', ['a', 'b']).should == [222.0, 222.0 / 5]
+    expect(engine.evaluate('A', ['a', 'b'])).to eq(
+      [123, 123 * 3]
+    )
+    expect(engin2.evaluate('A', ['a', 'b'])).to eq(
+      [222.0, 222.0 / 5]
+    )
 
-    engine.evaluate('B', ['a', 'b', 'c']).should == [123, 123 * 3, 123 * 3 * 2]
-    engin2.evaluate('B', ['a', 'b', 'c']).should ==
+    expect(engine.evaluate('B', ['a', 'b', 'c'])).to eq(
+      [123, 123 * 3, 123 * 3 * 2]
+    )
+    expect(engin2.evaluate('B', ['a', 'b', 'c'])).to eq(
       [222.0, 222.0 / 5, 222.0 / 5 * 3]
+    )
 
-    engin2.evaluate('C', 'd').should == 111
-    lambda {
-      engine.evaluate('C', 'd')
-    }.should raise_error(Delorean::UndefinedNodeError)
+    expect(engin2.evaluate('C', 'd')).to eq(111)
+    expect { engine.evaluate('C', 'd') }.to raise_error(
+      Delorean::UndefinedNodeError
+    )
   end
 
   it 'should handle invalid expression evaluation' do
@@ -578,12 +578,12 @@ eof
                       '    e = [1, 1+1, 1+1+1, 1*2*4]',
                      )
 
-    engine.evaluate('A', %w[b c d e]).should ==
+    expect(engine.evaluate('A', %w[b c d e])).to eq(
       [[],
        [1, 2, 3],
        [[], [1, 2, 3], [], [1, 2, 3], 1, 2, '123', 1.1, -1.23],
        [1, 2, 3, 8],
-      ]
+      ])
   end
 
   it 'should eval list expressions' do
@@ -593,11 +593,11 @@ eof
                       '    d = c*2',
                      )
 
-    engine.evaluate('A', %w[b c d]).should ==
+    expect(engine.evaluate('A', %w[b c d])).to eq(
       [[],
        [1, 2, 3],
        [1, 2, 3] * 2,
-      ]
+      ])
   end
 
   it 'should eval sets and set comprehension' do
@@ -606,8 +606,9 @@ eof
                       '    b = {i*5 for i in {1,2,3}}',
                       '    c = {1,2,3} | {4,5}',
                      )
-    engine.evaluate('A', ['a', 'b', 'c']).should ==
+    expect(engine.evaluate('A', ['a', 'b', 'c'])).to eq(
       [Set[], Set[5, 10, 15], Set[1, 2, 3, 4, 5]]
+    )
   end
 
   it 'should eval list comprehension' do
@@ -615,22 +616,22 @@ eof
                       '    b = [i*5 for i in [1,2,3]]',
                       '    c = [a-b for a, b in [[1,2],[4,3]]]'
                      )
-    engine.evaluate('A', 'b').should == [5, 10, 15]
-    engine.evaluate('A', 'c').should == [-1, 1]
+    expect(engine.evaluate('A', 'b')).to eq([5, 10, 15])
+    expect(engine.evaluate('A', 'c')).to eq([-1, 1])
   end
 
   it 'should eval nested list comprehension' do
     engine.parse defn('A:',
                       '    b = [[a+c for c in [4,5]] for a in [1,2,3]]',
                      )
-    engine.evaluate('A', 'b').should == [[5, 6], [6, 7], [7, 8]]
+    expect(engine.evaluate('A', 'b')).to eq([[5, 6], [6, 7], [7, 8]])
   end
 
   it 'should eval list comprehension variable override' do
     engine.parse defn('A:',
                       '    b = [b/2.0 for b in [1,2,3]]',
                      )
-    engine.evaluate('A', 'b').should == [0.5, 1.0, 1.5]
+    expect(engine.evaluate('A', 'b')).to eq([0.5, 1.0, 1.5])
   end
 
   it 'should eval list comprehension variable override (2)' do
@@ -638,7 +639,7 @@ eof
                       '    a = 1',
                       '    b = [a+1 for a in [1,2,3]]',
                      )
-    engine.evaluate('A', 'b').should == [2, 3, 4]
+    expect(engine.evaluate('A', 'b')).to eq([2, 3, 4])
   end
 
   it 'should eval conditional list comprehension' do
@@ -646,15 +647,15 @@ eof
                       '    b = [i*5 for i in [1,2,3,4,5] if i%2 == 1]',
                       '    c = [i/10.0 for i in [1,2,3,4,5] if i>4]',
                      )
-    engine.evaluate('A', 'b').should == [5, 15, 25]
-    engine.evaluate('A', 'c').should == [0.5]
+    expect(engine.evaluate('A', 'b')).to eq([5, 15, 25])
+    expect(engine.evaluate('A', 'c')).to eq([0.5])
   end
 
   it 'should handle list comprehension unpacking' do
     engine.parse defn('A:',
                       '    b = [a-b for a, b in [[1,2],[20,10]]]',
                      )
-    engine.evaluate('A', 'b').should == [-1, 10]
+    expect(engine.evaluate('A', 'b')).to eq([-1, 10])
   end
 
   it 'should handle list comprehension with conditions using loop var' do
@@ -662,7 +663,7 @@ eof
     engine.parse defn('A:',
                       "    b = [n for n in {'pt' : 1} if n[1]+1]",
                      )
-    engine.evaluate('A', 'b').should == [['pt', 1]]
+    expect(engine.evaluate('A', 'b')).to eq([['pt', 1]])
   end
 
   it 'should eval hashes' do
@@ -675,14 +676,14 @@ eof
                       '    g = {b:b, [b]:[1,23], []:345}',
                      )
 
-    engine.evaluate('A', %w[b c d e f g]).should ==
+    expect(engine.evaluate('A', %w[b c d e f g])).to eq(
       [{},
        { 'a' => 1, 'b' => 2, 'c' => 3 },
        { 123 * 2 => -123, 'b_b' => 2 },
        { 'x' => 1, 'y' => 2, 'z' => 3, 'zz' => 8 },
        { 'a' => nil, 'b' => [1, nil, 2] },
        { {} => {}, [{}] => [1, 23], [] => 345 },
-      ]
+      ])
   end
 
   it 'handles literal hashes with conditionals' do
@@ -693,11 +694,11 @@ eof
                       '    d = {1: {1: 2 if b}, 3: 3 if c, 2: {2: 3 if a}}',
                      )
 
-    engine.evaluate('A', %w[a b d]).should == [
-      { 'a' => 1 },
-      { 'a' => { 'a' => 1 }, 2 => { 'a' => 1 }, 'c' => nil },
-      { 1 => { 1 => 2 }, 2 => { 2 => 3 } },
-    ]
+    expect(engine.evaluate('A', %w[a b d])).to eq([
+                                                    { 'a' => 1 },
+                                                    { 'a' => { 'a' => 1 }, 2 => { 'a' => 1 }, 'c' => nil },
+                                                    { 1 => { 1 => 2 }, 2 => { 2 => 3 } },
+                                                  ])
   end
 
   it 'should eval hash comprehension' do
@@ -705,8 +706,8 @@ eof
                       '    b = {i*5 :i for i in [1,2,3]}',
                       '    c = [kv for kv in {1:11, 2:22}]',
                      )
-    engine.evaluate('A', 'b').should == { 5 => 1, 10 => 2, 15 => 3 }
-    engine.evaluate('A', 'c').should == [[1, 11], [2, 22]]
+    expect(engine.evaluate('A', 'b')).to eq(5 => 1, 10 => 2, 15 => 3)
+    expect(engine.evaluate('A', 'c')).to eq([[1, 11], [2, 22]])
   end
 
   it 'for-in-hash should iterate over key/value pairs' do
@@ -717,9 +718,9 @@ eof
                       '    e = [kv for kv in b if kv[1]]',
                       '    f = [k-v for k, v in b if k>1]',
                      )
-    engine.evaluate('A', 'c').should == [-10, -20]
-    engine.evaluate('A', 'd').should == { 1 => 11, 2 => 22 }
-    engine.evaluate('A', 'f').should == [-20]
+    expect(engine.evaluate('A', 'c')).to eq([-10, -20])
+    expect(engine.evaluate('A', 'd')).to eq(1 => 11, 2 => 22)
+    expect(engine.evaluate('A', 'f')).to eq([-20])
 
     # FIXME: this is a known bug in Delorean caused by the strange way
     # that select iterates over hashes and provides args to the block.
@@ -730,11 +731,11 @@ eof
     engine.parse defn('A:',
                       '    b = { a:{a+c:a-c for c in [4,5]} for a in [1,2,3]}',
                      )
-    engine.evaluate('A', 'b').should == {
+    expect(engine.evaluate('A', 'b')).to eq(
       1 => { 5 => -3, 6 => -4 },
       2 => { 6 => -2, 7 => -3 },
       3 => { 7 => -1, 8 => -2 }
-    }
+    )
   end
 
   it 'should eval conditional hash comprehension' do
@@ -742,8 +743,8 @@ eof
                       '    b = {i*5:i+5 for i in [1,2,3,4,5] if i%2 == 1}',
                       '    c = {i/10.0:i*10 for i in [1,2,3,4,5] if i>4}',
                      )
-    engine.evaluate('A', 'b').should == { 5 => 6, 15 => 8, 25 => 10 }
-    engine.evaluate('A', 'c').should == { 0.5 => 50 }
+    expect(engine.evaluate('A', 'b')).to eq(5 => 6, 15 => 8, 25 => 10)
+    expect(engine.evaluate('A', 'c')).to eq(0.5 => 50)
   end
 
   it 'should eval node calls as intermediate results' do
@@ -754,7 +755,7 @@ eof
                       '    f = e.d / e.a',
                      )
 
-    engine.evaluate('A', ['d', 'f']).should == [26, 2]
+    expect(engine.evaluate('A', ['d', 'f'])).to eq([26, 2])
   end
 
   it 'allows node calls from attrs' do
@@ -767,7 +768,7 @@ eof
                       '    f = d.b + d.c + e().a',
                      )
 
-    engine.evaluate('A', ['f']).should == [16 + 5 + 13]
+    expect(engine.evaluate('A', ['f'])).to eq([16 + 5 + 13])
   end
 
   it 'should eval multi-var hash comprehension' do
@@ -775,8 +776,8 @@ eof
                       '    b = {k*5 : v+1 for k, v in {1:2, 7:-30}}',
                       '    c = [k-v for k, v in {1:2, 7:-30}]',
                      )
-    engine.evaluate('A', 'b').should == { 5 => 3, 35 => -29 }
-    engine.evaluate('A', 'c').should == [-1, 37]
+    expect(engine.evaluate('A', 'b')).to eq(5 => 3, 35 => -29)
+    expect(engine.evaluate('A', 'c')).to eq([-1, 37])
   end
 
   it 'should be able to amend node calls' do
@@ -791,8 +792,9 @@ eof
                       '    j = d(a=6).aa',
                      )
 
-    engine.evaluate('A', ['g', 'h', 'j']).should ==
+    expect(engine.evaluate('A', ['g', 'h', 'j'])).to eq(
       [3 * 2 + 4 * 2, 5 * 2, 6 * 2]
+    )
   end
 
   it 'should be able to amend node calls 2' do
@@ -802,7 +804,7 @@ eof
                       '    e = [d.a, d(a=4).a]',
                      )
 
-    engine.evaluate('A', ['e']).should == [[3, 4]]
+    expect(engine.evaluate('A', ['e'])).to eq([[3, 4]])
   end
 
   it 'should eval module calls 1' do
@@ -812,7 +814,7 @@ eof
                       '    d = n().a',
                      )
 
-    engine.evaluate('A', %w[d]).should == [123]
+    expect(engine.evaluate('A', %w[d])).to eq([123])
   end
 
   it 'should eval module calls 2' do
@@ -825,12 +827,13 @@ eof
                       "    e = nil() % ['b']",
                      )
 
-    engine.evaluate('A', %w[n c d e]).should == [
-      'A',
-      { 'a' => 123, 'b' => 579 },
-      { 'a' => 123, 'b' => 579 },
-      { 'b' => 579 }
-    ]
+    expect(engine.evaluate('A', %w[n c d e])).to eq(
+      [
+        'A',
+        { 'a' => 123, 'b' => 579 },
+        { 'a' => 123, 'b' => 579 },
+        { 'b' => 579 }
+      ])
   end
 
   it 'should eval module calls 3' do
@@ -841,7 +844,7 @@ eof
                       '    d = n().a',
                      )
 
-    engine.evaluate('B', %w[d]).should == [123]
+    expect(engine.evaluate('B', %w[d])).to eq([123])
   end
 
   it 'should be possible to implement recursive calls' do
@@ -850,7 +853,7 @@ eof
                       '    fact = if n <= 1 then 1 else n * A(n=n-1).fact',
                      )
 
-    engine.evaluate('A', 'fact', 'n' => 10).should == 3_628_800
+    expect(engine.evaluate('A', 'fact', 'n' => 10)).to eq(3_628_800)
   end
 
   it 'should eval module calls by node name' do
@@ -858,7 +861,7 @@ eof
                       '    a = 123',
                       '    b = A().a',
                      )
-    engine.evaluate('A', 'b').should == 123
+    expect(engine.evaluate('A', 'b')).to eq(123)
   end
 
   it 'should eval multiline expressions' do
@@ -868,7 +871,7 @@ eof
                       '        for a in [1,2,3]',
                       '        ]',
                      )
-    engine.evaluate('A', 'b').should == [2, 3, 4]
+    expect(engine.evaluate('A', 'b')).to eq([2, 3, 4])
   end
 
   it 'should eval multiline expressions (2)' do
@@ -885,12 +888,13 @@ eof
                       "         ) % ['b']",
                      )
 
-    engine.evaluate('A', %w[n c d e]).should == [
-      'A',
-      { 'a' => 123, 'b' => 579 },
-      { 'a' => 123, 'b' => 579 },
-      { 'b' => 579 }
-    ]
+    expect(engine.evaluate('A', %w[n c d e])).to eq(
+      [
+        'A',
+        { 'a' => 123, 'b' => 579 },
+        { 'a' => 123, 'b' => 579 },
+        { 'b' => 579 }
+      ])
   end
 
   it 'should eval in expressions' do
@@ -902,8 +906,7 @@ eof
                       '    d = [i*2 for i in s if i in a]',
                      )
 
-    engine.evaluate('A', %w[b c d]).should ==
-      [false, true, [66, 88]]
+    expect(engine.evaluate('A', %w[b c d])).to eq([false, true, [66, 88]])
   end
 
   it 'should eval imports' do
@@ -914,8 +917,7 @@ eof
                       '    a = 111',
                       '    c = AAA::X(a=456).b',
                      )
-    engine.evaluate('B', ['a', 'b', 'c'], {}).should ==
-      [111, 222, 456 * 2]
+    expect(engine.evaluate('B', ['a', 'b', 'c'], {})).to eq([111, 222, 456 * 2])
   end
 
   it 'should eval imports (2)' do
@@ -939,23 +941,24 @@ eof
 
     e2 = sset.get_engine('BBB')
 
-    e2.evaluate('B', ['a', 'b', 'c', 'd']).should ==
-      [111, 222, -2, 222]
+    expect(e2.evaluate('B', ['a', 'b', 'c', 'd'])).to eq([111, 222, -2, 222])
 
     engine.parse defn('import BBB',
                       'B: BBB::B',
                       '    e = d + 3',
                      )
 
-    engine.evaluate('B', ['a', 'b', 'c', 'd', 'e']).should ==
+    expect(engine.evaluate('B', ['a', 'b', 'c', 'd', 'e'])).to eq(
       [111, 222, -2, 222, 225]
+    )
 
     e4 = sset.get_engine('CCC')
 
-    e4.evaluate('B', ['a', 'b', 'c', 'd', 'e']).should ==
+    expect(e4.evaluate('B', ['a', 'b', 'c', 'd', 'e'])).to eq(
       [111, 222, -2, 222, 666]
+    )
 
-    e4.evaluate('C', ['a', 'b', 'd']).should == [123, 123 * 2, 123 * 3 * 2]
+    expect(e4.evaluate('C', ['a', 'b', 'd'])).to eq([123, 123 * 2, 123 * 3 * 2])
   end
 
   it 'should eval imports (3)' do
@@ -970,8 +973,8 @@ eof
     )
 
     e4 = sset.get_engine('CCC')
-    e4.evaluate('X', 'xx').should == [1, 2, 3]
-    e4.evaluate('X', 'yy').should == [1, 2, 3]
+    expect(e4.evaluate('X', 'xx')).to eq([1, 2, 3])
+    expect(e4.evaluate('X', 'yy')).to eq([1, 2, 3])
   end
 
   it 'should eval imports (4) - with ::' do
@@ -1004,8 +1007,8 @@ eof
     )
 
     e4 = sset.get_engine('CCC')
-    e4.evaluate('X', 'xx').should == [1, 2, 3]
-    e4.evaluate('X', 'zz').should == [2, 4, 6]
+    expect(e4.evaluate('X', 'xx')).to eq([1, 2, 3])
+    expect(e4.evaluate('X', 'zz')).to eq([2, 4, 6])
   end
 
   it 'should eval imports (4) - inheritance - with ::' do
@@ -1035,7 +1038,7 @@ eof
     )
 
     e4 = sset.get_engine('CCC')
-    e4.evaluate('X', 'zz').should == [2, 4, 6]
+    expect(e4.evaluate('X', 'zz')).to eq([2, 4, 6])
   end
 
   it 'can eval indexing' do
@@ -1048,7 +1051,7 @@ eof
                       '    f = a[1,2]',
                      )
     r = engine.evaluate('A', ['b', 'c', 'e', 'f'])
-    r.should == [2, 3, 456, [2, 3]]
+    expect(r).to eq([2, 3, 456, [2, 3]])
   end
 
   it 'can eval indexing 2' do
@@ -1059,12 +1062,13 @@ eof
                       "    d = c['b'].x * c['a'] - c['b'].y",
                      )
     r = engine.evaluate('A', ['a', 'b', 'c', 'd'])
-    r.should == [
-      1,
-      { 'x' => 123, 'y' => 456 },
-      { 'a' => 1, 'b' => { 'x' => 123, 'y' => 456 } },
-      -333
-    ]
+    expect(r).to eq(
+      [
+        1,
+        { 'x' => 123, 'y' => 456 },
+        { 'a' => 1, 'b' => { 'x' => 123, 'y' => 456 } },
+        -333
+      ])
   end
 
   it 'can handle exceptions with / syntax' do
@@ -1077,20 +1081,22 @@ eof
                       "    f = A() / 'a'",
                      )
     r = engine.evaluate('A', ['a', 'b', 'c'])
-    r.should == [
-      1,
-      { 'x' => 123, 'y' => 456 },
-      { 'a' => 1, 'b' => { 'x' => 123, 'y' => 456 } }
-    ]
+    expect(r).to eq(
+      [
+        1,
+        { 'x' => 123, 'y' => 456 },
+        { 'a' => 1, 'b' => { 'x' => 123, 'y' => 456 } }
+      ])
 
     r = engine.evaluate('A', ['a', 'd'])
-    r.should == [
-      1,
-      { 'error' => 'hello', 'backtrace' => [['XXX', 4, 'e'], ['XXX', 6, 'd']] }
-    ]
+    expect(r).to eq(
+      [
+        1,
+        { 'error' => 'hello', 'backtrace' => [['XXX', 4, 'e'], ['XXX', 6, 'd']] }
+      ])
 
     r = engine.evaluate('A', ['f'])
-    r.should == [1]
+    expect(r).to eq([1])
   end
 
   it 'should properly eval overridden attrs' do
@@ -1105,12 +1111,12 @@ eof
                       '    m = [x().b for x in [A, B]]',
                      )
 
-    engine.evaluate('A', 'b').should == 5
-    engine.evaluate('B', 'b').should == 2
-    engine.evaluate('B', 'x').should == 3
-    engine.evaluate('B', 'k').should == [5, 2]
-    engine.evaluate('B', 'l').should == [5, 2]
-    engine.evaluate('B', 'm').should == [5, 2]
+    expect(engine.evaluate('A', 'b')).to eq(5)
+    expect(engine.evaluate('B', 'b')).to eq(2)
+    expect(engine.evaluate('B', 'x')).to eq(3)
+    expect(engine.evaluate('B', 'k')).to eq([5, 2])
+    expect(engine.evaluate('B', 'l')).to eq([5, 2])
+    expect(engine.evaluate('B', 'm')).to eq([5, 2])
   end
 
   it 'implements simple version of self (_)' do
@@ -1128,14 +1134,14 @@ eof
                       "    v = {**_, 'a': 123}",
                      )
 
-    engine.evaluate('A', 'x', 'a' => 3, 'b' => 5).should == 15
+    expect(engine.evaluate('A', 'x', 'a' => 3, 'b' => 5)).to eq(15)
     h = { 'a' => 1, 'b' => 2, 'c' => 3 }
-    engine.evaluate('A', 'y', 'a' => 1, 'b' => 2, 'c' => 3).should == h
-    engine.evaluate('A', 'z', 'a' => 1, 'b' => 2, 'c' => 3).should == -1
-    engine.evaluate('A', 'w', 'a' => 4, 'b' => 5, 'c' => 3).should == -1
-    engine.evaluate('A', 'v', 'a' => 4, 'b' => 5, 'c' => 3).should == {
+    expect(engine.evaluate('A', 'y', 'a' => 1, 'b' => 2, 'c' => 3)).to eq(h)
+    expect(engine.evaluate('A', 'z', 'a' => 1, 'b' => 2, 'c' => 3)).to eq(-1)
+    expect(engine.evaluate('A', 'w', 'a' => 4, 'b' => 5, 'c' => 3)).to eq(-1)
+    expect(engine.evaluate('A', 'v', 'a' => 4, 'b' => 5, 'c' => 3)).to eq(
       'a' => 123, 'b' => 5, 'c' => 3
-    }
+    )
   end
 
   it 'implements positional args in node calls' do
@@ -1149,8 +1155,9 @@ eof
                       '    z = B(10, 20, a=3, b=7).x',
                       "    y = B('x', 'y').y",
                      )
-    engine.evaluate('A', ['a', 'z', 'y'], 0 => 123, 1 => 456).should ==
+    expect(engine.evaluate('A', ['a', 'z', 'y'], 0 => 123, 1 => 456)).to eq(
       [123 - 456, 40, ['x', 'y', nil]]
+    )
   end
 
   it 'can call 0-arity functions in list comprehension' do

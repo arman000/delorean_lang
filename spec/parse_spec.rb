@@ -59,97 +59,97 @@ describe 'Delorean' do
   end
 
   it 'should accept default param definitions' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a =? 0.0123',
                         '    b =? 0',
                         '    c =? -1.1',
                         '    d = b + c',
                        )
-    }.should_not raise_error
+    end.not_to raise_error
   end
 
   it 'gives errors with attrs not in node' do
-    lambda {
+    expect do
       engine.parse defn('a = 123',
                         'b = a * 2',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it 'should disallow .<digits> literals' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = .123',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it 'should disallow leading 0s in numbers' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = 00.123',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it 'should disallow leading 0s in numbers (2)' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = 0123',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it 'should disallow bad attr names' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    B = 1',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    _b = 1',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it 'should disallow bad node names' do
-    lambda {
+    expect do
       engine.parse defn('a:',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('_A:',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it 'should disallow recursion' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = 1',
                         'B: A',
                         '    a = a + 1',
                        )
-    }.should raise_error(Delorean::RecursionError)
+    end.to raise_error(Delorean::RecursionError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = 1',
                         'B: A',
                         '    b = a',
                         '    a = b',
                        )
-    }.should raise_error(Delorean::RecursionError)
+    end.to raise_error(Delorean::RecursionError)
   end
 
   it 'should allow getattr in expressions' do
@@ -197,194 +197,194 @@ describe 'Delorean' do
   end
 
   it 'should check for recursion with default params 1' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a =? a',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
   end
 
   it 'should check for recursion with default params 2' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = 1',
                         'B: A',
                         '    b =? a',
                         '    a =? b',
                        )
-    }.should raise_error(Delorean::RecursionError)
+    end.to raise_error(Delorean::RecursionError)
   end
 
   it 'gives errors for attrs defined more than once in a node' do
-    lambda {
+    expect do
       engine.parse defn('B:',
                         '    b = 1 + 1',
                         '    b = 123',
                        )
-    }.should raise_error(Delorean::RedefinedError)
+    end.to raise_error(Delorean::RedefinedError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('B:',
                         '    b =?',
                         '    b = 123',
                        )
-    }.should raise_error(Delorean::RedefinedError)
+    end.to raise_error(Delorean::RedefinedError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('B:',
                         '    b =? 22',
                         '    b = 123',
                        )
-    }.should raise_error(Delorean::RedefinedError)
+    end.to raise_error(Delorean::RedefinedError)
   end
 
   it 'should raise error for nodes defined more than once' do
-    lambda {
+    expect do
       engine.parse defn('B:',
                         '    b =?',
                         'B:',
                        )
-    }.should raise_error(Delorean::RedefinedError)
+    end.to raise_error(Delorean::RedefinedError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('B:',
                         'A:',
                         'B:',
                        )
-    }.should raise_error(Delorean::RedefinedError)
+    end.to raise_error(Delorean::RedefinedError)
   end
 
   it 'should not be valid to derive from undefined nodes' do
-    lambda {
+    expect do
       engine.parse defn('A: B',
                         '    a = 456 * 123',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
   end
 
   it 'should not be valid to use an undefined attr' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = 456 * 123',
                         'B: A',
                         '    b = a',
                         '    c = d',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
   end
 
   it 'should not be possible to use a forward definition in hash' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         "    c = {'b': 1, 'd' : d}",
                         '    d = 789',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
   end
 
   it 'should not be possible to use a forward definition in node call' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    c = A(b=1, d=d)',
                         '    d = 789',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
   end
 
   it 'should not be possible to use a forward definition in array' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    c = [123, 456, d]',
                         '    d = 789',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
   end
 
   it 'should be able to use ruby keywords as identifier' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    in = 123',
                        )
-    }.should_not raise_error
+    end.not_to raise_error
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('B:',
                         '    in1 = 123',
                        )
-    }.should_not raise_error
+    end.not_to raise_error
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('C:',
                         '    ifx = 123',
                         '    elsey = ifx + 1',
                        )
-    }.should_not raise_error
+    end.not_to raise_error
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('D:',
                         '    true = false',
                        )
-    }.should_not raise_error
+    end.not_to raise_error
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('E:',
                         '    a = 1',
                         '    return=a',
                        )
-    }.should_not raise_error
+    end.not_to raise_error
 
     engine.reset
 
     skip 'need to fix'
 
-    lambda {
+    expect do
       engine.parse defn('D:',
                         '    true_1 = false',
                         '    false_1 = true_1',
                         '    nil_1 = false_1',
                        )
-    }.should_not raise_error
+    end.not_to raise_error
 
     engine.reset
   end
 
   it 'should parse calls followed by getattr' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = -1',
                         '    b = A().a',
                        )
-    }.should_not raise_error
+    end.not_to raise_error
   end
 
   it 'should be able to chain method calls on model functions' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         "    b = Dummy.i_just_met_you('CRJ', 123).name"
                        )
-    }.should_not raise_error
+    end.not_to raise_error
   end
 
   it 'should be able to pass model class to model functions' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    b = Dummy.i_just_met_you(Dummy, 1)'
                        )
-    }.should_not raise_error
+    end.not_to raise_error
   end
 
   it 'should be able to call class methods on ActiveRecord classes' do
@@ -436,7 +436,7 @@ describe 'Delorean' do
   end
 
   it 'should not be able to access attrs not defined in ancestors' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    b =? 22',
                         'B: A',
@@ -444,7 +444,7 @@ describe 'Delorean' do
                         'C: A',
                         '    d =? c * b + 11',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
   end
 
   it 'should be able to access specific node attrs ' do
@@ -472,11 +472,11 @@ describe 'Delorean' do
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('B:',
                         '    c = b.x.y.z',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
   end
 
   it 'should handle lines with comments' do
@@ -495,8 +495,8 @@ describe 'Delorean' do
     rescue StandardError => exc
     end
 
-    exc.module_name.should == 'YYY'
-    exc.line.should == 3
+    expect(exc.module_name).to eq('YYY')
+    expect(exc.line).to eq(3)
 
     engine.reset
 
@@ -507,8 +507,8 @@ describe 'Delorean' do
     rescue StandardError => exc
     end
 
-    exc.module_name.should == 'YYY'
-    exc.line.should == 2
+    expect(exc.module_name).to eq('YYY')
+    expect(exc.line).to eq(2)
   end
 
   it 'correctly report error line during parse' do
@@ -521,32 +521,32 @@ describe 'Delorean' do
     rescue StandardError => exc
     end
 
-    exc.module_name.should == 'YYY'
-    exc.line.should == 2
+    expect(exc.module_name).to eq('YYY')
+    expect(exc.line).to eq(2)
   end
 
   it 'should raise error on malformed string' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '  d = "testing"" ',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it 'should not allow inherited ruby methods as attrs' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = name',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = new',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
   end
 
   it 'should be able to parse lists' do
@@ -559,19 +559,19 @@ describe 'Delorean' do
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = [',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = []-',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it "should handle trailing ',' with lists" do
@@ -581,19 +581,19 @@ describe 'Delorean' do
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = [,]',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = [1,2,,]',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it 'should be able to parse hashes' do
@@ -605,19 +605,19 @@ describe 'Delorean' do
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = {',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = {}+',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it 'should be able to parse conditional hash literals' do
@@ -634,19 +634,19 @@ describe 'Delorean' do
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = {,}',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
 
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = {-1:1,,}',
                        )
-    }.should raise_error(Delorean::ParseError)
+    end.to raise_error(Delorean::ParseError)
   end
 
   it 'should be able to parse list operations ' do
@@ -693,26 +693,26 @@ describe 'Delorean' do
   end
 
   it 'errors out on bad list comprehension' do
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    b = [i+1 for x in [1,2,3]]',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
     engine.reset
 
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    a = [123 for b in b]',
                        )
-    }.should raise_error(Delorean::UndefinedError)
+    end.to raise_error(Delorean::UndefinedError)
     engine.reset
 
     # disallow nested comprehension var reuse
-    lambda {
+    expect do
       engine.parse defn('A:',
                         '    b = [[a+1 for a in [4,5]] for a in [1,2,3]]',
                        )
-    }.should raise_error(Delorean::RedefinedError)
+    end.to raise_error(Delorean::RedefinedError)
     engine.reset
   end
 
@@ -815,7 +815,7 @@ describe 'Delorean' do
                        )
       raise
     rescue Delorean::ParseError => exc
-      exc.line.should == 2
+      expect(exc.line).to eq(2)
     end
   end
 
@@ -828,7 +828,7 @@ describe 'Delorean' do
                        )
       raise
     rescue Delorean::ParseError => exc
-      exc.line.should == 3
+      expect(exc.line).to eq(3)
     end
   end
 
@@ -842,7 +842,7 @@ describe 'Delorean' do
                        )
       raise
     rescue Delorean::ParseError => exc
-      exc.line.should == 3
+      expect(exc.line).to eq(3)
     end
   end
 
@@ -855,7 +855,7 @@ describe 'Delorean' do
                        )
       raise
     rescue Delorean::ParseError => exc
-      exc.line.should == 2
+      expect(exc.line).to eq(2)
     end
   end
 
@@ -867,7 +867,7 @@ describe 'Delorean' do
                        )
       raise
     rescue Delorean::ParseError => exc
-      exc.line.should == 2
+      expect(exc.line).to eq(2)
     end
   end
 
