@@ -414,6 +414,26 @@ eoc
     )
   end
 
+  it 'should be able to call cached_delorean_fn' do
+    engine.parse defn(
+      'A:',
+      '    b = Dummy.returns_cached_openstruct(1, 2)',
+      '    c = Dummy.returns_cached_openstruct(1, 2)',
+      '    d = Dummy.returns_cached_openstruct(1, 3)',
+    )
+
+    expect(OpenStruct).to receive(:new).twice.and_call_original
+
+    r = engine.evaluate('A', 'b')
+    expect(r['1']).to eq(2)
+
+    r = engine.evaluate('A', 'c')
+    expect(r['1']).to eq(2)
+
+    r = engine.evaluate('A', 'd')
+    expect(r['1']).to eq(3)
+  end
+
   it 'should raise exception if required arguments are missing' do
     engine.parse defn(
       'A:',
@@ -438,6 +458,34 @@ eoc
     expect { r = engine.evaluate('A', 'd') }.to raise_error(
       ArgumentError,
       'wrong number of arguments (given 0, expected 3+)'
+    )
+  end
+
+  it 'should raise exception if private method is called' do
+    engine.parse defn(
+      'A:',
+      '    a = DeloreanFunctionsClass.test_private_fn',
+      '    b = DeloreanFunctionsChildClass.test_private_fn'
+    )
+
+    expect do
+      engine.evaluate('A', 'a')
+    end.to raise_error(
+      Delorean::InvalidGetAttribute,
+      "attr lookup failed: 'test_private_fn' on <Class> DeloreanFunctionsClass - no such method test_private_fn"
+    )
+
+    expect do
+      engine.evaluate('A', 'b')
+    end.to raise_error(
+      "attr lookup failed: 'test_private_fn' on <Class> DeloreanFunctionsChildClass - no such method test_private_fn"
+    )
+
+    expect do
+      DeloreanFunctionsClass.test_private_fn
+    end.to raise_error(
+      NoMethodError,
+      "private method `test_private_fn' called for DeloreanFunctionsClass:Class"
     )
   end
 
@@ -745,6 +793,18 @@ eof
                      )
     expect(engine.evaluate('A', 'b')).to eq(5 => 6, 15 => 8, 25 => 10)
     expect(engine.evaluate('A', 'c')).to eq(0.5 => 50)
+  end
+
+  it 'should eval hash methods such as length' do
+    engine.parse defn('A:',
+                      '    b = {}',
+                      "    c = {'a':1, 'b': 2,'c':3}",
+                      '    length1 = b.length',
+                      '    length2 = c.length',
+                     )
+
+    expect(engine.evaluate('A', 'length1')).to eq(0)
+    expect(engine.evaluate('A', 'length2')).to eq(3)
   end
 
   it 'should eval node calls as intermediate results' do

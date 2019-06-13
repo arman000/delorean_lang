@@ -2,29 +2,39 @@
 
 module Delorean
   module Functions
-    def delorean_fn(name, _options = {}, &block)
+    def delorean_fn(name, options = {}, &block)
+      if options[:cache] == true
+        new_options = options.reject { |key, _| key == :cache }
+        return _cached_delorean_fn(name, new_options, &block)
+      end
+
       any_args = Delorean::Ruby::Whitelists::Matchers::Arguments::ANYTHING
 
       define_singleton_method(name, block)
 
-      ::Delorean::Ruby.whitelist.add_class_method name do |method|
-        method.called_on self, with: any_args
+      if options[:private] == true
+        singleton_class.class_eval { private name }
+      else
+        ::Delorean::Ruby.whitelist.add_class_method name do |method|
+          method.called_on self, with: any_args
+        end
       end
 
       name.to_sym
     end
 
-    # FIXME: IDEA: we just make :cache an argument to delorean_fn.
-    # That way, we don't need the cached_ flavors.  It'll make all
-    # this code a lot simpler.  We should also just add the :private
-    # mechanism here.
+    def clear_lookup_cache!
+      ::Delorean::Cache.adapter.clear!(klass: self)
+    end
+
+    private
 
     # By default implements a VERY HACKY class-based (per process) caching
-    # mechanism for database lookup results.  Issues include: cached
-    # values are ActiveRecord objects.  Query results can be very
-    # large lists which we count as one item in the cache.  Caching
+    # mechanism for database lookup results. Issues include: cached
+    # values are ActiveRecord objects. Query results can be very
+    # large lists which we count as one item in the cache. Caching
     # mechanism will result in large processes.
-    def cached_delorean_fn(name, options = {})
+    def _cached_delorean_fn(name, options = {})
       delorean_fn(name, options) do |*args|
         delorean_cache_adapter = ::Delorean::Cache.adapter
         # Check if caching should be performed
@@ -54,10 +64,6 @@ module Delorean
 
         res
       end
-    end
-
-    def clear_lookup_cache!
-      ::Delorean::Cache.adapter.clear!(klass: self)
     end
   end
 end

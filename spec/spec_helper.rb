@@ -63,10 +63,7 @@ class Dummy < ActiveRecord::Base
     "#{name}-#{number.round(4)}"
   end
 
-  delorean_fn :one_or_two, sig: [1, 2] do |*args|
-    # FIXME: |a,b| will not work properly with delorean_fn
-    a, b = args
-
+  delorean_fn :one_or_two, sig: [1, 2] do |a, b = nil|
     [a, b]
   end
 
@@ -79,7 +76,7 @@ class Dummy < ActiveRecord::Base
     OpenStruct.new('abc' => 'def')
   end
 
-  cached_delorean_fn :returns_cached_openstruct, sig: 2 do |first, last|
+  delorean_fn :returns_cached_openstruct, cache: true, sig: 2 do |first, last|
     OpenStruct.new(first.to_s => last)
   end
 end
@@ -130,6 +127,9 @@ class DeloreanFunctionsClass
 
   delorean_fn :test_fn, sig: 0 do
     :test_fn_result
+  end
+
+  delorean_fn :test_private_fn, private: true do
   end
 end
 

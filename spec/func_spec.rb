@@ -219,17 +219,14 @@ describe 'Delorean' do
   end
 
   it 'should be able to call function on hash' do
-    # FIXME: this is actually a Delorean design issue.  How do
-    # whitelisted functions interact with attrs?  In this case, we
-    # return nil since there is no Delorean 'length' attr in the hash.
-    skip 'Delorean design issue to be resolved'
-
     engine.parse defn('A:',
-                      '    n = {}.length',
                       "    m = {'length':100}.length",
+                      '    n = {}.length',
+                      '    o = {}["length"]',
                      )
     expect(engine.evaluate('A', 'n')).to eq(0)
     expect(engine.evaluate('A', 'm')).to eq(100)
+    expect(engine.evaluate('A', 'o')).to be_nil
   end
 
   it 'should be able to call hash except' do

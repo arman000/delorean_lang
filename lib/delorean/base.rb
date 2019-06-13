@@ -66,14 +66,7 @@ module Delorean
         # return true when we called obj.instance_of?(Hash) and do not
         # work with the "case/when" matcher!!!  For now, this is a
         # hacky workaround.  This is likely some sort of Ruby bug.
-        if obj.instance_of?(Hash)
-          # FIXME: this implementation doesn't handle something like
-          # {}.length.  i.e. length is a whitelisted function, but not
-          # an attr. This implementation returns nil instead of 0.
-          return obj[attr] if obj.member?(attr)
-
-          return attr.is_a?(String) ? obj[attr.to_sym] : nil
-        end
+        return _get_hash_attr(obj, attr, _e) if obj.instance_of?(Hash)
 
         # NOTE: should keep this function consistent with _index
         case obj
@@ -99,6 +92,29 @@ module Delorean
         end
       end
 
+      def self._get_hash_attr(obj, attr, _e, index_call = false)
+        return obj[attr] if obj.key?(attr)
+
+        return obj[attr.to_sym] if attr.is_a?(String) && obj.key?(attr.to_sym)
+
+        # Shouldn't try to call the method if hash['length'] was called.
+        return nil if index_call
+
+        # Return nil when it's obviously not a method
+        return nil unless attr.is_a?(String) || attr.is_a?(Symbol)
+
+        # hash.length might be either hash['length'] or hash.length call.
+        # If key is not found, check if object responds to method and call it.
+        # If not succeeded, return nil, assuming that it was an attribute call.
+        return nil unless obj.respond_to?(attr)
+
+        begin
+          return _instance_call(obj, attr, [], _e)
+        rescue StandardError
+          return nil
+        end
+      end
+
       ######################################################################
 
       def self._index(obj, args, _e)
@@ -108,7 +124,11 @@ module Delorean
           # FIXME: even Javascript which is superpermissive raises an
           # exception on null getattr.
           nil
-        when Hash, NodeCall, Class, OpenStruct
+        when Hash
+          raise InvalidIndex unless args.length == 1
+
+          _get_hash_attr(obj, args[0], _e, true)
+        when NodeCall, Class, OpenStruct
           raise InvalidIndex unless args.length == 1
 
           _get_attr(obj, args[0], _e)
