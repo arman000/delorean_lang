@@ -1103,6 +1103,268 @@ module Delorean
     r0
   end
 
+  module BlockArgs0
+    def sp41
+      elements[0]
+    end
+
+    def sp42
+      elements[1]
+    end
+
+    def i
+      elements[3]
+    end
+
+    def e
+      elements[7]
+    end
+  end
+
+  module BlockArgs1
+    def sp41
+      elements[0]
+    end
+
+    def sp42
+      elements[1]
+    end
+
+    def i
+      elements[3]
+    end
+
+  end
+
+  def _nt_block_args
+    start_index = index
+    if node_cache[:block_args].has_key?(index)
+      cached = node_cache[:block_args][index]
+      if cached
+        node_cache[:block_args][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0 = index
+    i1, s1 = index, []
+    r2 = _nt_sp4
+    s1 << r2
+    if r2
+      r3 = _nt_sp4
+      s1 << r3
+      if r3
+        r5 = _nt_sp
+        if r5
+          r4 = r5
+        else
+          r4 = instantiate_node(SyntaxNode,input, index...index)
+        end
+        s1 << r4
+        if r4
+          r6 = _nt_identifier
+          s1 << r6
+          if r6
+            r8 = _nt_sp
+            if r8
+              r7 = r8
+            else
+              r7 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s1 << r7
+            if r7
+              if (match_len = has_terminal?('=?', false, index))
+                r9 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                @index += match_len
+              else
+                terminal_parse_failure('\'=?\'')
+                r9 = nil
+              end
+              s1 << r9
+              if r9
+                r11 = _nt_sp1
+                if r11
+                  r10 = r11
+                else
+                  r10 = instantiate_node(SyntaxNode,input, index...index)
+                end
+                s1 << r10
+                if r10
+                  r12 = _nt_expression
+                  s1 << r12
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    if s1.last
+      r1 = instantiate_node(BlockParameterDefault,input, i1...index, s1)
+      r1.extend(BlockArgs0)
+    else
+      @index = i1
+      r1 = nil
+    end
+    if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
+      r0 = r1
+    else
+      i13, s13 = index, []
+      r14 = _nt_sp4
+      s13 << r14
+      if r14
+        r15 = _nt_sp4
+        s13 << r15
+        if r15
+          r17 = _nt_sp
+          if r17
+            r16 = r17
+          else
+            r16 = instantiate_node(SyntaxNode,input, index...index)
+          end
+          s13 << r16
+          if r16
+            r18 = _nt_identifier
+            s13 << r18
+            if r18
+              r20 = _nt_sp
+              if r20
+                r19 = r20
+              else
+                r19 = instantiate_node(SyntaxNode,input, index...index)
+              end
+              s13 << r19
+              if r19
+                if (match_len = has_terminal?('=?', false, index))
+                  r21 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                  @index += match_len
+                else
+                  terminal_parse_failure('\'=?\'')
+                  r21 = nil
+                end
+                s13 << r21
+              end
+            end
+          end
+        end
+      end
+      if s13.last
+        r13 = instantiate_node(BlockParameter,input, i13...index, s13)
+        r13.extend(BlockArgs1)
+      else
+        @index = i13
+        r13 = nil
+      end
+      if r13
+        r13 = SyntaxNode.new(input, (index-1)...index) if r13 == true
+        r0 = r13
+      else
+        @index = i0
+        r0 = nil
+      end
+    end
+
+    node_cache[:block_args][start_index] = r0
+
+    r0
+  end
+
+  module BlockFormulas0
+    def sp41
+      elements[0]
+    end
+
+    def sp42
+      elements[1]
+    end
+
+    def i
+      elements[3]
+    end
+
+    def e
+      elements[7]
+    end
+  end
+
+  def _nt_block_formulas
+    start_index = index
+    if node_cache[:block_formulas].has_key?(index)
+      cached = node_cache[:block_formulas][index]
+      if cached
+        node_cache[:block_formulas][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0, s0 = index, []
+    r1 = _nt_sp4
+    s0 << r1
+    if r1
+      r2 = _nt_sp4
+      s0 << r2
+      if r2
+        r4 = _nt_sp
+        if r4
+          r3 = r4
+        else
+          r3 = instantiate_node(SyntaxNode,input, index...index)
+        end
+        s0 << r3
+        if r3
+          r5 = _nt_identifier
+          s0 << r5
+          if r5
+            r7 = _nt_sp
+            if r7
+              r6 = r7
+            else
+              r6 = instantiate_node(SyntaxNode,input, index...index)
+            end
+            s0 << r6
+            if r6
+              if (match_len = has_terminal?('=', false, index))
+                r8 = true
+                @index += match_len
+              else
+                terminal_parse_failure('\'=\'')
+                r8 = nil
+              end
+              s0 << r8
+              if r8
+                r10 = _nt_sp
+                if r10
+                  r9 = r10
+                else
+                  r9 = instantiate_node(SyntaxNode,input, index...index)
+                end
+                s0 << r9
+                if r9
+                  r11 = _nt_expression
+                  s0 << r11
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    if s0.last
+      r0 = instantiate_node(BlockFormula,input, i0...index, s0)
+      r0.extend(BlockFormulas0)
+    else
+      @index = i0
+      r0 = nil
+    end
+
+    node_cache[:block_formulas][start_index] = r0
+
+    r0
+  end
+
   module GetattrExp0
     def v
       elements[0]
@@ -1227,9 +1489,41 @@ module Delorean
       elements[5]
     end
 
+    def b_args
+      elements[8]
+    end
+
+    def expressions
+      elements[9]
+    end
   end
 
   module DotExp3
+    def i
+      elements[2]
+    end
+
+    def al
+      elements[5]
+    end
+
+  end
+
+  module DotExp4
+    def i
+      elements[2]
+    end
+
+    def b_args
+      elements[3]
+    end
+
+    def expressions
+      elements[4]
+    end
+  end
+
+  module DotExp5
     def i
       elements[2]
     end
@@ -1418,6 +1712,37 @@ module Delorean
                         r30 = nil
                       end
                       s18 << r30
+                      if r30
+                        s31, i31 = [], index
+                        loop do
+                          r32 = _nt_block_args
+                          if r32
+                            s31 << r32
+                          else
+                            break
+                          end
+                        end
+                        r31 = instantiate_node(SyntaxNode,input, i31...index, s31)
+                        s18 << r31
+                        if r31
+                          s33, i33 = [], index
+                          loop do
+                            r34 = _nt_block_formulas
+                            if r34
+                              s33 << r34
+                            else
+                              break
+                            end
+                          end
+                          if s33.empty?
+                            @index = i33
+                            r33 = nil
+                          else
+                            r33 = instantiate_node(SyntaxNode,input, i33...index, s33)
+                          end
+                          s18 << r33
+                        end
+                      end
                     end
                   end
                 end
@@ -1426,7 +1751,7 @@ module Delorean
           end
         end
         if s18.last
-          r18 = instantiate_node(Call,input, i18...index, s18)
+          r18 = instantiate_node(BlockExpression,input, i18...index, s18)
           r18.extend(DotExp2)
         else
           @index = i18
@@ -1436,55 +1761,201 @@ module Delorean
           r18 = SyntaxNode.new(input, (index-1)...index) if r18 == true
           r0 = r18
         else
-          i31, s31 = index, []
+          i35, s35 = index, []
           if (match_len = has_terminal?('.', false, index))
-            r32 = true
+            r36 = true
             @index += match_len
           else
             terminal_parse_failure('\'.\'')
-            r32 = nil
+            r36 = nil
           end
-          s31 << r32
-          if r32
-            r34 = _nt_sp
-            if r34
-              r33 = r34
+          s35 << r36
+          if r36
+            r38 = _nt_sp
+            if r38
+              r37 = r38
             else
-              r33 = instantiate_node(SyntaxNode,input, index...index)
+              r37 = instantiate_node(SyntaxNode,input, index...index)
             end
-            s31 << r33
-            if r33
-              i35 = index
-              r36 = _nt_identifier
-              if r36
-                r36 = SyntaxNode.new(input, (index-1)...index) if r36 == true
-                r35 = r36
-              else
-                r37 = _nt_integer
-                if r37
-                  r37 = SyntaxNode.new(input, (index-1)...index) if r37 == true
-                  r35 = r37
+            s35 << r37
+            if r37
+              r39 = _nt_identifier
+              s35 << r39
+              if r39
+                if (match_len = has_terminal?('(', false, index))
+                  r40 = true
+                  @index += match_len
                 else
-                  @index = i35
-                  r35 = nil
+                  terminal_parse_failure('\'(\'')
+                  r40 = nil
+                end
+                s35 << r40
+                if r40
+                  r42 = _nt_sp
+                  if r42
+                    r41 = r42
+                  else
+                    r41 = instantiate_node(SyntaxNode,input, index...index)
+                  end
+                  s35 << r41
+                  if r41
+                    r44 = _nt_fn_args
+                    if r44
+                      r43 = r44
+                    else
+                      r43 = instantiate_node(SyntaxNode,input, index...index)
+                    end
+                    s35 << r43
+                    if r43
+                      r46 = _nt_sp
+                      if r46
+                        r45 = r46
+                      else
+                        r45 = instantiate_node(SyntaxNode,input, index...index)
+                      end
+                      s35 << r45
+                      if r45
+                        if (match_len = has_terminal?(')', false, index))
+                          r47 = true
+                          @index += match_len
+                        else
+                          terminal_parse_failure('\')\'')
+                          r47 = nil
+                        end
+                        s35 << r47
+                      end
+                    end
+                  end
                 end
               end
-              s31 << r35
             end
           end
-          if s31.last
-            r31 = instantiate_node(GetAttr,input, i31...index, s31)
-            r31.extend(DotExp3)
+          if s35.last
+            r35 = instantiate_node(Call,input, i35...index, s35)
+            r35.extend(DotExp3)
           else
-            @index = i31
-            r31 = nil
+            @index = i35
+            r35 = nil
           end
-          if r31
-            r31 = SyntaxNode.new(input, (index-1)...index) if r31 == true
-            r0 = r31
+          if r35
+            r35 = SyntaxNode.new(input, (index-1)...index) if r35 == true
+            r0 = r35
           else
-            @index = i0
-            r0 = nil
+            i48, s48 = index, []
+            if (match_len = has_terminal?('.', false, index))
+              r49 = true
+              @index += match_len
+            else
+              terminal_parse_failure('\'.\'')
+              r49 = nil
+            end
+            s48 << r49
+            if r49
+              r51 = _nt_sp
+              if r51
+                r50 = r51
+              else
+                r50 = instantiate_node(SyntaxNode,input, index...index)
+              end
+              s48 << r50
+              if r50
+                r52 = _nt_identifier
+                s48 << r52
+                if r52
+                  s53, i53 = [], index
+                  loop do
+                    r54 = _nt_block_args
+                    if r54
+                      s53 << r54
+                    else
+                      break
+                    end
+                  end
+                  r53 = instantiate_node(SyntaxNode,input, i53...index, s53)
+                  s48 << r53
+                  if r53
+                    s55, i55 = [], index
+                    loop do
+                      r56 = _nt_block_formulas
+                      if r56
+                        s55 << r56
+                      else
+                        break
+                      end
+                    end
+                    if s55.empty?
+                      @index = i55
+                      r55 = nil
+                    else
+                      r55 = instantiate_node(SyntaxNode,input, i55...index, s55)
+                    end
+                    s48 << r55
+                  end
+                end
+              end
+            end
+            if s48.last
+              r48 = instantiate_node(BlockExpression,input, i48...index, s48)
+              r48.extend(DotExp4)
+            else
+              @index = i48
+              r48 = nil
+            end
+            if r48
+              r48 = SyntaxNode.new(input, (index-1)...index) if r48 == true
+              r0 = r48
+            else
+              i57, s57 = index, []
+              if (match_len = has_terminal?('.', false, index))
+                r58 = true
+                @index += match_len
+              else
+                terminal_parse_failure('\'.\'')
+                r58 = nil
+              end
+              s57 << r58
+              if r58
+                r60 = _nt_sp
+                if r60
+                  r59 = r60
+                else
+                  r59 = instantiate_node(SyntaxNode,input, index...index)
+                end
+                s57 << r59
+                if r59
+                  i61 = index
+                  r62 = _nt_identifier
+                  if r62
+                    r62 = SyntaxNode.new(input, (index-1)...index) if r62 == true
+                    r61 = r62
+                  else
+                    r63 = _nt_integer
+                    if r63
+                      r63 = SyntaxNode.new(input, (index-1)...index) if r63 == true
+                      r61 = r63
+                    else
+                      @index = i61
+                      r61 = nil
+                    end
+                  end
+                  s57 << r61
+                end
+              end
+              if s57.last
+                r57 = instantiate_node(GetAttr,input, i57...index, s57)
+                r57.extend(DotExp5)
+              else
+                @index = i57
+                r57 = nil
+              end
+              if r57
+                r57 = SyntaxNode.new(input, (index-1)...index) if r57 == true
+                r0 = r57
+              else
+                @index = i0
+                r0 = nil
+              end
+            end
           end
         end
       end
@@ -4006,6 +4477,21 @@ module Delorean
       end
       r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
       s0 << r2
+      if r2
+        if (match_len = has_terminal?('?', false, index))
+          r5 = true
+          @index += match_len
+        else
+          terminal_parse_failure('\'?\'')
+          r5 = nil
+        end
+        if r5
+          r4 = r5
+        else
+          r4 = instantiate_node(SyntaxNode,input, index...index)
+        end
+        s0 << r4
+      end
     end
     if s0.last
       r0 = instantiate_node(Identifier,input, i0...index, s0)
@@ -4156,6 +4642,30 @@ module Delorean
     end
 
     node_cache[:sp4][start_index] = r0
+
+    r0
+  end
+
+  def _nt_sp1
+    start_index = index
+    if node_cache[:sp1].has_key?(index)
+      cached = node_cache[:sp1][index]
+      if cached
+        node_cache[:sp1][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    if (match_len = has_terminal?(' ', false, index))
+      r0 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+      @index += match_len
+    else
+      terminal_parse_failure('\' \'')
+      r0 = nil
+    end
+
+    node_cache[:sp1][start_index] = r0
 
     r0
   end

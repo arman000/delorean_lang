@@ -163,6 +163,10 @@ There are two ways of calling ruby code from delorean. First one is to whitelist
 
 ```ruby
 
+  ::Delorean::Ruby.whitelist.add__method :any? do |method|
+    method.called_on Enumerable
+  end
+
   ::Delorean::Ruby.whitelist.add_method :length do |method|
     method.called_on String
     method.called_on Enumerable
@@ -221,6 +225,24 @@ ExampleScript:
     b = DummyModule.heres_my_number(867, 5309)'
 ```
 
+You can use blocks in your Delorean code:
+
+```ruby
+ExampleScript:
+    a = [1, 2, 3]
+    b = c.any? { |v| v > 2 }
+    b2 = c.any? do |v| v > 2 end
+
+    c = a.reduce(0) { |sum, el|
+        sum + el
+        }
+    c2 = a.reduce() do |sum, el|
+        sum + el
+        end
+```
+
+Note that `do ... end` syntax is not yet supported
+
 ### Caching
 
 Delorean provides `cache` flag for `delorean_fn` method that will cache result based on arguments.
@@ -267,6 +289,18 @@ Delorean expects it to have methods with following signatures:
 
 
 TODO: provide details
+
+## Development
+
+### Treetop
+
+Edit treetop rules in `lib/delorean/delorean.treetop`
+
+Use `make treetop-generate` to regenerate `lib/delorean/delorean.rb` based on Treetop logic in `lib/delorean/delorean.treetop`
+
+### Testing
+
+Use `rspec` to run the tests.
 
 ## License
 

@@ -879,6 +879,89 @@ describe 'Delorean' do
                      )
   end
 
+  it 'should parse question mark methods' do
+    engine.parse defn('A:',
+                      "    a = {'a': 1, 'b': 2, 'c': 3}",
+                      '    b = a.any?',
+                      '        key =?',
+                      '        value =?',
+                      '        result = value > 10',
+                     )
+  end
+
+  it 'should not parse question mark variables' do
+    expect do
+      engine.parse defn('A:',
+                        "    a? = {'a': 1, 'b': 2, 'c': 3}",
+                       )
+    end.to raise_error(Delorean::ParseError)
+  end
+
+  it 'should not parse question mark variables 2' do
+    expect do
+      engine.parse defn('A:',
+                        "    a?bc = {'a': 1, 'b': 2, 'c': 3}",
+                       )
+    end.to raise_error(Delorean::ParseError)
+  end
+
+  describe 'blocks' do
+    it 'should not not work with default values' do
+      expect do
+        engine.parse defn('A:',
+                          '    a = [1, 2, 3]',
+                          '    b = a.any()',
+                          '        item =?',
+                          '        other =? ActiveRecord::Base.all',
+                          '        result = item > other',
+                          '    c = a.any() { |ActiveRecord::Base.all| true }',
+                          '        item =? ActiveRecord::Base.all',
+                          '        result = true',
+                          '    d = a.any() { |item = 1| true }',
+                          '        item =? 1',
+                          '        result = true',
+                         )
+      end.to raise_error(Delorean::ParseError)
+    end
+
+    it 'should raise parse error if result formula is not present in block' do
+      expect do
+        engine.parse defn('A:',
+                          '    array = [1, 2, 3]',
+                          '    b = array.any?',
+                          '        item =?',
+                          '        wrong = item > 10',
+                         )
+      end.to raise_error(
+        Delorean::ParseError,
+        /result formula is required in blocks/
+      )
+    end
+
+    it 'should parse blocks' do
+      expect do
+        engine.parse defn('A:',
+                          "    a = {'a': 1, 'b': 2, 'c': 3}",
+                          '    b = a.any()',
+                          '        key =?',
+                          '        value =?',
+                          '        result = value > 10',
+                          '    c = a.any()',
+                          '        key =?',
+                          '        value =?',
+                          '        result = value > 2',
+                          '    d = a.select()',
+                          '        key =?',
+                          '        value =?',
+                          "        result = key == 'a' || value == 2",
+                          '    e = a.select()',
+                          '        key =?',
+                          "        result = key == 'c' || key == 'b'",
+                         )
+      end.to_not raise_error
+    end
+  end
+
   xit 'should parse ERR()' do
     # pending ... wrapping with parens -- (ERR()) works
     engine.parse defn('A:',

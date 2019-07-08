@@ -173,7 +173,7 @@ module Delorean
 
       ######################################################################
 
-      def self._instance_call(obj, method, args, _e)
+      def self._instance_call(obj, method, args, _e, &block)
         begin
           msg = method.to_sym
         rescue NoMethodError
@@ -193,14 +193,22 @@ module Delorean
         raise "no such method #{method}" unless matcher
 
         if matcher.match_to?
-          return(
-            _instance_call(obj, matcher.match_to, args, _e)
-          )
+          if block
+            return(
+              _instance_call(obj, matcher.match_to, args, _e, &block)
+            )
+          else
+            return(
+              _instance_call(obj, matcher.match_to, args, _e)
+            )
+          end
         end
 
         matcher.match!(klass: klass, args: args)
 
-        obj.public_send(msg, *args)
+        return obj.public_send(msg, *args) unless block
+
+        obj.public_send(msg, *args, &block)
       end
 
       ######################################################################
