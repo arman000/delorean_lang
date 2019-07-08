@@ -252,7 +252,9 @@ module Delorean
       multi_line = nil
       @multi_no = nil
 
-      source.each_line do |line|
+      lines = source.each_line.to_a
+
+      lines.each_with_index do |line, index|
         @line_no += 1
 
         # skip comments
@@ -277,6 +279,24 @@ module Delorean
             multi_line = nil
             @multi_no = nil
           end
+        end
+
+        # Initially Delorean code is parsed by single line.
+        # If line can not be parsed as valid Delorean expressions, parser
+        # would combine it with the following lines that are indented by more
+        # than 4 spaces and attempt to parse it again.
+
+        # However the first line of method with block can be parsed as a valid
+        # method or attribute call. In order to avoid that, we had to add this
+        # lookahead hack, that treats any expressions as multiline when
+        # the following line is indented by more that 4 spaces.
+        next_line = lines[index + 1] || ''
+
+        if /\A {5}/.match?(next_line)
+          multi_line ||= ''
+          multi_line += line
+          @multi_no ||= @line_no
+          next
         end
 
         t = parser.parse(line)

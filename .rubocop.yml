@@ -25,6 +25,7 @@ Metrics/ModuleLength:
     - 'spec/**/*'
 
 Metrics/BlockLength:
+  Max: 40
   Exclude:
     - 'spec/**/*'
 

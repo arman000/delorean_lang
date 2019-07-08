@@ -123,6 +123,14 @@ eos
 
   class Formula < SNode
     def check(context, *)
+      if i.text_value.include?('?')
+        raise Delorean::ParseError.new(
+          '? in formula names not supported',
+          context.module_name,
+          context.line_no
+        )
+      end
+
       context.parse_define_attr(i.text_value, e.check(context))
     end
 
@@ -407,6 +415,148 @@ eos
       end
 
       "_instance_call(#{vcode}, '#{i.text_value}', [#{args_str}], _e)"
+    end
+  end
+
+  class BlockParameter < Parameter
+    def check(context)
+      context.parse_define_var(i.text_value)
+      context.parse_undef_var(i.text_value)
+    end
+
+    def rewrite(context)
+      a_name = i.text_value
+      expr = defined?(e) ? e.rewrite(context) : ''
+      expr = expr.strip
+
+      return "#{a_name}#{POST}" if expr.empty?
+
+      "#{a_name}#{POST} = #{expr}"
+    end
+
+    def force_def(context)
+      context.parse_define_var(i.text_value)
+    end
+
+    def force_undef(context)
+      context.parse_undef_var(i.text_value)
+    end
+  end
+
+  class BlockParameterDefault < BlockParameter
+    def check(context)
+      context.parse_define_var(i.text_value)
+
+      e.check(context)
+      context.parse_undef_var(i.text_value)
+    end
+  end
+
+  class BlockFormula < SNode
+    def check(context, *)
+      if i.text_value.include?('?')
+        raise Delorean::ParseError.new(
+          '? in formula names not supported',
+          context.module_name,
+          context.line_no
+        )
+      end
+
+      context.parse_define_var(i.text_value)
+      context.parse_undef_var(i.text_value)
+    end
+
+    def rewrite(context)
+      "#{i.text_value}#{POST} = #{e.rewrite(context)}"
+    end
+
+    def force_def(context)
+      context.parse_define_var(i.text_value)
+    end
+
+    def force_undef(context)
+      context.parse_undef_var(i.text_value)
+    end
+  end
+
+  class BlockExpression < SNode
+    def check(context, *)
+      if respond_to?(:al)
+        al.text_value.empty? ? [] : al.check(context)
+      end
+
+      b_args.elements.each do |element|
+        element.check(context)
+        element.force_def(context)
+      end
+
+      formulas = expressions.elements.select do |elem|
+        elem.is_a? BlockFormula
+      end
+
+      result_formula = formulas.find do |formula|
+        formula.i.text_value == 'result'
+      end
+
+      unless result_formula
+        raise Delorean::ParseError.new(
+          'result formula is required in blocks',
+          context.module_name,
+          context.line_no
+        )
+      end
+
+      expressions.elements.each do |element|
+        element.check(context)
+      end
+
+      b_args.elements.each do |element|
+        element.force_undef(context)
+      end
+    end
+
+    def rewrite(context, vcode)
+      if !respond_to?(:al) || al.text_value.empty?
+        args_str = ''
+        arg_count = 0
+      else
+        args_str = al.rewrite(context)
+        arg_count = al.arg_count
+      end
+      if vcode.is_a?(ClassText)
+        # FIXME: Do we really need this check here?
+        # ruby class call
+        class_name = vcode.text
+        context.parse_check_call_fn(i.text_value, arg_count, class_name)
+      end
+
+      b_args.elements.each do |element|
+        element.force_def(context)
+      end
+
+      block_args_str = if b_args.elements.any?
+                         block_args = b_args.elements.map do |v|
+                           v.rewrite(context)
+                         end
+
+                         "|#{block_args.join(', ')}|"
+                       else
+                         ''
+                       end
+
+      expr_arr = expressions.elements.map do |v|
+        v.rewrite(context)
+      end + ["result#{POST}"]
+
+      expression_str = expr_arr.join('; ')
+
+      b_args.elements.each do |element|
+        element.force_undef(context)
+      end
+
+      block = "{ #{block_args_str} #{expression_str} }"
+
+      "_instance_call(#{vcode}, '#{i.text_value}', [#{args_str}], _e) #{block}"
     end
   end
 

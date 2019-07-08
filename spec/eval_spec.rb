@@ -1342,4 +1342,394 @@ eof
     r = engine.evaluate('B', ['x', 'y', 'xx', 'yy'])
     expect(r).to eq [5, 2460, 128, 1230]
   end
+
+  describe 'blocks' do
+    let(:default_node) do
+      ['A:',
+       '    array = [1, 2, 3]',
+       "    hash = {'a': 1, 'b': 2, 'c': 3}",
+      ]
+    end
+
+    it 'evaluates on arrays' do
+      engine.parse defn(*default_node,
+                        '    b = array.any()',
+                        '        item =?',
+                        '        result = item > 10',
+                        '    c = array.any()',
+                        '        x =?',
+                        '        result = x > 1',
+                        '    d = array.select',
+                        '        x =?',
+                        '        result = x > 1',
+                        '    e = array.any',
+                        '        item =?',
+                        '        result = item > 10',
+                        '    f = array.any',
+                        '        x =?',
+                        '        result = x > 1',
+                        '    g = array.any?',
+                        '        result = nil',
+                        '    h = array.any',
+                        '        result = nil',
+                       )
+
+      r = engine.evaluate('A', 'b')
+      expect(r).to eq(false)
+
+      r = engine.evaluate('A', 'c')
+      expect(r).to eq(true)
+
+      r = engine.evaluate('A', 'd')
+      expect(r).to eq([2, 3])
+
+      r = engine.evaluate('A', 'e')
+      expect(r).to eq(false)
+
+      r = engine.evaluate('A', 'f')
+      expect(r).to eq(true)
+
+      r = engine.evaluate('A', 'g')
+      expect(r).to eq(false)
+    end
+
+    it 'works with question mark in methods' do
+      engine.parse defn(*default_node,
+                        '    b = array.any?',
+                        '        item =?',
+                        '        result = item > 10',
+                       )
+      r = engine.evaluate('A', 'b')
+      expect(r).to eq(false)
+    end
+
+    it 'raises parse error if result formula is not present in block' do
+      expect do
+        engine.parse defn(*default_node,
+                          '    b = array.any?',
+                          '        item =?',
+                          '        wrong = item > 10',
+                         )
+      end.to raise_error(
+        Delorean::ParseError,
+        /result formula is required in blocks/
+      )
+    end
+
+    # it 'chains method calls on block' do
+    # engine.parse defn(*default_node,
+    # '    b = array.select { |b| b > 2 }.last',
+    # '    c = array.select { |b| ',
+    # '        b > 2 ||',
+    # '        b <= 1 ',
+    # '        }.first',
+    # )
+    #
+    # r = engine.evaluate('A', 'b')
+    # expect(r).to eq(3)
+    #
+    # r = engine.evaluate('A', 'c')
+    # expect(r).to eq(1)
+    # end
+
+    it 'evaluates on hashes' do
+      engine.parse defn(*default_node,
+                        '    b = hash.any()',
+                        '        key =?',
+                        '        val =?',
+                        '        result = val > 10',
+                        '    c = hash.any()',
+                        '        key =?',
+                        '        val =?',
+                        '        result = val > 2',
+                        '    d = hash.select()',
+                        '        key =?',
+                        '        val =?',
+                        "        result = key == 'a' || val == 2",
+                        '    e = hash.select()',
+                        '        key =?',
+                        '        val =?',
+                        "        result = key == 'c' || key == 'b'",
+                       )
+
+      r = engine.evaluate('A', 'b')
+      expect(r).to eq(false)
+
+      r = engine.evaluate('A', 'c')
+      expect(r).to eq(true)
+
+      r = engine.evaluate('A', 'd')
+      expect(r).to eq('a' => 1, 'b' => 2)
+
+      r = engine.evaluate('A', 'e')
+      expect(r).to eq('b' => 2, 'c' => 3)
+    end
+
+    it 'whitelisting still works inside of block' do
+      engine.parse defn(*default_node,
+                        '    b = array.any()',
+                        '        item =?',
+                        '        result = array[1] != 2',
+                        '    c = array.any()',
+                        '        x =?',
+                        '        result = ActiveRecord::Base.all()',
+                        '    d = array.reject',
+                        '    e = d.with_index()',
+                        '        v =?',
+                        '        result = nil',
+                       )
+
+      r = engine.evaluate('A', 'b')
+      expect(r).to eq(false)
+
+      expect { engine.evaluate('A', 'c') }.to raise_error(
+        RuntimeError, 'no such method all'
+      )
+
+      expect { engine.evaluate('A', 'e') }.to raise_error(
+        RuntimeError, 'no such method with_index'
+      )
+    end
+
+    it 'variables in blocks do not overwrite external variables' do
+      engine.parse defn(*default_node,
+                        '    b = 1',
+                        '    c = 2',
+                        '    d = array.select',
+                        '        b =?',
+                        '        result = b + c',
+                       )
+
+      r = engine.evaluate('A', ['d', 'b', 'c'])
+      expect(r).to eq([[1, 2, 3], 1, 2])
+    end
+
+    it 'works with default block parameter values' do
+      engine.parse defn(*default_node,
+                        '    b = 1',
+                        '    d = array.select',
+                        '        b =?',
+                        '        c =? 2',
+                        '        result = b > c',
+                       )
+
+      r = engine.evaluate('A', ['d', 'b'])
+      expect(r).to eq([[3], 1])
+    end
+
+    it 'works with syntax in blocks' do
+      engine.parse defn(*default_node,
+                        '    b = 1',
+                        '    c = array.select     ',
+                        '        b =? 1',
+                        '        result = b > 2',
+                        '    d = array.select     ',
+                        '        b =?',
+                        '        result = b > 2',
+                        '    e = array.select     ',
+                        '        result = b > 2',
+                        '        t = 1',
+                        '    f = 3'
+                       )
+
+      r = engine.evaluate('A', 'c')
+      expect(r).to eq([3])
+
+      r = engine.evaluate('A', 'd')
+      expect(r).to eq([3])
+
+      r = engine.evaluate('A', 'e')
+      expect(r).to eq([])
+
+      r = engine.evaluate('A', ['e', 'b'])
+      expect(r).to eq([[], 1])
+    end
+
+    describe 'methods' do
+      it 'all?' do
+        engine.parse defn(*default_node,
+                          '    b = array.all?',
+                          '        num =?',
+                          '        result = num > 1',
+                          '    c = hash.all?',
+                          '        key =?',
+                          '        val =?',
+                          '        result = key.length() == 1',
+                         )
+
+        r = engine.evaluate('A', 'b')
+        expect(r).to eq(false)
+
+        r = engine.evaluate('A', 'c')
+        expect(r).to eq(true)
+      end
+
+      it 'any?' do
+        engine.parse defn(*default_node,
+                          '    b = array.any?',
+                          '        num =?',
+                          '        result = num > 4',
+                          '    c = hash.any?',
+                          '        key =?',
+                          '        val =?',
+                          '        result = val >= 2',
+                         )
+
+        r = engine.evaluate('A', 'b')
+        expect(r).to eq(false)
+
+        r = engine.evaluate('A', 'c')
+        expect(r).to eq(true)
+      end
+
+      it 'find' do
+        engine.parse defn(*default_node,
+                          '    b = array.find',
+                          '        num =?',
+                          '        result = num == 2',
+                          '    c = hash.find',
+                          '        key =?',
+                          '        val =?',
+                          '        result = key == "b"',
+                         )
+
+        r = engine.evaluate('A', 'b')
+        expect(r).to eq(2)
+
+        r = engine.evaluate('A', 'c')
+        expect(r).to eq(['b', 2])
+      end
+
+      it 'max_by' do
+        engine.parse defn(*default_node,
+                          '    b = array.max_by',
+                          '        num =?',
+                          '        result = - num',
+                          '    c = hash.max_by',
+                          '        key =?',
+                          '        val =?',
+                          '        result = val',
+                         )
+
+        r = engine.evaluate('A', 'b')
+        expect(r).to eq(1)
+
+        r = engine.evaluate('A', 'c')
+        expect(r).to eq(['c', 3])
+      end
+
+      it 'min_by' do
+        engine.parse defn(*default_node,
+                          '    b = array.min_by',
+                          '        num =?',
+                          '        result = - num',
+                          '    c = hash.min_by',
+                          '        key =?',
+                          '        val =?',
+                          '        result = val',
+                         )
+
+        r = engine.evaluate('A', 'b')
+        expect(r).to eq(3)
+
+        r = engine.evaluate('A', 'c')
+        expect(r).to eq(['a', 1])
+      end
+
+      it 'none?' do
+        engine.parse defn(*default_node,
+                          '    b = array.none?',
+                          '        num =?',
+                          '        result = num > 4',
+                          '    c = hash.none?',
+                          '        key =?',
+                          '        val =?',
+                          '        result = val >= 2',
+                         )
+
+        r = engine.evaluate('A', 'b')
+        expect(r).to eq(true)
+
+        r = engine.evaluate('A', 'c')
+        expect(r).to eq(false)
+      end
+
+      it 'reduce' do
+        engine.parse defn(*default_node,
+                          '    b = array.reduce(2)',
+                          '        sum =?',
+                          '        num =?',
+                          '        result = sum + num',
+                          '    b2= array.reduce',
+                          '        sum =?',
+                          '        num =?',
+                          '        result = sum + num',
+                          '    c = hash.reduce(2)',
+                          '        sum =?',
+                          '        key_val =?',
+                          '        result = sum + key_val[1]',
+                          '    c2 = hash.reduce([0])',
+                          '        sum =?',
+                          '        key_val =?',
+                          '        result = [sum.last + key_val[1]]',
+                         )
+
+        r = engine.evaluate('A', 'b')
+        expect(r).to eq(8)
+
+        r = engine.evaluate('A', 'b2')
+        expect(r).to eq(6)
+
+        r = engine.evaluate('A', 'c')
+        expect(r).to eq(8)
+
+        r = engine.evaluate('A', 'c2')
+        expect(r).to eq([6])
+      end
+
+      it 'reject' do
+        engine.parse defn(*default_node,
+                          '    b = array.reject',
+                          '        num =?',
+                          '        result = num >= 2',
+                          '    c = hash.reject',
+                          '        key =?',
+                          '        val =?',
+                          '        result = val > 2',
+                         )
+
+        r = engine.evaluate('A', 'b')
+        expect(r).to eq([1])
+
+        r = engine.evaluate('A', 'c')
+        expect(r).to eq('a' => 1, 'b' => 2)
+      end
+
+      it 'uniq' do
+        engine.parse defn(*default_node,
+                          '    b = array.uniq',
+                          '        num =?',
+                          '        result = (num / 3.0).round',
+                          '    b2 = array.uniq',
+                          '    c = hash.uniq',
+                          '        key =?',
+                          '        val =?',
+                          '        result = if key == "b" then "a" else key',
+                          '    c2 = hash.uniq',
+                         )
+
+        r = engine.evaluate('A', 'b')
+        expect(r).to eq([1, 2])
+
+        r = engine.evaluate('A', 'b2')
+        expect(r).to eq([1, 2, 3])
+
+        r = engine.evaluate('A', 'c')
+        expect(r).to eq([['a', 1], ['c', 3]])
+
+        r = engine.evaluate('A', 'c2')
+        expect(r).to eq([['a', 1], ['b', 2], ['c', 3]])
+      end
+    end
+  end
 end
