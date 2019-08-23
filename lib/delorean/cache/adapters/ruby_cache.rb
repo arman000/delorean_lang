@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './base'
 
 module Delorean
@@ -20,14 +22,17 @@ module Delorean
         def fetch_item(klass:, cache_key:, default: nil)
           subh = lookup_cache.fetch(klass, default)
           return default if subh == default
+
           v = subh.fetch(cache_key, default)
           return default if v == default
+
           v
         end
 
         def cache_key(klass:, method_name:, args:)
           [method_name] + args.map do |arg|
             next arg.id if arg.respond_to?(:id)
+
             arg
           end.freeze
         end

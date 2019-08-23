@@ -10,15 +10,26 @@ grammar Delorean
     /
     sp4 i:identifier sp? '=' sp? e:expression <Formula>
     /
+    n:class_name ':' sp? mod:(m:class_name_import_nested) <SubNodeNested> # FIXME: requires to be above SubNode statement, otherwise doesn't work
+    /
     n:class_name ':' sp? mod:(m:class_name '::')? p:class_name <SubNode>
     /
     n:class_name ':' <BaseNode>
     /
-    'import' sp n:class_name <Import>
+    'import' sp n:class_name_import <Import>
   end
 
   rule class_name
     [A-Z] [a-zA-Z0-9_]*
+  end
+
+  rule class_name_import
+    [A-Z] [a-zA-Z0-9_]* ('::' [A-Z] [a-zA-Z0-9_]*)*
+  end
+
+  # FIXME: Hacky way to skip Module::Node cases, so only Module::NestedModule::Node will pass
+  rule class_name_import_nested
+    [A-Z] [a-zA-Z0-9_]* (('::' [A-Z] [a-zA-Z0-9_]*) 2..)
   end
 
   rule expression
@@ -35,6 +46,16 @@ grammar Delorean
     getattr_exp
   end
 
+  rule block_args
+		sp4 sp4 sp? i:identifier sp? '=?' sp1? e:expression <BlockParameterDefault>
+		/
+    sp4 sp4 sp? i:identifier sp? '=?' <BlockParameter>
+  end
+  
+  rule block_formulas
+    sp4 sp4 sp? i:identifier sp? '=' sp? e:expression <BlockFormula>
+	end
+
   rule getattr_exp
     v:value dotted:dotted <GetattrExp>
     /
@@ -50,7 +71,11 @@ grammar Delorean
     /
     '(' sp? al:kw_args? sp? ')' <NodeCall>
     /
+    '.' sp? i:identifier '(' sp? al:fn_args? sp? ')' b_args:block_args* expressions:block_formulas+ <BlockExpression>
+    /
     '.' sp? i:identifier '(' sp? al:fn_args? sp? ')' <Call>
+		/
+    '.' sp? i:identifier b_args:block_args* expressions:block_formulas+ <BlockExpression>
     /
     '.' sp? i:(identifier / integer) <GetAttr>
   end
@@ -114,10 +139,12 @@ grammar Delorean
     boolean                                             /
     nil_val                                             /
     identifier                                          /
+    sup                                                 /
     self                                                /
     list_expr                                           /
     set_expr                                            /
     hash_expr                                           /
+    c:class_name_import <NodeAsValueNested>             / # FIXME: requires to be above NodeAsValue statement, otherwise doesn't work
     mod:(m:class_name '::')? c:class_name <NodeAsValue> /
     '(' sp? e:expression sp? ')'          <Expr>
   end
@@ -146,6 +173,10 @@ grammar Delorean
     args_rest:(sp? ',' sp? al:kw_args?)? <KwArgs>
   end
 
+  # rule block_args
+    # '|' sp? args:unpack_args sp? '|'
+  # end
+
   rule decimal
     i:integer '.' [0-9]+ <Literal>
   end
@@ -155,11 +186,15 @@ grammar Delorean
   end
 
   rule identifier
-    [a-z] [a-zA-Z0-9_]* <Identifier>
+    [a-z] [a-zA-Z0-9_]* '?'? <Identifier>
   end
 
   rule boolean
     'true' <Literal> / 'false' <Literal>
+  end
+
+  rule sup
+    '_sup' <Sup>
   end
 
   rule self
@@ -175,9 +210,14 @@ grammar Delorean
     '    '
   end
 
+  rule sp1
+    ' '
+	end
+
   rule sp
     [\s]+
   end
+
 
   rule string
     '"' ('\"' / !'"' .)* '"' <IString>

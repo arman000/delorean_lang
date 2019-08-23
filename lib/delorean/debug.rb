@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Delorean
   class Debug
     @debug_set = Set[]
@@ -8,15 +10,14 @@ module Delorean
     end
 
     def self.log(obj)
-      File.open(@log_file, 'a+') {
-        |f|
+      File.open(@log_file, 'a+') do |f|
         f.write obj.inspect
         f.write "\n"
-      }
+      end
     end
 
-    def self.debug_set
-      @debug_set
+    class << self
+      attr_reader :debug_set
     end
   end
 end

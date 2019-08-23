@@ -121,6 +121,28 @@ newly defined `teen_min`.  Therefore, `IndiaInfo.is_teenager` with
 input of `age = 10` will evaluate to `true`.  Whereas,
 `USInfo.is_teenager` with input of `age = 10` will evaluate to `false`.
 
+### Debugging
+
+You can use `(ERR())` to add a breakpoint:
+
+```
+    USInfo:
+		age = ?
+		teen_max = 19
+		teen_min = 13
+		is_teenager = (ERR()) && age >= teen_min && age <= teen_max
+
+```
+
+Then you can call attributes by using their mangled name (e.g. attr__D) and passing the context. attr__D(_e). Of course, you can use `ls` to list available methods.
+
+```
+  teen_max__D(_e) # 19
+  age__D(_e)
+```
+
+### TODO
+
 TODO: provide details on the following topics:
 
 * Supported data types
@@ -137,9 +159,13 @@ Ruby.
 
 ### Calling ruby methods from Delorean
 
-Ruby methods that are called from Delorean should be whitelisted.
+There are two ways of calling ruby code from delorean. First one is to whitelist methods:
 
 ```ruby
+
+  ::Delorean::Ruby.whitelist.add__method :any? do |method|
+    method.called_on Enumerable
+  end
 
   ::Delorean::Ruby.whitelist.add_method :length do |method|
     method.called_on String
@@ -148,6 +174,10 @@ Ruby methods that are called from Delorean should be whitelisted.
 
   ::Delorean::Ruby.whitelist.add_method :first do |method|
     method.called_on Enumerable, with: [Integer]
+  end
+
+  ::Delorean::Ruby.whitelist.add_class_method :last do |method|
+    method.called_on ActiveRecord::Base, with: [Integer]
   end
 
 ```
@@ -162,12 +192,63 @@ By default Delorean has some methods whitelisted, such as `length`, `min`, `max`
 
 ```
 
-### Caching
-
-Delorean provides `cached_delorean_function` method that will cache result based on arguments.
+Another way is to define methods using `delorean_fn` with optional `private` and `cache` flags.
+Use `extend Delorean::Functions` or `include Delorean::Model` in your module or class.
 
 ```ruby
-  cached_delorean_fn :returns_cached_openstruct, sig: 1 do |timestamp|
+class Dummy < ActiveRecord::Base
+  include Delorean::Model
+
+  delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
+    a.inject(0, :+)
+  end
+
+  delorean_fn :private_cached_number, cache: true, private: true do |*a|
+    a.inject(0, :+)
+  end
+end
+
+module DummyModule
+  extend Delorean::Functions
+
+  delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
+    a.inject(0, :+)
+  end
+end
+```
+
+`heres_my_number` method will be accessible from Delorean code.
+
+```ruby
+ExampleScript:
+    a = Dummy.heres_my_number(867, 5309)'
+    b = DummyModule.heres_my_number(867, 5309)'
+```
+
+You can use blocks in your Delorean code:
+
+```ruby
+ExampleScript:
+    a = [1, 2, 3]
+    b = c.any? { |v| v > 2 }
+    b2 = c.any? do |v| v > 2 end
+
+    c = a.reduce(0) { |sum, el|
+        sum + el
+        }
+    c2 = a.reduce() do |sum, el|
+        sum + el
+        end
+```
+
+Note that `do ... end` syntax is not yet supported
+
+### Caching
+
+Delorean provides `cache` flag for `delorean_fn` method that will cache result based on arguments.
+
+```ruby
+  delorean_fn :returns_cached_openstruct, cache: true do |timestamp|
     User.all
   end
 
@@ -208,6 +289,18 @@ Delorean expects it to have methods with following signatures:
 
 
 TODO: provide details
+
+## Development
+
+### Treetop
+
+Edit treetop rules in `lib/delorean/delorean.treetop`
+
+Use `make treetop-generate` to regenerate `lib/delorean/delorean.rb` based on Treetop logic in `lib/delorean/delorean.treetop`
+
+### Testing
+
+Use `rspec` to run the tests.
 
 ## License
 

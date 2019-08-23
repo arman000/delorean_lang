@@ -1,8 +1,88 @@
+require: rubocop-performance
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  Exclude:
+    - 'db/**/*'
+    - 'spec/dummy/**/*'
+    - 'bin/{rails,rake}'
+    - 'vendor/**/*'
+    - !ruby/regexp /old_and_unused\.rb$/
+    - 'lib/delorean/delorean.rb' # Auto-generated
+
 Style/StringLiterals:
-  Enabled: false
+  Enabled: true
+  EnforcedStyle: single_quotes
 
 Metrics/LineLength:
   Max: 80
+  Exclude:
+    - 'spec/**/*'
 
-Style/TrailingComma:
+Metrics/ModuleLength:
+  Max: 100
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/BlockLength:
+  Max: 40
+  Exclude:
+    - 'spec/**/*'
+
+Style/TrailingCommaInArguments:
   Enabled: false
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
+Style/TrailingCommaInHashLiteral:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  EnforcedStyle: always
+
+Layout/IndentHeredoc:
+  Exclude:
+    - 'spec/eval_spec.rb'
+
+Style/Documentation:
+  Enabled: false
+
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
+Naming/VariableNumber:
+  Enabled: false
+
+Style/WordArray:
+  Exclude:
+    - 'spec/**/*'
+
+Layout/MultilineArrayBraceLayout:
+  Exclude:
+    - 'spec/**/*'
+
+Layout/MultilineMethodCallBraceLayout:
+  Exclude:
+    - 'spec/**/*'
+
+Naming/BinaryOperatorParameterName:
+  Exclude:
+    - 'lib/delorean/base.rb'
+
+Style/PerlBackrefs:
+  Enabled: false
+
+Naming/HeredocDelimiterCase:
+  Enabled: false
+
+Naming/RescuedExceptionsVariableName:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Exclude:
+    - 'spec/spec_helper.rb'
+
+Style/AccessModifierDeclarations:
+  Exclude:
+    - 'lib/delorean/functions.rb'

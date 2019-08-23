@@ -1,0 +1,36 @@
+image: thepry/docker-ruby-ci:2.4.2-latest
+
+before_script:
+  - bundle install --jobs $(nproc) --path vendor "${FLAGS[@]}"
+
+.base-test:
+  stage: test
+  # Use only the following CI runners
+  tags:
+    - gitlabci-runner-eks-shared-dev
+
+rubocop:
+  extends: .base-test
+  stage: test
+  script:
+    - bundle exec rubocop
+
+rspec:
+  extends: .base-test
+  stage: test
+  script:
+    - bundle exec rspec
+
+cache:
+  key: 'delorean_bundler_cache'
+  paths:
+    - vendor/ruby
+
+variables:
+  GIT_SSL_NO_VERIFY: "true"
+  BUNDLER_VERSION: "2.0.1"
+  POSTGRES_USER: "runner"
+  POSTGRES_PASSWORD: ""
+  RAILS_ENV: "test"
+  RAILS_DUMP_SCHEMA: "false"
+

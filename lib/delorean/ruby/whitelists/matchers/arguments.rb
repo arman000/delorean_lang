@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
 module Delorean
   module Ruby
     module Whitelists
       module Matchers
         class Arguments
+          ANYTHING = :_delorean_anything
+
           attr_reader :called_on, :method_name, :with
 
           def initialize(called_on:, method_name:, with: [])
@@ -12,6 +16,8 @@ module Delorean
           end
 
           def match!(args:)
+            return if with == ANYTHING
+
             raise "too many args to #{method_name}" if args.size > with.size
 
             with.each_with_index do |s, i|

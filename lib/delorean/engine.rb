@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'delorean/const'
 require 'delorean/base'
 require 'set'
@@ -6,9 +8,9 @@ require 'pp'
 module Delorean
   class Engine
     attr_reader :last_node, :module_name, :line_no,
-    :comp_set, :pm, :m, :imports, :sset
+                :comp_set, :pm, :m, :imports, :sset
 
-    def initialize(module_name, sset=nil)
+    def initialize(module_name, sset = nil)
       # name of current module
       @module_name = module_name
       @sset = sset
@@ -16,9 +18,12 @@ module Delorean
     end
 
     def reset
-      @m, @pm = nil, nil
-      @last_node, @node_attrs = nil, {}
-      @line_no, @multi_no = 0, nil
+      @m = nil
+      @pm = nil
+      @last_node = nil
+      @node_attrs = {}
+      @line_no = 0
+      @multi_no = nil
 
       # set of comprehension vars
       @comp_set = Set.new
@@ -41,24 +46,24 @@ module Delorean
     end
 
     def parse_import(name)
-      err(ParseError, "No script set") unless sset
+      err(ParseError, 'No script set') unless sset
 
       err(ParseError, "Module #{name} importing itself") if
         name == module_name
 
       begin
         @imports[name] = sset.get_engine(name)
-      rescue => exc
+      rescue StandardError => exc
         err(ImportError, exc.to_s)
       end
 
-      @pm.const_set("#{MOD}#{name}", @imports[name].pm)
+      @pm.const_set("#{MOD}#{name.gsub('::', '__')}", @imports[name].pm)
     end
 
     def gen_import(name)
       @imports.merge!(@imports[name].imports)
 
-      @m.const_set("#{MOD}#{name}", @imports[name].m)
+      @m.const_set("#{MOD}#{name.gsub('::', '__')}", @imports[name].m)
     end
 
     def get_import_engine(name)
@@ -66,7 +71,7 @@ module Delorean
       @imports[name]
     end
 
-    def is_node_defined(name)
+    def node_defined?(name)
       @pm.constants.member? name.to_sym
     end
 
@@ -74,7 +79,7 @@ module Delorean
     # method about our expectation.  flag=true means that we make sure
     # that name is defined.  flag=false is the opposite.
     def parse_check_defined_node(name, flag)
-      isdef = is_node_defined(name)
+      isdef = node_defined?(name)
 
       if isdef != flag
         isdef ? err(RedefinedError, "#{name} already defined") :
@@ -83,7 +88,7 @@ module Delorean
     end
 
     def super_name(pname, mname)
-      mname ? "#{MOD}#{mname}::#{pname}" : pname
+      mname ? "#{MOD}#{mname.gsub('::', '__')}::#{pname}" : pname
     end
 
     def parse_check_defined_mod_node(pname, mname)
@@ -91,13 +96,15 @@ module Delorean
       engine.parse_check_defined_node(pname, true)
     end
 
-    def parse_define_node(name, pname, mname=nil)
+    def parse_define_node(name, pname, mname = nil)
       parse_check_defined_node(name, false)
       parse_check_defined_mod_node(pname, mname) if pname
 
       sname = pname ? super_name(pname, mname) : 'Object'
 
-      @pm.module_eval("class #{name} < #{sname}; end")
+      @pm.module_eval <<-RUBY, __FILE__, __LINE__ + 1
+        class #{name} < #{sname}; end
+      RUBY
 
       # latest defined node
       @last_node = name
@@ -125,20 +132,21 @@ module Delorean
 
     # Parse-time check to see if attr is available on current node.
     def parse_call_last_node_attr(attr_name)
-      err(ParseError, "Not inside a node") unless @last_node
+      err(ParseError, 'Not inside a node') unless @last_node
       parse_call_attr(@last_node, attr_name)
     end
 
     def parse_define_var(var_name)
-      err(RedefinedError,
-          "List comprehension can't redefine variable '#{var_name}'") if
-        comp_set.member? var_name
+      if comp_set.member? var_name
+        err(RedefinedError,
+            "List comprehension can't redefine variable '#{var_name}'")
+      end
 
       comp_set.add var_name
     end
 
     def parse_undef_var(var_name)
-      err(ParseError, "internal error") unless comp_set.member? var_name
+      err(ParseError, 'internal error') unless comp_set.member? var_name
       comp_set.delete var_name
     end
 
@@ -152,10 +160,10 @@ module Delorean
 
       @node_attrs[@last_node] << name
 
-      checks = spec.map { |a|
+      checks = spec.map do |a|
         n = a.index('.') ? a : "#{@last_node}.#{a}"
         "_x.member?('#{n}') ? raise('#{n}') : #{a}#{POST}(_x + ['#{n}'])"
-      }.join(';')
+      end.join(';')
 
       code =
         "class #{@last_node}; def self.#{name}#{POST}(_x); #{checks}; end; end"
@@ -185,17 +193,16 @@ module Delorean
         err(UndefinedError, "Can't find class: #{class_name}")
       end
 
-      err(UndefinedError, "Access to non-class: #{class_name}") unless
-        klass.instance_of?(Class)
+      return klass if klass.instance_of?(Class) || klass.instance_of?(Module)
 
-      klass
+      err(UndefinedError, "Access to non-class/module: #{class_name}")
     end
 
     def err(exc, msg)
       raise exc.new(msg, @module_name, curr_line)
     end
 
-    def parse_check_call_fn(fn, argcount, class_name=nil)
+    def parse_check_call_fn(fn, _argcount, class_name = nil)
       klass = case class_name
               when nil
                 @m::BaseClass
@@ -207,20 +214,6 @@ module Delorean
 
       err(UndefinedFunctionError, "Function #{fn} not found") unless
         klass.methods.member? fn.to_sym
-
-      # signature methods must be named FUNCTION_NAME_SIG
-      sig = "#{fn}#{SIG}".upcase.to_sym
-
-      err(UndefinedFunctionError, "Signature #{sig} not found") unless
-        klass.constants.member? sig
-
-      min, max = klass.const_get(sig)
-
-      err(BadCallError, "Too many args to #{fn} (#{argcount} > #{max})") if
-        argcount > max
-
-      err(BadCallError, "Too few args to #{fn} (#{argcount} < #{min})") if
-        argcount < min
     end
 
     def parser
@@ -234,7 +227,7 @@ module Delorean
         # generate ruby code
         gen = t.rewrite(self)
       rescue RuntimeError => exc
-        err(ParseError, "codegen error: " + exc.message)
+        err(ParseError, 'codegen error: ' + exc.message)
       end
 
       # puts gen
@@ -242,9 +235,9 @@ module Delorean
       begin
         # evaluate generated code in @m
         @m.module_eval(gen, "#{MOD}#{module_name}", curr_line)
-      rescue => exc
+      rescue StandardError => exc
         # bad ruby code generated, shoudn't happen
-        err(ParseError, "codegen error: " + exc.message)
+        err(ParseError, 'codegen error: ' + exc.message)
       end
     end
 
@@ -253,40 +246,63 @@ module Delorean
 
       # @m module is used at runtime for code evaluation.  @pm module
       # is only used during parsing to check for errors.
-      @m, @pm = BaseModule.clone, Module.new
+      @m = BaseModule.clone
+      @pm = Module.new
 
-      multi_line, @multi_no = nil, nil
+      multi_line = nil
+      @multi_no = nil
 
-      source.each_line do |line|
+      lines = source.each_line.to_a
+
+      lines.each_with_index do |line, index|
         @line_no += 1
 
         # skip comments
-        next if line.match(/^\s*\#/)
+        next if line =~ /^\s*\#/
 
         # remove trailing blanks
         line.rstrip!
 
-        next if line.length == 0
+        next if line.empty?
 
         if multi_line
           # if line starts with >4 spaces, assume it's a multline
           # continuation.
-          if line =~ /\A {5}/
+          if /\A {5}/.match?(line)
             multi_line += line
             next
           else
             t = parser.parse(multi_line)
-            err(ParseError, "syntax error") unless t
+            err(ParseError, 'syntax error') unless t
 
             generate(t)
-            multi_line, @multi_no = nil, nil
+            multi_line = nil
+            @multi_no = nil
           end
+        end
+
+        # Initially Delorean code is parsed by single line.
+        # If line can not be parsed as valid Delorean expressions, parser
+        # would combine it with the following lines that are indented by more
+        # than 4 spaces and attempt to parse it again.
+
+        # However the first line of method with block can be parsed as a valid
+        # method or attribute call. In order to avoid that, we had to add this
+        # lookahead hack, that treats any expressions as multiline when
+        # the following line is indented by more that 4 spaces.
+        next_line = lines[index + 1] || ''
+
+        if /\A {5}/.match?(next_line)
+          multi_line ||= ''
+          multi_line += line
+          @multi_no ||= @line_no
+          next
         end
 
         t = parser.parse(line)
 
         if !t
-          err(ParseError, "syntax error") unless line =~ /^\s+/
+          err(ParseError, 'syntax error') unless line =~ /^\s+/
 
           multi_line = line
           @multi_no = @line_no
@@ -297,7 +313,7 @@ module Delorean
 
       if multi_line
         t = parser.parse(multi_line)
-        err(ParseError, "syntax error") unless t
+        err(ParseError, 'syntax error') unless t
         generate(t)
       end
     end
@@ -313,14 +329,14 @@ module Delorean
 
     # enumerate qualified list of all attrs
     def enumerate_attrs
-      @node_attrs.keys.each_with_object({}) { |node, h|
+      @node_attrs.keys.each_with_object({}) do |node, h|
         h[node] = enumerate_attrs_by_node(node)
-      }
+      end
     end
 
     # enumerate qualified list of attrs by node
     def enumerate_attrs_by_node(node)
-      raise "bad node" unless node
+      raise 'bad node' unless node
 
       begin
         klass = node.is_a?(String) ? @m.module_eval(node) : node
@@ -331,11 +347,11 @@ module Delorean
 
       raise "bad node class #{klass}" unless klass.is_a?(Class)
 
-      klass.methods.map(&:to_s).select { |x|
+      klass.methods.map(&:to_s).select do |x|
         x.end_with?(POST)
-      }.map { |x|
+      end.map do |x|
         x.sub(/#{POST}$/, '')
-      }
+      end
     end
 
     # enumerate all params
@@ -346,15 +362,15 @@ module Delorean
     # enumerate params by a single node
     def enumerate_params_by_node(node)
       attrs = enumerate_attrs_by_node(node)
-      Set.new( attrs.select {|a| @param_set.include?(a)} )
+      Set.new(attrs.select { |a| @param_set.include?(a) })
     end
 
     ######################################################################
     # Runtime
     ######################################################################
 
-    def evaluate(node, attrs, params={})
-      raise "bad params" unless params.is_a?(Hash)
+    def evaluate(node, attrs, params = {})
+      raise 'bad params' unless params.is_a?(Hash)
 
       if node.is_a?(Class)
         klass = node
@@ -373,29 +389,29 @@ module Delorean
       type_arr = attrs.is_a?(Array)
       attrs = [attrs] unless type_arr
 
-      res = attrs.map { |attr|
+      res = attrs.map do |attr|
         raise "bad attribute '#{attr}'" unless attr =~ /^[a-z][A-Za-z0-9_]*$/
+
         klass.send("#{attr}#{POST}".to_sym, params)
-      }
+      end
       type_arr ? res : res[0]
     end
 
-    def eval_to_hash(node, attrs, params={})
+    def eval_to_hash(node, attrs, params = {})
       res = evaluate(node, attrs, params)
       Hash[* attrs.zip(res).flatten(1)]
     end
 
     def self.grok_runtime_exception(exc)
       # parse out the delorean-related backtrace records
-      bt = exc.backtrace.map{ |x|
-        x.match(/^#{MOD}(.+?):(\d+)(|:in `(.+)')$/);
+      bt = exc.backtrace.map do |x|
+        x =~ /^#{MOD}(.+?):(\d+)(|:in `(.+)')$/
         $1 && [$1, $2.to_i, $4.sub(/#{POST}$/, '')]
-      }.reject(&:!)
+      end.reject(&:!)
 
-      {"error" => exc.message, "backtrace" => bt}
+      { 'error' => exc.message, 'backtrace' => bt }
     end
 
     ######################################################################
-
   end
 end

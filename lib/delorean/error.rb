@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Delorean
   ######################################################################
   # Parse Errors
@@ -48,5 +50,4 @@ module Delorean
 
   class InvalidIndex < StandardError
   end
-
 end
