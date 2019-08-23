@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'benchmark/ips'
 require 'pry'
 
-describe "Delorean" do
+describe 'Delorean' do
   let(:sset) {
     TestContainer.new({
                       })
@@ -25,9 +25,9 @@ describe "Delorean" do
     engine.parse perf_test
 
     bm = Benchmark.ips do |x|
-      x.report ("delorean") { engine.evaluate("A", "hh") }
+      x.report ('delorean') { engine.evaluate("A", "hh") }
 
-      x.report("ruby") {
+      x.report('ruby') {
         x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         h = x.product(x).map { |x| [x, x.to_s]}.to_h
         hh = h.merge("a"=>1, "b"=>2).merge(h).merge(h).merge(h).merge("c"=>3)
@@ -42,7 +42,7 @@ describe "Delorean" do
       h[e.label] = e.stats.central_tendency
     }
 
-    factor = h["ruby"]/h["delorean"]
+    factor = h['ruby']/h['delorean']
 
     p factor
 
@@ -64,9 +64,9 @@ describe "Delorean" do
     h = x.product(x).map { |x| [x, x.to_s]}.to_h
 
     bm = Benchmark.ips do |x|
-      x.report ("delorean") { engine.evaluate("A", "hh", {"h"=>h}) }
+      x.report ('delorean') { engine.evaluate("A", "hh", {"h"=>h}) }
 
-      x.report("ruby") {
+      x.report('ruby') {
         hh = h.merge(h).merge(h).merge(h)
       }
 
@@ -84,12 +84,12 @@ describe "Delorean" do
       h[e.label] = e.stats.central_tendency
     }
 
-    factor = h["ruby!"]/h["delorean"]
+    factor = h["ruby!"]/h['delorean']
     p factor
     expect(factor).to be_within(0.1).of(1.08)
 
     # perf of mutable vs immutable hash ops are as expected
-    factor = h["ruby!"]/h["ruby"]
+    factor = h["ruby!"]/h['ruby']
     p factor
     expect(factor).to be_within(0.2).of(1.45)
   end
@@ -113,9 +113,9 @@ describe "Delorean" do
     engine.parse perf_test
 
     bm = Benchmark.ips do |x|
-      x.report ("delorean") { engine.evaluate("A", "h", {}) }
+      x.report ('delorean') { engine.evaluate("A", "h", {}) }
 
-      x.report("ruby") {
+      x.report('ruby') {
         h = {
           'xo' => 1,
           'xoxo' => 2,
@@ -149,7 +149,7 @@ describe "Delorean" do
       h[e.label] = e.stats.central_tendency
     }
 
-    factor = h["ruby"]/h["delorean"]
+    factor = h['ruby']/h['delorean']
     p factor
     expect(factor).to be_within(0.5).of(5.1)
   end
@@ -172,9 +172,9 @@ describe "Delorean" do
     bm = Benchmark.ips do |x|
       lim = 100
 
-      x.report ("delorean") { engine.evaluate("A", "result", {"max"=>lim}) }
+      x.report ('delorean') { engine.evaluate("A", "result", {"max"=>lim}) }
 
-      x.report("ruby") {
+      x.report('ruby') {
         def range(max, i=0)
           i > max ? [] : range(max, i+1)
         end
@@ -192,7 +192,7 @@ describe "Delorean" do
       h[e.label] = e.stats.central_tendency
     }
 
-    factor = h["ruby"]/h["delorean"]
+    factor = h['ruby']/h['delorean']
 
     p factor
 
