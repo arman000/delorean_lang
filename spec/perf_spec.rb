@@ -1,18 +1,19 @@
+# frozen_string_literal: true
+
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'benchmark/ips'
 require 'pry'
 
 describe 'Delorean' do
-  let(:sset) {
-    TestContainer.new({
-                      })
-  }
+  let(:sset) do
+    TestContainer.new({})
+  end
 
-  let(:engine) {
-    Delorean::Engine.new "XXX", sset
-  }
+  let(:engine) do
+    Delorean::Engine.new 'XXX', sset
+  end
 
-  it "hash splat performance as expected" do
+  it 'hash splat performance as expected' do
     perf_test = <<-DELOREAN
     A:
         x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -20,85 +21,79 @@ describe 'Delorean' do
         hh = {**h, "a":1, "b":2, **h, **h, **h, "c":3}
     DELOREAN
 
-    perf_test.gsub!(/^    /, '')
-
-    engine.parse perf_test
+    engine.parse perf_test.gsub(/^    /, '')
 
     bm = Benchmark.ips do |x|
-      x.report ('delorean') { engine.evaluate("A", "hh") }
+      x.report('delorean') { engine.evaluate('A', 'hh') }
 
-      x.report('ruby') {
-        x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        h = x.product(x).map { |x| [x, x.to_s]}.to_h
-        hh = h.merge("a"=>1, "b"=>2).merge(h).merge(h).merge(h).merge("c"=>3)
-      }
+      x.report('ruby') do
+        il = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        h = il.product(il).map { |i| [i, i.to_s] }.to_h
+        h.merge('a' => 1, 'b' => 2).merge(h).merge(h).merge(h).merge('c' => 3)
+      end
 
       x.compare!
     end
 
     # get iterations/sec for each report
-    h = bm.entries.each_with_object({}) {
-      |e, h|
-      h[e.label] = e.stats.central_tendency
-    }
+    h = bm.entries.each_with_object({}) do |e, hh|
+      hh[e.label] = e.stats.central_tendency
+    end
 
-    factor = h['ruby']/h['delorean']
+    factor = h['ruby'] / h['delorean']
 
     p factor
 
     expect(factor).to be < 1.10
   end
 
-  it "hash splat performance (2) as expected" do
+  it 'hash splat performance (2) as expected' do
     perf_test = <<-DELOREAN
     A:
         h =?
         hh = {**h, **h, **h, **h}
     DELOREAN
 
-    perf_test.gsub!(/^    /, '')
+    engine.parse perf_test.gsub(/^    /, '')
 
-    engine.parse perf_test
-
-    x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    h = x.product(x).map { |x| [x, x.to_s]}.to_h
+    il = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    h = il.product(il).map { |i| [i, i.to_s] }.to_h
 
     bm = Benchmark.ips do |x|
-      x.report ('delorean') { engine.evaluate("A", "hh", {"h"=>h}) }
+      x.report('delorean') { engine.evaluate('A', 'hh', 'h' => h) }
 
-      x.report('ruby') {
-        hh = h.merge(h).merge(h).merge(h)
-      }
+      x.report('ruby') do
+        h.merge(h).merge(h).merge(h)
+      end
 
-      x.report("ruby!") {
+      x.report('ruby!') do
         hh = {}
-        hh.merge!(h); hh.merge!(h); hh.merge!(h); hh.merge!(h);
-      }
+        4.times { hh.merge!(h) }
+      end
 
       x.compare!
     end
 
     # get iterations/sec for each report
-    h = bm.entries.each_with_object({}) {
-      |e, h|
-      h[e.label] = e.stats.central_tendency
-    }
+    h = bm.entries.each_with_object({}) do |e, hh|
+      hh[e.label] = e.stats.central_tendency
+    end
 
-    factor = h["ruby!"]/h['delorean']
+    factor = h['ruby!'] / h['delorean']
     p factor
     expect(factor).to be_within(0.1).of(1.08)
 
     # perf of mutable vs immutable hash ops are as expected
-    factor = h["ruby!"]/h['ruby']
+    factor = h['ruby!'] / h['ruby']
     p factor
     expect(factor).to be_within(0.2).of(1.45)
   end
 
-  it "hash literal performance as expected" do
-    x=(1..10).to_a
+  it 'hash literal performance as expected' do
+    il = (1..10).to_a
 
-    hdef1 = x.map { |i| "'#{'xo'*i}' : #{i}" }.join(',')
-    hdef2 = x.map { |i| "'#{'yo'*i}' : #{i}" }.join(',')
+    hdef1 = il.map { |i| "'#{'xo' * i}' : #{i}" }.join(',')
+    hdef2 = il.map { |i| "'#{'yo' * i}' : #{i}" }.join(',')
 
     perf_test = <<-DELOREAN
     A:
@@ -106,17 +101,13 @@ describe 'Delorean' do
         h = { #{hdef1}, #{hdef2} }
     DELOREAN
 
-    perf_test.gsub!(/^    /, '')
-
-    puts perf_test
-
-    engine.parse perf_test
+    engine.parse perf_test.gsub(/^    /, '')
 
     bm = Benchmark.ips do |x|
-      x.report ('delorean') { engine.evaluate("A", "h", {}) }
+      x.report('delorean') { engine.evaluate('A', 'h', {}) }
 
-      x.report('ruby') {
-        h = {
+      x.report('ruby') do
+        {
           'xo' => 1,
           'xoxo' => 2,
           'xoxoxo' => 3,
@@ -138,23 +129,22 @@ describe 'Delorean' do
           'yoyoyoyoyoyoyoyoyo' => 9,
           'yoyoyoyoyoyoyoyoyoyo' => 10,
         }
-      }
+      end
 
       x.compare!
     end
 
     # get iterations/sec for each report
-    h = bm.entries.each_with_object({}) {
-      |e, h|
-      h[e.label] = e.stats.central_tendency
-    }
+    h = bm.entries.each_with_object({}) do |e, hh|
+      hh[e.label] = e.stats.central_tendency
+    end
 
-    factor = h['ruby']/h['delorean']
+    factor = h['ruby'] / h['delorean']
     p factor
     expect(factor).to be_within(0.5).of(5.1)
   end
 
-  it "array and node call performance as expected" do
+  it 'array and node call performance as expected' do
     perf_test = <<-DELOREAN
     A:
         i =? 0
@@ -165,34 +155,31 @@ describe 'Delorean' do
         result = res.sum
     DELOREAN
 
-    perf_test.gsub!(/^    /, '')
-
-    engine.parse perf_test
+    engine.parse perf_test.gsub(/^    /, '')
 
     bm = Benchmark.ips do |x|
       lim = 100
 
-      x.report ('delorean') { engine.evaluate("A", "result", {"max"=>lim}) }
+      x.report('delorean') { engine.evaluate('A', 'result', 'max' => lim) }
 
-      x.report('ruby') {
-        def range(max, i=0)
-          i > max ? [] : range(max, i+1)
+      x.report('ruby') do
+        def range(max, counter = 0)
+          counter > max ? [] : range(max, counter + 1)
         end
 
         r = range(lim)
-        result = r.map {|x| x*2}.sum
-      }
+        r.map { |i| i * 2 }.sum
+      end
 
       x.compare!
     end
 
     # get iterations/sec for each report
-    h = bm.entries.each_with_object({}) {
-      |e, h|
-      h[e.label] = e.stats.central_tendency
-    }
+    h = bm.entries.each_with_object({}) do |e, hh|
+      hh[e.label] = e.stats.central_tendency
+    end
 
-    factor = h['ruby']/h['delorean']
+    factor = h['ruby'] / h['delorean']
 
     p factor
 
