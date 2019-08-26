@@ -378,7 +378,7 @@ module Delorean
         raise "bad node '#{node}'" unless node =~ /^[A-Z][a-zA-Z0-9_]*$/
 
         begin
-          klass = @m.module_eval(node)
+          klass = @m.const_get(node)
         rescue NameError
           err(UndefinedNodeError, "node #{node} is undefined")
         end
@@ -386,15 +386,17 @@ module Delorean
 
       params[:_engine] = self
 
-      type_arr = attrs.is_a?(Array)
-      attrs = [attrs] unless type_arr
+      if attrs.is_a?(Array)
+        attrs.map do |attr|
+          raise "bad attribute '#{attr}'" unless attr =~ /^[a-z][A-Za-z0-9_]*$/
 
-      res = attrs.map do |attr|
-        raise "bad attribute '#{attr}'" unless attr =~ /^[a-z][A-Za-z0-9_]*$/
+          klass.send("#{attr}#{POST}".to_sym, params)
+        end
+      else
+        raise "bad attribute '#{attrs}'" unless attrs =~ /^[a-z][A-Za-z0-9_]*$/
 
-        klass.send("#{attr}#{POST}".to_sym, params)
+        klass.send("#{attrs}#{POST}".to_sym, params)
       end
-      type_arr ? res : res[0]
     end
 
     def eval_to_hash(node, attrs, params = {})

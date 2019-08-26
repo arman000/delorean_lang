@@ -748,9 +748,23 @@ eos
 
     def rewrite(context)
       return '{}' unless defined?(args)
+      return rewrite_with_literal(context) if can_be_literal?
 
       var = "_h#{context.hcount}"
       "(#{var}={}; " + args.rewrite(context, var) + "; #{var})"
+    end
+
+    private
+
+    def rewrite_with_literal(context)
+      "{#{args.rewrite_with_literal(context)}}"
+    end
+
+    def can_be_literal?
+      return false if args.conditions?
+      return false if args.splats?
+
+      true
     end
   end
 
@@ -805,6 +819,30 @@ eos
       res += args_rest.al.rewrite(context, var) if
         defined?(args_rest.al) && !args_rest.al.text_value.empty?
       res
+    end
+
+    def rewrite_with_literal(context)
+      res = "#{e0.rewrite(context)} => #{e1.rewrite(context)},"
+      res += args_rest.al.rewrite_with_literal(context) if
+        defined?(args_rest.al) && !args_rest.al.text_value.empty?
+
+      res
+    end
+
+    def conditions?
+      return true if defined?(ifexp.e3)
+      return false unless defined?(args_rest.al)
+      return false if args_rest.al.text_value.empty?
+
+      args_rest.al.conditions?
+    end
+
+    def splats?
+      return true if defined?(splat)
+      return false unless defined?(args_rest.al)
+      return false if args_rest.al.text_value.empty?
+
+      args_rest.al.splats?
     end
   end
 end
