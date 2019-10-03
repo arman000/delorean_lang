@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'benchmark/ips'
+require 'pry'
+
 describe 'Delorean' do
   let(:sset) do
     TestContainer.new(

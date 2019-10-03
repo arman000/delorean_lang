@@ -1,6 +1,7 @@
-image: thepry/docker-ruby-ci:2.4.2-latest
+image: ruby:2.6.3-buster
 
 before_script:
+  - gem install bundler:2.0.2
   - bundle install --jobs $(nproc) --path vendor "${FLAGS[@]}"
 
 .base-test:
@@ -28,7 +29,7 @@ cache:
 
 variables:
   GIT_SSL_NO_VERIFY: "true"
-  BUNDLER_VERSION: "2.0.1"
+  BUNDLER_VERSION: "2.0.2"
   POSTGRES_USER: "runner"
   POSTGRES_PASSWORD: ""
   RAILS_ENV: "test"
