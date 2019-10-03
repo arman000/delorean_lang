@@ -780,6 +780,7 @@ describe 'Delorean' do
     engine.parse defn('A:',
                       '    a =?',
                       "    d = {'a':1, 2:2, **a, **(a+a)}",
+                      '    c = {**a, **(a+a)}',
                      )
   end
 

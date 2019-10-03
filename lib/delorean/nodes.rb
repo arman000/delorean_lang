@@ -748,9 +748,63 @@ eos
 
     def rewrite(context)
       return '{}' unless defined?(args)
+      return rewrite_with_literal(context) if can_be_literal?
+      return rewrite_with_splat_optimisation(context) if can_optimise_splat?
 
       var = "_h#{context.hcount}"
-      "(#{var}={}; " + args.rewrite(context, var) + "; #{var})"
+      "(#{var}={}; #{args.rewrite(context, var)}; #{var})"
+    end
+
+    private
+
+    def rewrite_with_literal(context)
+      "{#{args.rewrite_with_literal(context)}}"
+    end
+
+    # By default { **hash1, **hash2 } is compiled to something like
+    # `h1 = {}; h1.merge!(hash1); h1.merge!(hash2)`.
+    # In cases when hash starts with two splats, we can skip empty hash
+    # assignment and compile it to `h1 = hash1.merge(hash2)`
+    # This would work faster in ruby 2.6+
+    def rewrite_with_splat_optimisation(context)
+      var = "_h#{context.hcount}"
+      args2 = args.args_rest.al
+
+      arg1_str = args.e0.rewrite(context)
+      arg2_str = args2.e0.rewrite(context)
+
+      args_rest = args.args_rest.al.args_rest
+
+      unless defined?(args_rest.al) && !args_rest.al.text_value.empty?
+        return "(#{var} = #{arg1_str}.merge(#{arg2_str}); #{var})"
+      end
+
+      args_rest_str = args_rest.al.rewrite(context, var)
+
+      "(#{var} = #{arg1_str}.merge(#{arg2_str}); #{args_rest_str} #{var})"
+    end
+
+    def can_be_literal?
+      return false if args.conditions?
+      return false if args.splats?
+
+      true
+    end
+
+    def can_optimise_splat?
+      # First argument must be splat without condition
+      return false unless args.splat?
+      return false if args.condition?
+
+      # Second argument must be splat without condition
+      return false unless defined?(args.args_rest.al)
+
+      args_rest = args.args_rest.al
+      return false unless args_rest.text_value.present?
+      return false unless args_rest.splat?
+      return false if args_rest.condition?
+
+      true
     end
   end
 
@@ -795,16 +849,48 @@ eos
     end
 
     def rewrite(context, var)
-      res = if defined?(splat)
+      res = if splat?
               "#{var}.merge!(#{e0.rewrite(context)})"
             else
               "#{var}[#{e0.rewrite(context)}]=(#{e1.rewrite(context)})"
             end
-      res += " if (#{ifexp.e3.rewrite(context)})" if defined?(ifexp.e3)
+      res += " if (#{ifexp.e3.rewrite(context)})" if condition?
       res += ';'
       res += args_rest.al.rewrite(context, var) if
         defined?(args_rest.al) && !args_rest.al.text_value.empty?
       res
+    end
+
+    def rewrite_with_literal(context)
+      res = "#{e0.rewrite(context)} => #{e1.rewrite(context)},"
+      res += args_rest.al.rewrite_with_literal(context) if
+        defined?(args_rest.al) && !args_rest.al.text_value.empty?
+
+      res
+    end
+
+    def splat?
+      defined?(splat)
+    end
+
+    def condition?
+      defined?(ifexp.e3)
+    end
+
+    def conditions?
+      return true if condition?
+      return false unless defined?(args_rest.al)
+      return false if args_rest.al.text_value.empty?
+
+      args_rest.al.conditions?
+    end
+
+    def splats?
+      return true if splat?
+      return false unless defined?(args_rest.al)
+      return false if args_rest.al.text_value.empty?
+
+      args_rest.al.splats?
     end
   end
 end

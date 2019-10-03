@@ -296,6 +296,14 @@ module Delorean
             method.called_on Array
           end
 
+          add_method :to_h do |method|
+            method.called_on Object
+          end
+
+          add_method :abs do |method|
+            method.called_on Numeric
+          end
+
           add_method :to_time do |method|
             (DT_TYPES + [String]).each do |type|
               method.called_on type
