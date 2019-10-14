@@ -199,7 +199,7 @@ Use `extend Delorean::Functions` or `include Delorean::Model` in your module or 
 class Dummy < ActiveRecord::Base
   include Delorean::Model
 
-  delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
+  delorean_fn(:heres_my_number) do |*a|
     a.inject(0, :+)
   end
 
@@ -211,7 +211,7 @@ end
 module DummyModule
   extend Delorean::Functions
 
-  delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
+  delorean_fn(:heres_my_number) do |*a|
     a.inject(0, :+)
   end
 end
