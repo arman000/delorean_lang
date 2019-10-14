@@ -51,7 +51,7 @@ class Dummy < ActiveRecord::Base
     Dummy.new(name: 'jello', number: 456, dummy: d)
   end
 
-  delorean_fn :all_of_me, sig: 0 do
+  delorean_fn :all_of_me do
     [{ 'name' => 'hello', 'foo' => 'bar' }]
   end
 
@@ -63,20 +63,20 @@ class Dummy < ActiveRecord::Base
     "#{name}-#{number.round(4)}"
   end
 
-  delorean_fn :one_or_two, sig: [1, 2] do |a, b = nil|
+  delorean_fn :one_or_two do |a, b = nil|
     [a, b]
   end
 
   @@foo = 0
-  delorean_fn :side_effect, sig: 0 do
+  delorean_fn :side_effect do
     @@foo += 1
   end
 
-  delorean_fn :returns_openstruct, sig: 0 do
+  delorean_fn :returns_openstruct do
     OpenStruct.new('abc' => 'def')
   end
 
-  delorean_fn :returns_cached_openstruct, cache: true, sig: 2 do |first, last|
+  delorean_fn :returns_cached_openstruct, cache: true do |first, last|
     OpenStruct.new(first.to_s => last)
   end
 end
@@ -91,7 +91,7 @@ module M
   class LittleDummy
     include Delorean::Model
 
-    delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
+    delorean_fn(:heres_my_number) do |*a|
       a.inject(0, :+)
     end
 
@@ -113,7 +113,7 @@ end
 module DummyModule
   extend Delorean::Functions
 
-  delorean_fn(:heres_my_number, sig: [0, Float::INFINITY]) do |*a|
+  delorean_fn(:heres_my_number) do |*a|
     a.inject(0, :+)
   end
 end
@@ -125,7 +125,7 @@ end
 class DeloreanFunctionsClass
   extend Delorean::Functions
 
-  delorean_fn :test_fn, sig: 0 do
+  delorean_fn :test_fn do
     :test_fn_result
   end
 
@@ -134,7 +134,7 @@ class DeloreanFunctionsClass
 end
 
 class DeloreanFunctionsChildClass < DeloreanFunctionsClass
-  delorean_fn :test_fn2, sig: 0 do
+  delorean_fn :test_fn2 do
     :test_fn2_result
   end
 
@@ -144,11 +144,11 @@ end
 class DifferentClassSameMethod
   extend Delorean::Functions
 
-  delorean_fn :test_fn2, sig: 0 do
+  delorean_fn :test_fn2 do
     :test_fn2_result_different
   end
 
-  delorean_fn :test_fn3, sig: 0 do |a, b, c, d = :default, e = nil, *args|
+  delorean_fn :test_fn3 do |a, b, c, d = :default, e = nil, *args|
     {
       a: a,
       b: b,
