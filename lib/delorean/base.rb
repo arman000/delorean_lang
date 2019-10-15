@@ -14,6 +14,8 @@ module Delorean
     size_per_class: 1000
   )
 
+  ::Delorean::Ruby.error_handler = ::Delorean::Ruby::DEFAULT_ERROR_HANDLER
+
   module BaseModule
     # _e is used by Marty promise_jobs to pass promise-related
     # information
@@ -154,8 +156,7 @@ module Delorean
       ######################################################################
 
       def self._err(*args)
-        str = args.map(&:to_s).join(', ')
-        raise str
+        ::Delorean::Ruby.error_handler.call(*args)
       end
 
       def self._node_call(node, _e, params)
