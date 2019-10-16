@@ -7,6 +7,4 @@ gemspec
 
 group :development, :test do
   gem 'benchmark-ips'
-  gem 'pry'
-  gem 'rspec-instafail', require: false
 end
