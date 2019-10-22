@@ -138,8 +138,8 @@ grammar Delorean
     string                                              /
     boolean                                             /
     nil_val                                             /
-    identifier                                          /
     sup                                                 /
+    identifier                                          /
     self                                                /
     list_expr                                           /
     set_expr                                            /
@@ -186,7 +186,8 @@ grammar Delorean
   end
 
   rule identifier
-    [a-z] [a-zA-Z0-9_]* '?'? <Identifier>
+    [a-z] [a-zA-Z0-9_]* '?'? <Identifier> /
+    [_] [a-zA-Z0-9_]+ '?'? <Identifier> 
   end
 
   rule boolean

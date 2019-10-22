@@ -3290,12 +3290,12 @@ module Delorean
               r5 = SyntaxNode.new(input, (index-1)...index) if r5 == true
               r0 = r5
             else
-              r6 = _nt_identifier
+              r6 = _nt_sup
               if r6
                 r6 = SyntaxNode.new(input, (index-1)...index) if r6 == true
                 r0 = r6
               else
-                r7 = _nt_sup
+                r7 = _nt_identifier
                 if r7
                   r7 = SyntaxNode.new(input, (index-1)...index) if r7 == true
                   r0 = r7
@@ -4439,6 +4439,9 @@ module Delorean
   module Identifier0
   end
 
+  module Identifier1
+  end
+
   def _nt_identifier
     start_index = index
     if node_cache[:identifier].has_key?(index)
@@ -4450,55 +4453,123 @@ module Delorean
       return cached
     end
 
-    i0, s0 = index, []
+    i0 = index
+    i1, s1 = index, []
     if has_terminal?(@regexps[gr = '\A[a-z]'] ||= Regexp.new(gr), :regexp, index)
-      r1 = true
+      r2 = true
       @index += 1
     else
       terminal_parse_failure('[a-z]')
-      r1 = nil
+      r2 = nil
     end
-    s0 << r1
-    if r1
-      s2, i2 = [], index
+    s1 << r2
+    if r2
+      s3, i3 = [], index
       loop do
         if has_terminal?(@regexps[gr = '\A[a-zA-Z0-9_]'] ||= Regexp.new(gr), :regexp, index)
-          r3 = true
+          r4 = true
           @index += 1
         else
           terminal_parse_failure('[a-zA-Z0-9_]')
-          r3 = nil
+          r4 = nil
         end
-        if r3
-          s2 << r3
+        if r4
+          s3 << r4
         else
           break
         end
       end
-      r2 = instantiate_node(SyntaxNode,input, i2...index, s2)
-      s0 << r2
-      if r2
+      r3 = instantiate_node(SyntaxNode,input, i3...index, s3)
+      s1 << r3
+      if r3
         if (match_len = has_terminal?('?', false, index))
-          r5 = true
+          r6 = true
           @index += match_len
         else
           terminal_parse_failure('\'?\'')
-          r5 = nil
+          r6 = nil
         end
-        if r5
-          r4 = r5
+        if r6
+          r5 = r6
         else
-          r4 = instantiate_node(SyntaxNode,input, index...index)
+          r5 = instantiate_node(SyntaxNode,input, index...index)
         end
-        s0 << r4
+        s1 << r5
       end
     end
-    if s0.last
-      r0 = instantiate_node(Identifier,input, i0...index, s0)
-      r0.extend(Identifier0)
+    if s1.last
+      r1 = instantiate_node(Identifier,input, i1...index, s1)
+      r1.extend(Identifier0)
     else
-      @index = i0
-      r0 = nil
+      @index = i1
+      r1 = nil
+    end
+    if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
+      r0 = r1
+    else
+      i7, s7 = index, []
+      if has_terminal?(@regexps[gr = '\A[_]'] ||= Regexp.new(gr), :regexp, index)
+        r8 = true
+        @index += 1
+      else
+        terminal_parse_failure('[_]')
+        r8 = nil
+      end
+      s7 << r8
+      if r8
+        s9, i9 = [], index
+        loop do
+          if has_terminal?(@regexps[gr = '\A[a-zA-Z0-9_]'] ||= Regexp.new(gr), :regexp, index)
+            r10 = true
+            @index += 1
+          else
+            terminal_parse_failure('[a-zA-Z0-9_]')
+            r10 = nil
+          end
+          if r10
+            s9 << r10
+          else
+            break
+          end
+        end
+        if s9.empty?
+          @index = i9
+          r9 = nil
+        else
+          r9 = instantiate_node(SyntaxNode,input, i9...index, s9)
+        end
+        s7 << r9
+        if r9
+          if (match_len = has_terminal?('?', false, index))
+            r12 = true
+            @index += match_len
+          else
+            terminal_parse_failure('\'?\'')
+            r12 = nil
+          end
+          if r12
+            r11 = r12
+          else
+            r11 = instantiate_node(SyntaxNode,input, index...index)
+          end
+          s7 << r11
+        end
+      end
+      if s7.last
+        r7 = instantiate_node(Identifier,input, i7...index, s7)
+        r7.extend(Identifier1)
+      else
+        @index = i7
+        r7 = nil
+      end
+      if r7
+        r7 = SyntaxNode.new(input, (index-1)...index) if r7 == true
+        r0 = r7
+      else
+        @index = i0
+        r0 = nil
+      end
     end
 
     node_cache[:identifier][start_index] = r0

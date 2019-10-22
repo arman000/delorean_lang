@@ -112,7 +112,7 @@ describe 'Delorean' do
 
     expect do
       engine.parse defn('A:',
-                        '    _b = 1',
+                        '    %b = 1',
                        )
     end.to raise_error(Delorean::ParseError)
   end
