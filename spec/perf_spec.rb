@@ -152,6 +152,48 @@ describe 'Delorean' do
     expect(factor).to be < 8
   end
 
+
+  it 'cache allows to get result faster' do
+    perf_test = <<-DELOREAN
+    A:
+        v =?
+        result = Dummy.sleep_1ms
+
+    AWithCache:  
+        _cache = true
+        v =?
+        result = Dummy.sleep_1ms
+    DELOREAN
+
+    engine.parse perf_test.gsub(/^    /, '')
+
+    bm = Benchmark.ips do |x|
+      x.report('delorean') do
+        engine.evaluate('A', 'result', {}) 
+      end
+
+      x.report('delorean_node_cache') do
+        engine.evaluate('AWithCache', 'result', {})
+      end
+
+      x.report('ruby') do
+        Dummy.sleep_1ms
+      end
+
+      x.compare!
+    end
+
+    # get iterations/sec for each report
+    h = bm.entries.each_with_object({}) do |e, hh|
+      hh[e.label] = e.stats.central_tendency
+    end
+
+    cache_factor = h['delorean_node_cache'] / h['delorean']
+    # p cache_factor
+
+    expect(cache_factor).to be > 80
+  end
+
   it 'array and node call performance as expected' do
     perf_test = <<-DELOREAN
     A:

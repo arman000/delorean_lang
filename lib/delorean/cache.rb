@@ -4,12 +4,70 @@ require 'delorean/cache/adapters'
 
 module Delorean
   module Cache
-    def self.adapter
-      @adapter
+    NODE_CACHE_DEFAULT_CALLBACK = lambda do |klass:, method:, params:|
+      expires_at = klass.send(
+        ::Delorean::NODE_CACHE_EXPIRES_AT_ARG,
+        params
+      ) if klass.respond_to?(::Delorean::NODE_CACHE_EXPIRES_AT_ARG)
+      
+      {
+        cache: true,
+        expires_at: expires_at,
+      }
     end
 
-    def self.adapter=(new_adapter)
-      @adapter = new_adapter
+    class << self
+      def adapter
+        @adapter
+      end
+
+      def adapter=(new_adapter)
+        @adapter = new_adapter
+      end
+
+      def with_expiring_cache(klass:, method:, mutable_params:, params:)
+        delorean_cache_adapter = ::Delorean::Cache.adapter
+
+        klass_name = "#{klass.name}#{::Delorean::POST}"
+
+        cache_options = node_cache_callback.call(
+          klass: klass,
+          method: method,
+          params: mutable_params
+        )
+
+        return yield unless cache_options[:cache]
+        expires_at = cache_options[:expires_at]
+
+        cache_key = delorean_cache_adapter.cache_key(
+          klass: klass_name , method_name: method, args: [params]
+        )
+
+        cached_item = delorean_cache_adapter.fetch_expiring_item(
+          klass: klass_name, cache_key: cache_key, default: :NF
+        )
+
+        return cached_item if cached_item != :NF
+
+        res = yield
+
+        delorean_cache_adapter.cache_expiring_item(
+          klass: klass_name,
+          cache_key: cache_key,
+          item: res,
+          expires_at: expires_at
+        )
+
+        res
+      end
+
+      def node_cache_callback=(new_callback)
+        @node_cache_callback = new_callback
+      end
+
+      def node_cache_callback
+        @node_cache_callback
+      end
     end
   end
 end

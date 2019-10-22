@@ -19,6 +19,12 @@ module Delorean
           lookup_cache[klass][cache_key] = item
         end
 
+        def cache_expiring_item(klass:, cache_key:, item:, expires_at:)
+          lookup_cache[klass] ||= {}
+          clear_outdated_items(klass: klass)
+          lookup_cache[klass][cache_key] = [expires_at, item]
+        end
+
         def fetch_item(klass:, cache_key:, default: nil)
           subh = lookup_cache.fetch(klass, default)
           return default if subh == default
@@ -27,6 +33,19 @@ module Delorean
           return default if v == default
 
           v
+        end
+
+        def fetch_expiring_item(klass:, cache_key:, default: nil)
+          subh = lookup_cache.fetch(klass, default)
+          return default if subh == default
+
+          v = subh.fetch(cache_key, default)
+          return default if v == default
+
+          return v.last if v.first.nil?
+          return default if Time.current >= v.first 
+
+          v.last
         end
 
         def cache_key(klass:, method_name:, args:)

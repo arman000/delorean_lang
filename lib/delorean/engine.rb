@@ -386,16 +386,41 @@ module Delorean
 
       params[:_engine] = self
 
+      if klass.respond_to?(NODE_CACHE_ARG) && klass.send(NODE_CACHE_ARG, params)
+        return _evaluate_with_cache(klass, attrs, params)
+      end
+
       if attrs.is_a?(Array)
         attrs.map do |attr|
-          raise "bad attribute '#{attr}'" unless attr =~ /^[a-z][A-Za-z0-9_]*$/
+          raise "bad attribute '#{attr}'" unless attr =~ /^[_a-z][A-Za-z0-9_]*$/
 
           klass.send("#{attr}#{POST}".to_sym, params)
         end
       else
-        raise "bad attribute '#{attrs}'" unless attrs =~ /^[a-z][A-Za-z0-9_]*$/
+        raise "bad attribute '#{attrs}'" unless attrs =~ /^[_a-z][A-Za-z0-9_]*$/
 
         klass.send("#{attrs}#{POST}".to_sym, params)
+      end
+    end
+
+    def _evaluate_with_cache(klass, attrs, params)
+      if attrs.is_a?(Array)
+        attrs.map do |attr|
+          raise "bad attribute '#{attr}'" unless attr =~ /^[_a-z][A-Za-z0-9_]*$/
+
+          _evaluate_attr_with_cache(klass, attr, params)
+        end
+      else
+        raise "bad attribute '#{attrs}'" unless attrs =~ /^[_a-z][A-Za-z0-9_]*$/
+         _evaluate_attr_with_cache(klass, attrs, params)
+      end
+    end
+
+    def _evaluate_attr_with_cache(klass, attr, params)
+      params_without_engine = params.reject { |k, _| k == :_engine }
+
+      ::Delorean::Cache.with_expiring_cache(klass: klass, method: attr, mutable_params: params, params: params_without_engine) do
+        klass.send("#{attr}#{POST}".to_sym, params)
       end
     end
 

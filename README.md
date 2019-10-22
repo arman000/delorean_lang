@@ -125,12 +125,12 @@ input of `age = 10` will evaluate to `true`.  Whereas,
 
 You can use `(ERR())` to add a breakpoint:
 
-```
-    USInfo:
-		age = ?
-		teen_max = 19
-		teen_min = 13
-		is_teenager = (ERR()) && age >= teen_min && age <= teen_max
+```   
+USInfo:
+    age = ?
+    teen_max = 19
+    teen_min = 13
+    is_teenager = (ERR()) && age >= teen_min && age <= teen_max
 
 ```
 
@@ -275,7 +275,11 @@ Delorean expects it to have methods with following signatures:
 ```ruby
 
   cache_item(klass:, cache_key:, item:)
+  cache_expiring_item(klass:, cache_key:, item:, expires_at:)
+
   fetch_item(klass:, cache_key:, default:)
+  fetch_item(klass:, cache_key:, default:)
+
   cache_key(klass:, method_name:, args:)
   clear!(klass:)
   clear_all!
@@ -285,6 +289,45 @@ Delorean expects it to have methods with following signatures:
 
 ```
 
+### Node level caching
+
+You can enable caching for a Delorean node with `_cache = true` attribute.
+
+```ruby
+ExampleScript:
+    param1 =?
+    _cache = true
+    a = Dummy.heres_my_number(867, 5309)'
+    b = DummyModule.heres_my_number(867, 5309)'
+    result = b
+```
+
+When node is called, Delorean would check if there is a cached result for a
+combination of node parameters values and the attribute that is to be returned.
+
+```ruby
+  ExampleScript(param1=1).result # Will calculate result and cache it for calls with `param1=1`
+  ExampleScript(param1=1).result # Will fetch the cached result
+  ExampleScript(param1=2).result # Will calculate result and cache it for calls with `param1=2`
+```
+
+#### Custom Node level caching policy
+
+You can override the callback that Delorean calls before performing the caching.
+The callback should return a hash with `:cache` and `:expires_at` keys.
+If `cache:` is false, then Delorean wouldn't fetch result from cache or perform caching.
+
+```ruby
+::Delorean::Cache.node_cache_callback = lambda do |klass:, method:, params:|
+  {
+    cache: true,
+    expires_at: 1.minute.from_now
+  }
+end
+
+# See lib/delorean/cache.rb
+
+```
 
 TODO: provide details
 
