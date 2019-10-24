@@ -297,8 +297,8 @@ You can enable caching for a Delorean node with `_cache = true` attribute.
 ExampleScript:
     param1 =?
     _cache = true
-    a = Dummy.heres_my_number(867, 5309)'
-    b = DummyModule.heres_my_number(867, 5309)'
+    a = Dummy.heres_my_number(867, 5309)
+    b = DummyModule.heres_my_number(867, 5309)
     result = b
 ```
 
@@ -321,8 +321,8 @@ ExampleScript:
     param1 =?
     _cache = true
     _cache_expires_at = Dummy.time_minute_from_now
-    a = Dummy.heres_my_number(867, 5309)'
-    b = DummyModule.heres_my_number(867, 5309)'
+    a = Dummy.heres_my_number(867, 5309)
+    b = DummyModule.heres_my_number(867, 5309)
     result = b
 ```
 

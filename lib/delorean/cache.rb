@@ -4,7 +4,7 @@ require 'delorean/cache/adapters'
 
 module Delorean
   module Cache
-    NODE_CACHE_DEFAULT_CALLBACK = lambda do |klass:, method:, params:| 
+    NODE_CACHE_DEFAULT_CALLBACK = lambda do |klass:, method:, params:|
       if klass.respond_to?(::Delorean::NODE_CACHE_EXPIRES_AT_ARG)
         expires_at = klass.send(
           ::Delorean::NODE_CACHE_EXPIRES_AT_ARG,
