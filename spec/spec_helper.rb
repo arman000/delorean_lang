@@ -48,6 +48,10 @@ class Dummy < ActiveRecord::Base
     Time.current - 1.minute
   end
 
+  delorean_fn :time_minute_from_now do
+    Time.current + 1.minute
+  end
+
   def self.this_is_crazy; end
 
   def self.miss_you_so_bad

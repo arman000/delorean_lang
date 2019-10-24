@@ -258,7 +258,7 @@ module Delorean
         @line_no += 1
 
         # skip comments
-        next if line =~ /^\s*\#/
+        next if /^\s*\#/.match?(line)
 
         # remove trailing blanks
         line.rstrip!
@@ -302,7 +302,7 @@ module Delorean
         t = parser.parse(line)
 
         if !t
-          err(ParseError, 'syntax error') unless line =~ /^\s+/
+          err(ParseError, 'syntax error') unless /^\s+/.match?(line)
 
           multi_line = line
           @multi_no = @line_no
@@ -375,7 +375,7 @@ module Delorean
       if node.is_a?(Class)
         klass = node
       else
-        raise "bad node '#{node}'" unless node =~ /^[A-Z][a-zA-Z0-9_]*$/
+        raise "bad node '#{node}'" unless /^[A-Z][a-zA-Z0-9_]*$/.match?(node)
 
         begin
           klass = @m.const_get(node)
@@ -392,12 +392,16 @@ module Delorean
 
       if attrs.is_a?(Array)
         attrs.map do |attr|
-          raise "bad attribute '#{attr}'" unless attr =~ /^[_a-z][A-Za-z0-9_]*$/
+          unless /^[_a-z][A-Za-z0-9_]*$/.match?(attr)
+            raise "bad attribute '#{attr}'"
+          end
 
           klass.send("#{attr}#{POST}".to_sym, params)
         end
       else
-        raise "bad attribute '#{attrs}'" unless attrs =~ /^[_a-z][A-Za-z0-9_]*$/
+        unless /^[_a-z][A-Za-z0-9_]*$/.match?(attrs)
+          raise "bad attribute '#{attrs}'"
+        end
 
         klass.send("#{attrs}#{POST}".to_sym, params)
       end
@@ -406,12 +410,16 @@ module Delorean
     def _evaluate_with_cache(klass, attrs, params)
       if attrs.is_a?(Array)
         attrs.map do |attr|
-          raise "bad attribute '#{attr}'" unless attr =~ /^[_a-z][A-Za-z0-9_]*$/
+          unless /^[_a-z][A-Za-z0-9_]*$/.match?(attr)
+            raise "bad attribute '#{attr}'"
+          end
 
           _evaluate_attr_with_cache(klass, attr, params)
         end
       else
-        raise "bad attribute '#{attrs}'" unless attrs =~ /^[_a-z][A-Za-z0-9_]*$/
+        unless /^[_a-z][A-Za-z0-9_]*$/.match?(attrs)
+          raise "bad attribute '#{attrs}'"
+        end
 
         _evaluate_attr_with_cache(klass, attrs, params)
       end

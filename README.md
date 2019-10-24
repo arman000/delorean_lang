@@ -311,6 +311,21 @@ combination of node parameters values and the attribute that is to be returned.
   ExampleScript(param1=2).result # Will calculate result and cache it for calls with `param1=2`
 ```
 
+#### Cache expiration
+
+You can set up expiring date and time by using `_cache_expires_at` attribute
+
+
+```ruby
+ExampleScript:
+    param1 =?
+    _cache = true
+    _cache_expires_at = Dummy.time_minute_from_now
+    a = Dummy.heres_my_number(867, 5309)'
+    b = DummyModule.heres_my_number(867, 5309)'
+    result = b
+```
+
 #### Custom Node level caching policy
 
 You can override the callback that Delorean calls before performing the caching.

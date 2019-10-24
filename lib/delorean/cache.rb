@@ -4,7 +4,7 @@ require 'delorean/cache/adapters'
 
 module Delorean
   module Cache
-    NODE_CACHE_DEFAULT_CALLBACK = lambda do |klass:, method:, params:|
+    NODE_CACHE_DEFAULT_CALLBACK = lambda do |klass:, method:, params:| 
       if klass.respond_to?(::Delorean::NODE_CACHE_EXPIRES_AT_ARG)
         expires_at = klass.send(
           ::Delorean::NODE_CACHE_EXPIRES_AT_ARG,
@@ -19,9 +19,7 @@ module Delorean
     end
 
     class << self
-      attr_reader :adapter
-
-      attr_writer :adapter
+      attr_accessor :adapter
 
       def with_expiring_cache(klass:, method:, mutable_params:, params:)
         delorean_cache_adapter = ::Delorean::Cache.adapter
@@ -60,9 +58,7 @@ module Delorean
         res
       end
 
-      attr_writer :node_cache_callback
-
-      attr_reader :node_cache_callback
+      attr_accessor :node_cache_callback
     end
   end
 end
