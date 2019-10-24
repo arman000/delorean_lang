@@ -230,18 +230,16 @@ You can use blocks in your Delorean code:
 ```ruby
 ExampleScript:
     a = [1, 2, 3]
-    b = c.any? { |v| v > 2 }
-    b2 = c.any? do |v| v > 2 end
-
-    c = a.reduce(0) { |sum, el|
-        sum + el
-        }
-    c2 = a.reduce() do |sum, el|
-        sum + el
-        end
+    b = c.any?
+        item =?
+        result = item > 2
+    c = a.reduce(0)
+        sum =?
+        num =?
+        result = sum + num
 ```
 
-Note that `do ... end` syntax is not yet supported
+Note that `do ... end` syntax is not supported
 
 ### Caching
 
