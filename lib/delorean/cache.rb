@@ -5,11 +5,13 @@ require 'delorean/cache/adapters'
 module Delorean
   module Cache
     NODE_CACHE_DEFAULT_CALLBACK = lambda do |klass:, method:, params:|
-      expires_at = klass.send(
-        ::Delorean::NODE_CACHE_EXPIRES_AT_ARG,
-        params
-      ) if klass.respond_to?(::Delorean::NODE_CACHE_EXPIRES_AT_ARG)
-      
+      if klass.respond_to?(::Delorean::NODE_CACHE_EXPIRES_AT_ARG)
+        expires_at = klass.send(
+          ::Delorean::NODE_CACHE_EXPIRES_AT_ARG,
+          params
+        )
+      end
+
       {
         cache: true,
         expires_at: expires_at,
@@ -17,13 +19,9 @@ module Delorean
     end
 
     class << self
-      def adapter
-        @adapter
-      end
+      attr_reader :adapter
 
-      def adapter=(new_adapter)
-        @adapter = new_adapter
-      end
+      attr_writer :adapter
 
       def with_expiring_cache(klass:, method:, mutable_params:, params:)
         delorean_cache_adapter = ::Delorean::Cache.adapter
@@ -37,10 +35,11 @@ module Delorean
         )
 
         return yield unless cache_options[:cache]
+
         expires_at = cache_options[:expires_at]
 
         cache_key = delorean_cache_adapter.cache_key(
-          klass: klass_name , method_name: method, args: [params]
+          klass: klass_name, method_name: method, args: [params]
         )
 
         cached_item = delorean_cache_adapter.fetch_expiring_item(
@@ -61,13 +60,9 @@ module Delorean
         res
       end
 
-      def node_cache_callback=(new_callback)
-        @node_cache_callback = new_callback
-      end
+      attr_writer :node_cache_callback
 
-      def node_cache_callback
-        @node_cache_callback
-      end
+      attr_reader :node_cache_callback
     end
   end
 end

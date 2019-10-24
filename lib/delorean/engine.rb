@@ -412,14 +412,20 @@ module Delorean
         end
       else
         raise "bad attribute '#{attrs}'" unless attrs =~ /^[_a-z][A-Za-z0-9_]*$/
-         _evaluate_attr_with_cache(klass, attrs, params)
+
+        _evaluate_attr_with_cache(klass, attrs, params)
       end
     end
 
     def _evaluate_attr_with_cache(klass, attr, params)
       params_without_engine = params.reject { |k, _| k == :_engine }
 
-      ::Delorean::Cache.with_expiring_cache(klass: klass, method: attr, mutable_params: params, params: params_without_engine) do
+      ::Delorean::Cache.with_expiring_cache(
+        klass: klass,
+        method: attr,
+        mutable_params: params,
+        params: params_without_engine
+      ) do
         klass.send("#{attr}#{POST}".to_sym, params)
       end
     end

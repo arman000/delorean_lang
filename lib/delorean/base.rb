@@ -17,7 +17,9 @@ module Delorean
 
   ::Delorean::Ruby.error_handler = ::Delorean::Ruby::DEFAULT_ERROR_HANDLER
 
-  ::Delorean::Cache.node_cache_callback = ::Delorean::Cache::NODE_CACHE_DEFAULT_CALLBACK
+  cache_callback = ::Delorean::Cache::NODE_CACHE_DEFAULT_CALLBACK
+
+  ::Delorean::Cache.node_cache_callback = cache_callback
 
   NODE_CACHE_ARG = "_cache#{POST}".to_sym
   NODE_CACHE_EXPIRES_AT_ARG = "_cache_expires_at#{POST}".to_sym
@@ -43,7 +45,12 @@ module Delorean
       end
 
       def _evaluate_with_cache(attr)
-        ::Delorean::Cache.with_expiring_cache(klass: node, method: attr, mutable_params: cloned_params, params: params) do
+        ::Delorean::Cache.with_expiring_cache(
+          klass: node,
+          method: attr,
+          mutable_params: cloned_params,
+          params: params
+        ) do
           engine.evaluate(node, attr, cloned_params)
         end
       end

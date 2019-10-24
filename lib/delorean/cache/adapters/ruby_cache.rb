@@ -43,7 +43,7 @@ module Delorean
           return default if v == default
 
           return v.last if v.first.nil?
-          return default if Time.current >= v.first 
+          return default if Time.current >= v.first
 
           v.last
         end

@@ -152,14 +152,13 @@ describe 'Delorean' do
     expect(factor).to be < 8
   end
 
-
   it 'cache allows to get result faster' do
     perf_test = <<-DELOREAN
     A:
         v =?
         result = Dummy.sleep_1ms
 
-    AWithCache:  
+    AWithCache:
         _cache = true
         v =?
         result = Dummy.sleep_1ms
@@ -169,7 +168,7 @@ describe 'Delorean' do
 
     bm = Benchmark.ips do |x|
       x.report('delorean') do
-        engine.evaluate('A', 'result', {}) 
+        engine.evaluate('A', 'result', {})
       end
 
       x.report('delorean_node_cache') do
