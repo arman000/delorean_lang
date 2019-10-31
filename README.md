@@ -275,7 +275,6 @@ Delorean expects it to have methods with following signatures:
 ```ruby
 
   cache_item(klass:, cache_key:, item:)
-  cache_expiring_item(klass:, cache_key:, item:, expires_at:)
 
   fetch_item(klass:, cache_key:, default:)
   fetch_item(klass:, cache_key:, default:)
@@ -311,32 +310,17 @@ combination of node parameters values and the attribute that is to be returned.
   ExampleScript(param1=2).result # Will calculate result and cache it for calls with `param1=2`
 ```
 
-#### Cache expiration
-
-You can set up expiring date and time by using `_cache_expires_at` attribute
-
-
-```ruby
-ExampleScript:
-    param1 =?
-    _cache = true
-    _cache_expires_at = Dummy.time_minute_from_now
-    a = Dummy.heres_my_number(867, 5309)
-    b = DummyModule.heres_my_number(867, 5309)
-    result = b
-```
 
 #### Custom Node level caching policy
 
 You can override the callback that Delorean calls before performing the caching.
-The callback should return a hash with `:cache` and `:expires_at` keys.
+The callback should return a hash with `:cache` key.
 If `cache:` is false, then Delorean wouldn't fetch result from cache or perform caching.
 
 ```ruby
 ::Delorean::Cache.node_cache_callback = lambda do |klass:, method:, params:|
   {
     cache: true,
-    expires_at: 1.minute.from_now
   }
 end
 

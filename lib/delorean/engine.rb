@@ -428,7 +428,7 @@ module Delorean
     def _evaluate_attr_with_cache(klass, attr, params)
       params_without_engine = params.reject { |k, _| k == :_engine }
 
-      ::Delorean::Cache.with_expiring_cache(
+      ::Delorean::Cache.with_cache(
         klass: klass,
         method: attr,
         mutable_params: params,

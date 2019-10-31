@@ -67,53 +67,6 @@ describe 'Node level caching' do
     expect(r).to eq([{ 'name' => 'hello', 'foo' => 'bar' }])
   end
 
-  describe 'cache invalidation' do
-    let(:engine) do
-      eng = Delorean::Engine.new 'XXX', sset
-
-      eng.parse defn('A:',
-                     '    _cache = true',
-                     '    _cache_expires_at = Dummy.time_minute_ago()',
-                     '    arg1 =?',
-                     '    arg2 =?',
-                     '    arg3 =?',
-                     '    result = Dummy.all_of_me()',
-                     'B:',
-                     '    arg1 =?',
-                     '    arg2 =?',
-                     '    arg3 =?',
-                     '    result = A(arg1=arg1, arg2=arg2, arg3=arg3).result',
-                    )
-      eng
-    end
-
-    it "doesn't use cache if it's expired 1" do
-      expect(Dummy).to receive(:all_of_me).twice.and_call_original
-
-      2.times { evaluate_b }
-    end
-
-    it "doesn't use cache if it's expired 2" do
-      expect(Dummy).to receive(:all_of_me).twice.and_call_original
-
-      2.times { evaluate_a }
-    end
-
-    it "uses cache if it's not expired 1" do
-      allow(Dummy).to receive(:time_minute_ago).and_return(Time.current + 10.minutes)
-      expect(Dummy).to receive(:all_of_me).once.and_call_original
-
-      2.times { evaluate_b }
-    end
-
-    it "uses cache if it's not expired 2" do
-      allow(Dummy).to receive(:time_minute_ago).and_return(Time.current + 10.minutes)
-      expect(Dummy).to receive(:all_of_me).once.and_call_original
-
-      2.times { evaluate_a }
-    end
-  end
-
   describe 'compex caching' do
     let(:engine) do
       eng = Delorean::Engine.new 'XXX', sset
@@ -162,7 +115,6 @@ describe 'Node level caching' do
     ::Delorean::Cache.node_cache_callback = lambda do |**_kwargs|
       {
         cache: false,
-        expires_at: nil
       }
     end
 
@@ -174,19 +126,6 @@ describe 'Node level caching' do
     ::Delorean::Cache.node_cache_callback = lambda do |**_kwargs|
       {
         cache: true,
-        expires_at: 1.minute.ago
-      }
-    end
-
-    expect(Dummy).to receive(:all_of_me).twice.and_call_original
-    2.times { evaluate_a }
-  end
-
-  it 'allows to override caching callback 3' do
-    ::Delorean::Cache.node_cache_callback = lambda do |**_kwargs|
-      {
-        cache: true,
-        expires_at: 1.minute.from_now
       }
     end
 

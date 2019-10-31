@@ -22,7 +22,6 @@ module Delorean
   ::Delorean::Cache.node_cache_callback = cache_callback
 
   NODE_CACHE_ARG = "_cache#{POST}".to_sym
-  NODE_CACHE_EXPIRES_AT_ARG = "_cache_expires_at#{POST}".to_sym
 
   module BaseModule
     # _e is used by Marty promise_jobs to pass promise-related
@@ -45,7 +44,7 @@ module Delorean
       end
 
       def _evaluate_with_cache(attr)
-        ::Delorean::Cache.with_expiring_cache(
+        ::Delorean::Cache.with_cache(
           klass: node,
           method: attr,
           mutable_params: cloned_params,

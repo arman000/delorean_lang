@@ -8,15 +8,7 @@ module Delorean
           raise 'cache_item is not implemented'
         end
 
-        def cache_expiring_item(klass:, cache_key:, args:, expires_at:)
-          raise 'cache_item is not implemented'
-        end
-
         def fetch_item(klass:, cache_key:, args:)
-          raise 'fetch_item is not implemented'
-        end
-
-        def fetch_expiring_item(klass:, cache_key:, args:)
           raise 'fetch_item is not implemented'
         end
 
