@@ -6,6 +6,7 @@ require 'bigdecimal'
 require 'delorean/ruby'
 require 'delorean/ruby/whitelists/default'
 require 'delorean/cache'
+require 'delorean/const'
 
 module Delorean
   ::Delorean::Ruby.whitelist = ::Delorean::Ruby::Whitelists::Default.new
@@ -15,6 +16,12 @@ module Delorean
   )
 
   ::Delorean::Ruby.error_handler = ::Delorean::Ruby::DEFAULT_ERROR_HANDLER
+
+  cache_callback = ::Delorean::Cache::NODE_CACHE_DEFAULT_CALLBACK
+
+  ::Delorean::Cache.node_cache_callback = cache_callback
+
+  NODE_CACHE_ARG = "_cache#{POST}".to_sym
 
   module BaseModule
     # _e is used by Marty promise_jobs to pass promise-related
@@ -29,7 +36,22 @@ module Delorean
       end
 
       def evaluate(attr)
+        if node.respond_to?(NODE_CACHE_ARG) && node.send(NODE_CACHE_ARG, _e)
+          return _evaluate_with_cache(attr)
+        end
+
         engine.evaluate(node, attr, cloned_params)
+      end
+
+      def _evaluate_with_cache(attr)
+        ::Delorean::Cache.with_cache(
+          klass: node,
+          method: attr,
+          mutable_params: cloned_params,
+          params: params
+        ) do
+          engine.evaluate(node, attr, cloned_params)
+        end
       end
 
       def /(args)
