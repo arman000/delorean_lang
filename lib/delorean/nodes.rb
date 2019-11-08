@@ -318,7 +318,9 @@ eos
   class IString < Literal
     def rewrite(_context)
       # FIXME: hacky to just fail
-      raise 'String interpolation not supported' if text_value =~ /\#\{.*\}/
+      if /\#\{.*\}/.match?(text_value)
+        raise 'String interpolation not supported'
+      end
 
       # FIXME: syntax check?
       text_value
@@ -388,7 +390,7 @@ eos
 
     def rewrite(_context, vcode)
       attr = i.text_value
-      attr = "'#{attr}'" unless attr =~ /\A[0-9]+\z/
+      attr = "'#{attr}'" unless /\A[0-9]+\z/.match?(attr)
       "_get_attr(#{vcode}, #{attr}, _e)"
     end
   end

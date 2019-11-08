@@ -258,7 +258,7 @@ module Delorean
         @line_no += 1
 
         # skip comments
-        next if line =~ /^\s*\#/
+        next if /^\s*\#/.match?(line)
 
         # remove trailing blanks
         line.rstrip!
@@ -302,7 +302,7 @@ module Delorean
         t = parser.parse(line)
 
         if !t
-          err(ParseError, 'syntax error') unless line =~ /^\s+/
+          err(ParseError, 'syntax error') unless /^\s+/.match?(line)
 
           multi_line = line
           @multi_no = @line_no
@@ -375,7 +375,7 @@ module Delorean
       if node.is_a?(Class)
         klass = node
       else
-        raise "bad node '#{node}'" unless node =~ /^[A-Z][a-zA-Z0-9_]*$/
+        raise "bad node '#{node}'" unless /^[A-Z][a-zA-Z0-9_]*$/.match?(node)
 
         begin
           klass = @m.const_get(node)
@@ -386,16 +386,55 @@ module Delorean
 
       params[:_engine] = self
 
+      if klass.respond_to?(NODE_CACHE_ARG) && klass.send(NODE_CACHE_ARG, params)
+        return _evaluate_with_cache(klass, attrs, params)
+      end
+
       if attrs.is_a?(Array)
         attrs.map do |attr|
-          raise "bad attribute '#{attr}'" unless attr =~ /^[a-z][A-Za-z0-9_]*$/
+          unless /^[_a-z][A-Za-z0-9_]*$/.match?(attr)
+            raise "bad attribute '#{attr}'"
+          end
 
           klass.send("#{attr}#{POST}".to_sym, params)
         end
       else
-        raise "bad attribute '#{attrs}'" unless attrs =~ /^[a-z][A-Za-z0-9_]*$/
+        unless /^[_a-z][A-Za-z0-9_]*$/.match?(attrs)
+          raise "bad attribute '#{attrs}'"
+        end
 
         klass.send("#{attrs}#{POST}".to_sym, params)
+      end
+    end
+
+    def _evaluate_with_cache(klass, attrs, params)
+      if attrs.is_a?(Array)
+        attrs.map do |attr|
+          unless /^[_a-z][A-Za-z0-9_]*$/.match?(attr)
+            raise "bad attribute '#{attr}'"
+          end
+
+          _evaluate_attr_with_cache(klass, attr, params)
+        end
+      else
+        unless /^[_a-z][A-Za-z0-9_]*$/.match?(attrs)
+          raise "bad attribute '#{attrs}'"
+        end
+
+        _evaluate_attr_with_cache(klass, attrs, params)
+      end
+    end
+
+    def _evaluate_attr_with_cache(klass, attr, params)
+      params_without_engine = params.reject { |k, _| k == :_engine }
+
+      ::Delorean::Cache.with_cache(
+        klass: klass,
+        method: attr,
+        mutable_params: params,
+        params: params_without_engine
+      ) do
+        klass.send("#{attr}#{POST}".to_sym, params)
       end
     end
 

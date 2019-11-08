@@ -44,6 +44,14 @@ class Dummy < ActiveRecord::Base
     a.inject(0, :+)
   end
 
+  delorean_fn :time_minute_ago do
+    Time.current - 1.minute
+  end
+
+  delorean_fn :time_minute_from_now do
+    Time.current + 1.minute
+  end
+
   def self.this_is_crazy; end
 
   def self.miss_you_so_bad
@@ -57,6 +65,11 @@ class Dummy < ActiveRecord::Base
 
   delorean_fn :i_threw_a_hash_in_the_well do
     { a: 123, 'a' => 456, b: 789 }
+  end
+
+  # Emulates typical DB query
+  delorean_fn :sleep_1ms do
+    sleep 0.001
   end
 
   def name2
