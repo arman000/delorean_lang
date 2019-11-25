@@ -5,6 +5,13 @@ before_script:
   - bundle install --jobs $(nproc) --path vendor "${FLAGS[@]}"
 
 .base-test:
+  # Cancel if new commits where pushed
+  interruptible: true
+  # Run only when there is an MR
+  only:
+    - master
+    - merge_requests
+
   stage: test
   # Use only the following CI runners
   tags:
