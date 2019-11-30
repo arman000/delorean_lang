@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative 'support/simplecov_helper'
+SimpleCovHelper.start!
+
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 
