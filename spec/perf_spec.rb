@@ -190,7 +190,8 @@ describe 'Delorean' do
     cache_factor = h['delorean_node_cache'] / h['delorean']
     # p cache_factor
 
-    expect(cache_factor).to be > 80
+    expected_cache_factor = ENV['COVERAGE'] ? 64 : 80
+    expect(cache_factor).to be > expected_cache_factor
   end
 
   it 'array and node call performance as expected' do

@@ -21,13 +21,20 @@ rubocop:
   extends: .base-test
   stage: test
   script:
-    - bundle exec rubocop
+    - bundle exec rubocop -f simple -P
 
 rspec:
   extends: .base-test
   stage: test
+  coverage: '/LOC\s\(\d+\.\d+%\)\scovered/'
+  variables:
+    COVERAGE: "true"
   script:
     - bundle exec rspec
+  artifacts:
+    paths:
+      - "coverage/"
+    name: "Pipeline $CI_PIPELINE_ID Coverage"
 
 cache:
   key: 'delorean_bundler_cache'
