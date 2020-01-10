@@ -107,7 +107,7 @@ module Delorean
         end
 
         begin
-          return _instance_call(obj, attr, [], _e)
+          _instance_call(obj, attr, [], _e)
         rescue StandardError => exc
           raise(
             InvalidGetAttribute,
@@ -133,9 +133,9 @@ module Delorean
         return nil unless obj.respond_to?(attr)
 
         begin
-          return _instance_call(obj, attr, [], _e)
+          _instance_call(obj, attr, [], _e)
         rescue StandardError
-          return nil
+          nil
         end
       end
 

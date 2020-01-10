@@ -8,7 +8,7 @@
 
 # Offense count: 3
 # Configuration parameters: AllowComments.
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Exclude:
     - 'spec/parse_spec.rb'
 
@@ -65,7 +65,7 @@ Naming/AccessorMethodName:
 # Offense count: 12
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
 # AllowedNames: io, id, to, by, on, in, at, ip, db
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Exclude:
     - 'lib/delorean/base.rb'
     - 'lib/delorean/debug.rb'
