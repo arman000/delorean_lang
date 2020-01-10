@@ -15,7 +15,7 @@ Style/StringLiterals:
   Enabled: true
   EnforcedStyle: single_quotes
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 80
   Exclude:
     - 'spec/**/*'
@@ -42,7 +42,7 @@ Style/TrailingCommaInHashLiteral:
 Style/FrozenStringLiteralComment:
   EnforcedStyle: always
 
-Layout/IndentHeredoc:
+Layout/HeredocIndentation:
   Exclude:
     - 'spec/eval_spec.rb'
 
