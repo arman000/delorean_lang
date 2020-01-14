@@ -2,6 +2,12 @@
 
 require File.expand_path('lib/delorean/version', __dir__)
 
+git_tracked_files = `git ls-files`.split($OUTPUT_RECORD_SEPARATOR)
+gem_ignored_files = `git ls-files -i -X .gemignore`.split(
+  $OUTPUT_RECORD_SEPARATOR
+)
+files = git_tracked_files - gem_ignored_files
+
 Gem::Specification.new do |gem|
   gem.authors       = ['Arman Bostani']
   gem.email         = ['arman.bostani@pnmac.com']
@@ -9,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.summary       = 'Delorean compiler'
   gem.homepage      = 'https://github.com/arman000/delorean_lang'
 
-  gem.files         = `git ls-files`.split($OUTPUT_RECORD_SEPARATOR)
+  gem.files         = files
   gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = 'delorean_lang'
