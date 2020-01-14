@@ -32,6 +32,10 @@ grammar Delorean
     [A-Z] [a-zA-Z0-9_]* (('::' [A-Z] [a-zA-Z0-9_]*) 2..)
   end
 
+  rule elsif
+    'elsif' sp? v:expression sp? 'then' sp? e1:expression sp?
+  end
+
   rule expression
     'ERR(' sp? args:fn_args? sp? ')' <ErrorOp>
     /
@@ -40,6 +44,11 @@ grammar Delorean
     'if'        sp? v:expression sp?
     'then'      sp? e1:expression sp?
     'else'      sp? e2:expression <IfElse>
+    /
+    'if'        sp? v:expression sp?
+    'then'      sp? e1:expression sp?
+    sp? elsifs:elsif+ sp?
+    'else'      sp? e2:expression <IfElsifElse>
     /
     v:getattr_exp sp? op:binary_op sp? e:expression <BinOp>
     /

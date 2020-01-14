@@ -807,6 +807,104 @@ module Delorean
     r0
   end
 
+  module Elsif0
+    def v
+      elements[2]
+    end
+
+    def e1
+      elements[6]
+    end
+
+  end
+
+  def _nt_elsif
+    start_index = index
+    if node_cache[:elsif].has_key?(index)
+      cached = node_cache[:elsif][index]
+      if cached
+        node_cache[:elsif][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        @index = cached.interval.end
+      end
+      return cached
+    end
+
+    i0, s0 = index, []
+    if (match_len = has_terminal?('elsif', false, index))
+      r1 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+      @index += match_len
+    else
+      terminal_parse_failure('\'elsif\'')
+      r1 = nil
+    end
+    s0 << r1
+    if r1
+      r3 = _nt_sp
+      if r3
+        r2 = r3
+      else
+        r2 = instantiate_node(SyntaxNode,input, index...index)
+      end
+      s0 << r2
+      if r2
+        r4 = _nt_expression
+        s0 << r4
+        if r4
+          r6 = _nt_sp
+          if r6
+            r5 = r6
+          else
+            r5 = instantiate_node(SyntaxNode,input, index...index)
+          end
+          s0 << r5
+          if r5
+            if (match_len = has_terminal?('then', false, index))
+              r7 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+              @index += match_len
+            else
+              terminal_parse_failure('\'then\'')
+              r7 = nil
+            end
+            s0 << r7
+            if r7
+              r9 = _nt_sp
+              if r9
+                r8 = r9
+              else
+                r8 = instantiate_node(SyntaxNode,input, index...index)
+              end
+              s0 << r8
+              if r8
+                r10 = _nt_expression
+                s0 << r10
+                if r10
+                  r12 = _nt_sp
+                  if r12
+                    r11 = r12
+                  else
+                    r11 = instantiate_node(SyntaxNode,input, index...index)
+                  end
+                  s0 << r11
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    if s0.last
+      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0.extend(Elsif0)
+    else
+      @index = i0
+      r0 = nil
+    end
+
+    node_cache[:elsif][start_index] = r0
+
+    r0
+  end
+
   module Expression0
     def args
       elements[2]
@@ -839,6 +937,24 @@ module Delorean
   end
 
   module Expression3
+    def v
+      elements[2]
+    end
+
+    def e1
+      elements[6]
+    end
+
+    def elsifs
+      elements[9]
+    end
+
+    def e2
+      elements[13]
+    end
+  end
+
+  module Expression4
     def v
       elements[0]
     end
@@ -1046,7 +1162,13 @@ module Delorean
           r0 = r15
         else
           i32, s32 = index, []
-          r33 = _nt_getattr_exp
+          if (match_len = has_terminal?('if', false, index))
+            r33 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+            @index += match_len
+          else
+            terminal_parse_failure('\'if\'')
+            r33 = nil
+          end
           s32 << r33
           if r33
             r35 = _nt_sp
@@ -1057,7 +1179,7 @@ module Delorean
             end
             s32 << r34
             if r34
-              r36 = _nt_binary_op
+              r36 = _nt_expression
               s32 << r36
               if r36
                 r38 = _nt_sp
@@ -1068,14 +1190,101 @@ module Delorean
                 end
                 s32 << r37
                 if r37
-                  r39 = _nt_expression
+                  if (match_len = has_terminal?('then', false, index))
+                    r39 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                    @index += match_len
+                  else
+                    terminal_parse_failure('\'then\'')
+                    r39 = nil
+                  end
                   s32 << r39
+                  if r39
+                    r41 = _nt_sp
+                    if r41
+                      r40 = r41
+                    else
+                      r40 = instantiate_node(SyntaxNode,input, index...index)
+                    end
+                    s32 << r40
+                    if r40
+                      r42 = _nt_expression
+                      s32 << r42
+                      if r42
+                        r44 = _nt_sp
+                        if r44
+                          r43 = r44
+                        else
+                          r43 = instantiate_node(SyntaxNode,input, index...index)
+                        end
+                        s32 << r43
+                        if r43
+                          r46 = _nt_sp
+                          if r46
+                            r45 = r46
+                          else
+                            r45 = instantiate_node(SyntaxNode,input, index...index)
+                          end
+                          s32 << r45
+                          if r45
+                            s47, i47 = [], index
+                            loop do
+                              r48 = _nt_elsif
+                              if r48
+                                s47 << r48
+                              else
+                                break
+                              end
+                            end
+                            if s47.empty?
+                              @index = i47
+                              r47 = nil
+                            else
+                              r47 = instantiate_node(SyntaxNode,input, i47...index, s47)
+                            end
+                            s32 << r47
+                            if r47
+                              r50 = _nt_sp
+                              if r50
+                                r49 = r50
+                              else
+                                r49 = instantiate_node(SyntaxNode,input, index...index)
+                              end
+                              s32 << r49
+                              if r49
+                                if (match_len = has_terminal?('else', false, index))
+                                  r51 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                                  @index += match_len
+                                else
+                                  terminal_parse_failure('\'else\'')
+                                  r51 = nil
+                                end
+                                s32 << r51
+                                if r51
+                                  r53 = _nt_sp
+                                  if r53
+                                    r52 = r53
+                                  else
+                                    r52 = instantiate_node(SyntaxNode,input, index...index)
+                                  end
+                                  s32 << r52
+                                  if r52
+                                    r54 = _nt_expression
+                                    s32 << r54
+                                  end
+                                end
+                              end
+                            end
+                          end
+                        end
+                      end
+                    end
+                  end
                 end
               end
             end
           end
           if s32.last
-            r32 = instantiate_node(BinOp,input, i32...index, s32)
+            r32 = instantiate_node(IfElsifElse,input, i32...index, s32)
             r32.extend(Expression3)
           else
             @index = i32
@@ -1085,13 +1294,54 @@ module Delorean
             r32 = SyntaxNode.new(input, (index-1)...index) if r32 == true
             r0 = r32
           else
-            r40 = _nt_getattr_exp
-            if r40
-              r40 = SyntaxNode.new(input, (index-1)...index) if r40 == true
-              r0 = r40
+            i55, s55 = index, []
+            r56 = _nt_getattr_exp
+            s55 << r56
+            if r56
+              r58 = _nt_sp
+              if r58
+                r57 = r58
+              else
+                r57 = instantiate_node(SyntaxNode,input, index...index)
+              end
+              s55 << r57
+              if r57
+                r59 = _nt_binary_op
+                s55 << r59
+                if r59
+                  r61 = _nt_sp
+                  if r61
+                    r60 = r61
+                  else
+                    r60 = instantiate_node(SyntaxNode,input, index...index)
+                  end
+                  s55 << r60
+                  if r60
+                    r62 = _nt_expression
+                    s55 << r62
+                  end
+                end
+              end
+            end
+            if s55.last
+              r55 = instantiate_node(BinOp,input, i55...index, s55)
+              r55.extend(Expression4)
             else
-              @index = i0
-              r0 = nil
+              @index = i55
+              r55 = nil
+            end
+            if r55
+              r55 = SyntaxNode.new(input, (index-1)...index) if r55 == true
+              r0 = r55
+            else
+              r63 = _nt_getattr_exp
+              if r63
+                r63 = SyntaxNode.new(input, (index-1)...index) if r63 == true
+                r0 = r63
+              else
+                @index = i0
+                r0 = nil
+              end
             end
           end
         end

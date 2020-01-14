@@ -211,6 +211,46 @@ describe 'Delorean' do
     expect(engine.evaluate('A', 'c')).to eq([[1, 2, 3], ['a', 'b']])
   end
 
+  it 'should handle if else' do
+    engine.parse defn('A:',
+                      '    n =?',
+                      '    fact = if n <= 1 then 1',
+                      '            else n'
+                     )
+
+    expect(engine.evaluate('A', 'fact', 'n' => 0)).to eq(1)
+    expect(engine.evaluate('A', 'fact', 'n' => 10)).to eq(10)
+  end
+
+  it 'should handle elsif 1' do
+    engine.parse defn('A:',
+                      '    n =?',
+                      '    fact = if n <= 1 then 1',
+                      '            elsif n < 7 then 7',
+                      '            else n'
+                     )
+
+    expect(engine.evaluate('A', 'fact', 'n' => 0)).to eq(1)
+    expect(engine.evaluate('A', 'fact', 'n' => 5)).to eq(7)
+    expect(engine.evaluate('A', 'fact', 'n' => 10)).to eq(10)
+  end
+
+  it 'should handle elsif 2' do
+    engine.parse defn('A:',
+                      '    n =?',
+                      '    m = 2',
+                      '    fact = if n <= 1 then 1',
+                      '            elsif n < 3 then 3',
+                      '            elsif (n < 7 && (m + Dummy.call_me_maybe(n)) > 1) then 7',
+                      '            else n'
+                     )
+
+    expect(engine.evaluate('A', 'fact', 'n' => 0)).to eq(1)
+    expect(engine.evaluate('A', 'fact', 'n' => 2)).to eq(3)
+    expect(engine.evaluate('A', 'fact', 'n' => 5)).to eq(7)
+    expect(engine.evaluate('A', 'fact', 'n' => 10)).to eq(10)
+  end
+
   it 'should handle operator precedence properly' do
     engine.parse defn('A:',
                       '    b = 3+2*4-1',

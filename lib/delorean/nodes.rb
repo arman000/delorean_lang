@@ -628,6 +628,34 @@ eos
     end
   end
 
+  class IfElsifElse < SNode
+    def check(context, *)
+      vc = v.check(context)
+      e1c = e1.check(context)
+      e2c = e2.check(context)
+
+      elsifs_check = elsifs.elements.map do |node|
+        [node.v.check(context), node.e1.check(context)]
+      end.flatten
+
+      vc + e1c + e2c + elsifs_check
+    end
+
+    def rewrite(context)
+      elsifs_string = elsifs.elements.map do |node|
+        "elsif (#{node.v.rewrite(context)})
+           (#{node.e1.rewrite(context)})"
+      end.join("\n")
+
+      "if (#{v.rewrite(context)})
+         (#{e1.rewrite(context)})
+       #{elsifs_string}
+       else
+         (#{e2.rewrite(context)})
+      end"
+    end
+  end
+
   class ListExpr < SNode
     def check(context, *)
       defined?(args) ? args.check(context) : []

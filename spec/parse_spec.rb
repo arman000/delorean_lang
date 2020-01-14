@@ -167,6 +167,25 @@ describe 'Delorean' do
                      )
   end
 
+  it 'should allow elsif 1' do
+    engine.parse defn('A:',
+                      '    n =?',
+                      '    fact = if n <= 1 then 1',
+                      '            elsif n < 3 then 3',
+                      '            else n'
+                     )
+  end
+
+  it 'should allow elsif 2' do
+    engine.parse defn('A:',
+                      '    n =?',
+                      '    fact = if n <= 1 then 1',
+                      '            elsif n < 3 then 3',
+                      '            elsif n < 7 then Dummy.call_me_maybe(7)',
+                      '            else n'
+                     )
+  end
+
   it 'should allow non-recursive code 1' do
     # this is not a recursion error
     engine.parse defn('A:',
