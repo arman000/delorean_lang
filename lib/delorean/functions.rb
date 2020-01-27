@@ -45,6 +45,7 @@ module Delorean
         cache_key = delorean_cache_adapter.cache_key(
           klass: self, method_name: name, args: args
         )
+
         cached_item = delorean_cache_adapter.fetch_item(
           klass: self, cache_key: cache_key, default: :NF
         )
