@@ -3,6 +3,10 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe 'Delorean cache' do
+  after do
+    ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::RubyCache.new
+  end
+
   before do
     Dummy.clear_lookup_cache!
   end
@@ -63,5 +67,20 @@ describe 'Delorean cache' do
 
     expect(item_10).to be_a(OpenStruct)
     expect(item_10['10']).to eq(10)
+  end
+
+  describe 'No cache adapter' do
+    before do
+      ::Delorean::Cache.adapter = ::Delorean::Cache::Adapters::NoCache.new
+    end
+
+    it "doesn't use cache" do
+      expect(OpenStruct).to receive(:new).twice.and_call_original
+
+      res1 = Dummy.returns_cached_openstruct(1, 2)
+      res2 = Dummy.returns_cached_openstruct(1, 2)
+
+      expect(res1).to eq res2
+    end
   end
 end
