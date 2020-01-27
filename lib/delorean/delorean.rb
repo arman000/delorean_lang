@@ -1764,6 +1764,17 @@ module Delorean
       elements[2]
     end
 
+    def al
+      elements[5]
+    end
+
+  end
+
+  module DotExp5
+    def i
+      elements[2]
+    end
+
     def b_args
       elements[3]
     end
@@ -1773,7 +1784,13 @@ module Delorean
     end
   end
 
-  module DotExp5
+  module DotExp6
+    def i
+      elements[2]
+    end
+  end
+
+  module DotExp7
     def i
       elements[2]
     end
@@ -2092,11 +2109,11 @@ module Delorean
             r0 = r35
           else
             i48, s48 = index, []
-            if (match_len = has_terminal?('.', false, index))
-              r49 = true
+            if (match_len = has_terminal?('&.', false, index))
+              r49 = instantiate_node(SyntaxNode,input, index...(index + match_len))
               @index += match_len
             else
-              terminal_parse_failure('\'.\'')
+              terminal_parse_failure('\'&.\'')
               r49 = nil
             end
             s48 << r49
@@ -2112,40 +2129,56 @@ module Delorean
                 r52 = _nt_identifier
                 s48 << r52
                 if r52
-                  s53, i53 = [], index
-                  loop do
-                    r54 = _nt_block_args
-                    if r54
-                      s53 << r54
-                    else
-                      break
-                    end
+                  if (match_len = has_terminal?('(', false, index))
+                    r53 = true
+                    @index += match_len
+                  else
+                    terminal_parse_failure('\'(\'')
+                    r53 = nil
                   end
-                  r53 = instantiate_node(SyntaxNode,input, i53...index, s53)
                   s48 << r53
                   if r53
-                    s55, i55 = [], index
-                    loop do
-                      r56 = _nt_block_formulas
-                      if r56
-                        s55 << r56
+                    r55 = _nt_sp
+                    if r55
+                      r54 = r55
+                    else
+                      r54 = instantiate_node(SyntaxNode,input, index...index)
+                    end
+                    s48 << r54
+                    if r54
+                      r57 = _nt_fn_args
+                      if r57
+                        r56 = r57
                       else
-                        break
+                        r56 = instantiate_node(SyntaxNode,input, index...index)
+                      end
+                      s48 << r56
+                      if r56
+                        r59 = _nt_sp
+                        if r59
+                          r58 = r59
+                        else
+                          r58 = instantiate_node(SyntaxNode,input, index...index)
+                        end
+                        s48 << r58
+                        if r58
+                          if (match_len = has_terminal?(')', false, index))
+                            r60 = true
+                            @index += match_len
+                          else
+                            terminal_parse_failure('\')\'')
+                            r60 = nil
+                          end
+                          s48 << r60
+                        end
                       end
                     end
-                    if s55.empty?
-                      @index = i55
-                      r55 = nil
-                    else
-                      r55 = instantiate_node(SyntaxNode,input, i55...index, s55)
-                    end
-                    s48 << r55
                   end
                 end
               end
             end
             if s48.last
-              r48 = instantiate_node(BlockExpression,input, i48...index, s48)
+              r48 = instantiate_node(SafeNavigationCall,input, i48...index, s48)
               r48.extend(DotExp4)
             else
               @index = i48
@@ -2155,55 +2188,168 @@ module Delorean
               r48 = SyntaxNode.new(input, (index-1)...index) if r48 == true
               r0 = r48
             else
-              i57, s57 = index, []
+              i61, s61 = index, []
               if (match_len = has_terminal?('.', false, index))
-                r58 = true
+                r62 = true
                 @index += match_len
               else
                 terminal_parse_failure('\'.\'')
-                r58 = nil
+                r62 = nil
               end
-              s57 << r58
-              if r58
-                r60 = _nt_sp
-                if r60
-                  r59 = r60
+              s61 << r62
+              if r62
+                r64 = _nt_sp
+                if r64
+                  r63 = r64
                 else
-                  r59 = instantiate_node(SyntaxNode,input, index...index)
+                  r63 = instantiate_node(SyntaxNode,input, index...index)
                 end
-                s57 << r59
-                if r59
-                  i61 = index
-                  r62 = _nt_identifier
-                  if r62
-                    r62 = SyntaxNode.new(input, (index-1)...index) if r62 == true
-                    r61 = r62
-                  else
-                    r63 = _nt_integer
-                    if r63
-                      r63 = SyntaxNode.new(input, (index-1)...index) if r63 == true
-                      r61 = r63
-                    else
-                      @index = i61
-                      r61 = nil
+                s61 << r63
+                if r63
+                  r65 = _nt_identifier
+                  s61 << r65
+                  if r65
+                    s66, i66 = [], index
+                    loop do
+                      r67 = _nt_block_args
+                      if r67
+                        s66 << r67
+                      else
+                        break
+                      end
+                    end
+                    r66 = instantiate_node(SyntaxNode,input, i66...index, s66)
+                    s61 << r66
+                    if r66
+                      s68, i68 = [], index
+                      loop do
+                        r69 = _nt_block_formulas
+                        if r69
+                          s68 << r69
+                        else
+                          break
+                        end
+                      end
+                      if s68.empty?
+                        @index = i68
+                        r68 = nil
+                      else
+                        r68 = instantiate_node(SyntaxNode,input, i68...index, s68)
+                      end
+                      s61 << r68
                     end
                   end
-                  s57 << r61
                 end
               end
-              if s57.last
-                r57 = instantiate_node(GetAttr,input, i57...index, s57)
-                r57.extend(DotExp5)
+              if s61.last
+                r61 = instantiate_node(BlockExpression,input, i61...index, s61)
+                r61.extend(DotExp5)
               else
-                @index = i57
-                r57 = nil
+                @index = i61
+                r61 = nil
               end
-              if r57
-                r57 = SyntaxNode.new(input, (index-1)...index) if r57 == true
-                r0 = r57
+              if r61
+                r61 = SyntaxNode.new(input, (index-1)...index) if r61 == true
+                r0 = r61
               else
-                @index = i0
-                r0 = nil
+                i70, s70 = index, []
+                if (match_len = has_terminal?('.', false, index))
+                  r71 = true
+                  @index += match_len
+                else
+                  terminal_parse_failure('\'.\'')
+                  r71 = nil
+                end
+                s70 << r71
+                if r71
+                  r73 = _nt_sp
+                  if r73
+                    r72 = r73
+                  else
+                    r72 = instantiate_node(SyntaxNode,input, index...index)
+                  end
+                  s70 << r72
+                  if r72
+                    i74 = index
+                    r75 = _nt_identifier
+                    if r75
+                      r75 = SyntaxNode.new(input, (index-1)...index) if r75 == true
+                      r74 = r75
+                    else
+                      r76 = _nt_integer
+                      if r76
+                        r76 = SyntaxNode.new(input, (index-1)...index) if r76 == true
+                        r74 = r76
+                      else
+                        @index = i74
+                        r74 = nil
+                      end
+                    end
+                    s70 << r74
+                  end
+                end
+                if s70.last
+                  r70 = instantiate_node(GetAttr,input, i70...index, s70)
+                  r70.extend(DotExp6)
+                else
+                  @index = i70
+                  r70 = nil
+                end
+                if r70
+                  r70 = SyntaxNode.new(input, (index-1)...index) if r70 == true
+                  r0 = r70
+                else
+                  i77, s77 = index, []
+                  if (match_len = has_terminal?('&.', false, index))
+                    r78 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+                    @index += match_len
+                  else
+                    terminal_parse_failure('\'&.\'')
+                    r78 = nil
+                  end
+                  s77 << r78
+                  if r78
+                    r80 = _nt_sp
+                    if r80
+                      r79 = r80
+                    else
+                      r79 = instantiate_node(SyntaxNode,input, index...index)
+                    end
+                    s77 << r79
+                    if r79
+                      i81 = index
+                      r82 = _nt_identifier
+                      if r82
+                        r82 = SyntaxNode.new(input, (index-1)...index) if r82 == true
+                        r81 = r82
+                      else
+                        r83 = _nt_integer
+                        if r83
+                          r83 = SyntaxNode.new(input, (index-1)...index) if r83 == true
+                          r81 = r83
+                        else
+                          @index = i81
+                          r81 = nil
+                        end
+                      end
+                      s77 << r81
+                    end
+                  end
+                  if s77.last
+                    r77 = instantiate_node(SafeNavigationGetAttr,input, i77...index, s77)
+                    r77.extend(DotExp7)
+                  else
+                    @index = i77
+                    r77 = nil
+                  end
+                  if r77
+                    r77 = SyntaxNode.new(input, (index-1)...index) if r77 == true
+                    r0 = r77
+                  else
+                    @index = i0
+                    r0 = nil
+                  end
+                end
               end
             end
           end

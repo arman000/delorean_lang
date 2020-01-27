@@ -1588,6 +1588,29 @@ eof
       expect(r).to eq([[], 1])
     end
 
+    it 'works with safe navigation' do
+      engine.parse defn(*default_node,
+                        '    b = [1]',
+                        '    c = b[1]    ',
+                        '    d = c&.round(1)     ',
+                        '    e = c&.round     ',
+                        '    f = c&.round(1)&.round(2)&.round(3)     ',
+                        '    g = c&.round&.round&.round     ',
+                       )
+
+      r = engine.evaluate('A', 'd')
+      expect(r).to eq(nil)
+
+      r = engine.evaluate('A', 'e')
+      expect(r).to eq(nil)
+
+      r = engine.evaluate('A', 'f')
+      expect(r).to eq(nil)
+
+      r = engine.evaluate('A', 'g')
+      expect(r).to eq(nil)
+    end
+
     describe 'methods' do
       it 'all?' do
         engine.parse defn(*default_node,
