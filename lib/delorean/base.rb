@@ -83,6 +83,12 @@ module Delorean
     end
 
     class BaseClass
+      def self._safe_navigation_get_attr(obj, attr, _e)
+        return nil if obj.nil?
+
+        _get_attr(obj, attr, _e)
+      end
+
       def self._get_attr(obj, attr, _e)
         # REALLY FIXME: this really needs to be another "when" in the
         # case statement below. However, Gemini appears to create Hash
@@ -195,6 +201,11 @@ module Delorean
       end
 
       ######################################################################
+      def self._safe_navigation_instance_call(obj, method, args, _e, &block)
+        return nil if obj.nil?
+
+        _instance_call(obj, method, args, _e, &block)
+      end
 
       def self._instance_call(obj, method, args, _e, &block)
         begin

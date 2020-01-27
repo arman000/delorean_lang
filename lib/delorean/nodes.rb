@@ -395,6 +395,14 @@ eos
     end
   end
 
+  class SafeNavigationGetAttr < GetAttr
+    def rewrite(_context, vcode)
+      attr = i.text_value
+      attr = "'#{attr}'" unless /\A[0-9]+\z/.match?(attr)
+      "_safe_navigation_get_attr(#{vcode}, #{attr}, _e)"
+    end
+  end
+
   class Call < SNode
     def check(context, *)
       al.text_value.empty? ? [] : al.check(context)
@@ -417,6 +425,29 @@ eos
       end
 
       "_instance_call(#{vcode}, '#{i.text_value}', [#{args_str}], _e)"
+    end
+  end
+
+  class SafeNavigationCall < Call
+    def rewrite(context, vcode)
+      if al.text_value.empty?
+        args_str = ''
+        arg_count = 0
+      else
+        args_str = al.rewrite(context)
+        arg_count = al.arg_count
+      end
+
+      if vcode.is_a?(ClassText)
+        # FIXME: Do we really need this check here?
+        # ruby class call
+        class_name = vcode.text
+        context.parse_check_call_fn(i.text_value, arg_count, class_name)
+      end
+
+      "_safe_navigation_instance_call(
+        #{vcode}, '#{i.text_value}', [#{args_str}], _e
+      )"
     end
   end
 

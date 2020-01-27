@@ -83,10 +83,14 @@ grammar Delorean
     '.' sp? i:identifier '(' sp? al:fn_args? sp? ')' b_args:block_args* expressions:block_formulas+ <BlockExpression>
     /
     '.' sp? i:identifier '(' sp? al:fn_args? sp? ')' <Call>
+    /
+    '&.' sp? i:identifier '(' sp? al:fn_args? sp? ')' <SafeNavigationCall>
 		/
     '.' sp? i:identifier b_args:block_args* expressions:block_formulas+ <BlockExpression>
     /
     '.' sp? i:(identifier / integer) <GetAttr>
+    /
+    '&.' sp? i:(identifier / integer) <SafeNavigationGetAttr>
   end
 
   rule unpack_args
