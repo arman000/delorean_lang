@@ -1386,6 +1386,17 @@ eof
     expect(r).to eq [5, 2460, 128, 1230]
   end
 
+  it 'works with the weird if case' do
+    engine.parse defn('A:',
+                      '    a = 1',
+                      '    b = 1',
+                      '    c = nil',
+                      '    d = a || if b || c then 999 else 0',
+                     )
+    r = engine.evaluate('A', 'd')
+    expect(r).to eq 1
+  end
+
   describe 'blocks' do
     let(:default_node) do
       ['A:',

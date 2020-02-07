@@ -654,8 +654,8 @@ eos
     end
 
     def rewrite(context)
-      "(#{v.rewrite(context)}) ? (#{e1.rewrite(context)}) :
-       (#{e2.rewrite(context)})"
+      "((#{v.rewrite(context)}) ? (#{e1.rewrite(context)}) :
+       (#{e2.rewrite(context)}))"
     end
   end
 
@@ -678,12 +678,12 @@ eos
            (#{node.e1.rewrite(context)})"
       end.join("\n")
 
-      "if (#{v.rewrite(context)})
+      "(if (#{v.rewrite(context)})
          (#{e1.rewrite(context)})
        #{elsifs_string}
        else
          (#{e2.rewrite(context)})
-      end"
+      end)"
     end
   end
 
