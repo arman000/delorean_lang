@@ -45,7 +45,8 @@ variables:
   GIT_SSL_NO_VERIFY: "true"
   BUNDLER_VERSION: "2.0.2"
   POSTGRES_USER: "runner"
-  POSTGRES_PASSWORD: ""
+  POSTGRES_PASSWORD: "runner-password"
+  POSTGRES_HOST_AUTH_METHOD: "trust"
   RAILS_ENV: "test"
   RAILS_DUMP_SCHEMA: "false"
 
