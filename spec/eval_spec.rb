@@ -1571,6 +1571,42 @@ eof
       expect(r).to eq([[3], 1])
     end
 
+    it 'works with custom formulas in blocks' do
+      engine.parse defn(*default_node,
+                        '    a = 1',
+                        '    b = 1',
+                        '    c = array.select     ',
+                        '        b =? 1',
+                        '        base_result = (b + a) > 2',
+                        '        base_result2 = base_result || false',
+                        '        result = base_result2',
+                        '    result = 10',
+                       )
+      r = engine.evaluate('A', 'c')
+      expect(r).to eq([2, 3])
+
+      r = engine.evaluate('A', 'result')
+      expect(r).to eq(10)
+    end
+
+    it 'block parameter can reference another block parameter or outside var' do
+      engine.parse defn(*default_node,
+                        '    a = 1',
+                        '    ab = 1',
+                        '    b = 1',
+                        '    c = array.select     ',
+                        '        b =? 1',
+                        '        ab =? b + a - 1',
+                        '        result = ab > 2',
+                        '    result = 10',
+                       )
+      r = engine.evaluate('A', 'c')
+      expect(r).to eq([3])
+
+      r = engine.evaluate('A', ['c', 'ab'])
+      expect(r).to eq([[3], 1])
+    end
+
     it 'works with syntax in blocks' do
       engine.parse defn(*default_node,
                         '    b = 1',
