@@ -464,7 +464,7 @@ eos
 
       return "#{a_name}#{POST}" if expr.empty?
 
-      "#{a_name}#{POST} = #{expr}"
+      "#{a_name}#{POST} = (#{expr})"
     end
 
     def force_def(context)
@@ -523,10 +523,6 @@ eos
         element.force_def(context)
       end
 
-      formulas = expressions.elements.select do |elem|
-        elem.is_a? BlockFormula
-      end
-
       result_formula = formulas.find do |formula|
         formula.i.text_value == 'result'
       end
@@ -548,6 +544,12 @@ eos
       end
     end
 
+    def formulas
+      expressions.elements.select do |elem|
+        elem.is_a? BlockFormula
+      end
+    end
+
     def rewrite(context, vcode)
       if !respond_to?(:al) || al.text_value.empty?
         args_str = ''
@@ -556,6 +558,7 @@ eos
         args_str = al.rewrite(context)
         arg_count = al.arg_count
       end
+
       if vcode.is_a?(ClassText)
         # FIXME: Do we really need this check here?
         # ruby class call
@@ -564,6 +567,10 @@ eos
       end
 
       b_args.elements.each do |element|
+        element.force_def(context)
+      end
+
+      formulas.each do |element|
         element.force_def(context)
       end
 
@@ -584,6 +591,10 @@ eos
       expression_str = expr_arr.join('; ')
 
       b_args.elements.each do |element|
+        element.force_undef(context)
+      end
+
+      formulas.each do |element|
         element.force_undef(context)
       end
 
