@@ -1397,6 +1397,84 @@ eof
     expect(r).to eq 1
   end
 
+  it 'allows to close the bracket with the same spacing as variable' do
+    engine.parse defn('A:',
+                      '    a = [',
+                      '        1,',
+                      '        2,',
+                      '    ]',
+                      '    b = 2',
+                     )
+    r = engine.evaluate('A', 'a')
+    expect(r).to eq [1, 2]
+
+    r = engine.evaluate('A', 'b')
+    expect(r).to eq 2
+  end
+
+  it 'allows to close the bracket with the same spacing as variable 2' do
+    engine.parse defn('A:',
+                      '    a = [',
+                      '        {',
+                      '          "a": 1,',
+                      '          "b": 2,',
+                      '        },',
+                      '        2,',
+                      '    ]',
+                     )
+    r = engine.evaluate('A', 'a')
+    expect(r).to eq [{ 'a' => 1, 'b' => 2 }, 2]
+  end
+
+  it 'allows to close the bracket with the same spacing as variable 3' do
+    engine.parse defn('A:',
+                      '    a = {',
+                      '      "a": 1,',
+                      '      "b": 2,',
+                      '    }',
+                      '    b = 2',
+                     )
+    r = engine.evaluate('A', 'a')
+    expect(r).to eq('a' => 1, 'b' => 2)
+
+    r = engine.evaluate('A', 'b')
+    expect(r).to eq 2
+  end
+
+  it 'allows to close the bracket with the same spacing as variable 4' do
+    engine.parse defn('A:',
+                      '    a = {',
+                      '      "a": 1,',
+                      '      "b": 2,',
+                      '    }',
+                      '    b = [1, 2]',
+                      '    c = [',
+                      '      {',
+                      '        key : value + num',
+                      '        for key, value in a',
+                      '      }',
+                      '      for num in b',
+                      '    ]',
+                     )
+    r = engine.evaluate('A', 'c')
+    expect(r).to eq([{ 'a' => 2, 'b' => 3 }, { 'a' => 3, 'b' => 4 }])
+  end
+
+  it 'allows to close the bracket with the same spacing as variable 5' do
+    engine.parse defn('A:',
+                      '    a = (',
+                      '      1 +',
+                      '      2',
+                      '    )',
+                      '    b = 2',
+                     )
+    r = engine.evaluate('A', 'a')
+    expect(r).to eq(3)
+
+    r = engine.evaluate('A', 'b')
+    expect(r).to eq 2
+  end
+
   describe 'blocks' do
     let(:default_node) do
       ['A:',

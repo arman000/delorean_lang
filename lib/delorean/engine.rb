@@ -220,6 +220,16 @@ module Delorean
       @@parser ||= DeloreanParser.new
     end
 
+    def closing_bracket?(line)
+      stripped = line.strip
+
+      return true if stripped == ']'
+      return true if stripped == ')'
+      return true if stripped == '}'
+
+      false
+    end
+
     def generate(t)
       t.check(self)
 
@@ -268,7 +278,7 @@ module Delorean
         if multi_line
           # if line starts with >4 spaces, assume it's a multline
           # continuation.
-          if /\A {5}/.match?(line)
+          if /\A {5}/.match?(line) || closing_bracket?(line)
             multi_line += line
             next
           else

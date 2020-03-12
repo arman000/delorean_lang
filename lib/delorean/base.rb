@@ -76,7 +76,7 @@ module Delorean
 
       # add new arguments, results in a new NodeCall
       def +(args)
-        raise 'bad arg to %' unless args.is_a?(Hash)
+        raise 'bad arg to +' unless args.is_a?(Hash)
 
         NodeCall.new(_e, engine, node, params.merge(args))
       end
